@@ -19,8 +19,8 @@
 #define mmioStart  (0xF00C0000UL)
 #define mmioEnd  (mmioStart + mmioSize)
 
-static uint8_t rom[bus_romSize];
 static uint8_t ram[bus_ramSize];
+static uint8_t rom[bus_romSize];
 
 
 static inline bool isAdressInRange(uint32_t x, uint32_t a, uint32_t b);
@@ -28,26 +28,22 @@ static void memoryViolation(char rw, uint32_t adr);
 
 uint32_t bus_read(uint32_t adr, uint8_t size) {
 	if (isAdressInRange(adr, bus_ramStart, bus_ramEnd)) {
+		void *const ramPtr = (void *)&ram[adr - bus_ramStart];
 		if (size == 1) {
-			uint8_t *const ptr = (uint8_t *)&ram[adr - bus_ramStart];
-			return (uint32_t)*ptr;
+			return (uint32_t)*((uint8_t *)ramPtr);
 		} else if (size == 2) {
-			uint16_t *const ptr = (uint16_t *)&ram[adr - bus_ramStart];
-			return (uint32_t)*ptr;
+			return (uint32_t)*((uint16_t *)ramPtr);
 		} else if (size == 4) {
-			uint32_t *const ptr = (uint32_t *)&ram[adr - bus_ramStart];
-			return *ptr;
+			return *((uint32_t *)ramPtr);
 		}
 	} else if (isAdressInRange(adr, bus_romStart, bus_romEnd)) {
+		void *const romPtr = (void *)&rom[adr - bus_romStart];
 		if (size == 1) {
-			uint8_t *const ptr = (uint8_t *)&rom[adr - bus_romStart];
-			return (uint32_t)*ptr;
+			return (uint32_t)*((uint8_t *)romPtr);
 		} else if (size == 2) {
-			uint16_t *const ptr = (uint16_t *)&rom[adr - bus_romStart];
-			return (uint32_t)*ptr;
+			return (uint32_t)*((uint16_t *)romPtr);
 		} else if (size == 4) {
-			uint32_t *const ptr = (uint32_t *)&rom[adr - bus_romStart];
-			return *ptr;
+			return *((uint32_t *)romPtr);
 		}
 	} else if (isAdressInRange(adr, mmioStart, mmioEnd)) {
 		// MMIO Read
@@ -61,23 +57,22 @@ uint32_t bus_read(uint32_t adr, uint8_t size) {
 
 void bus_write(uint32_t adr, uint32_t value, uint8_t size) {
 	if (isAdressInRange(adr, bus_ramStart, bus_ramEnd)) {
+		void *const ramPtr = (void *)&ram[adr - bus_ramStart];
 		if (size == 1) {
-			uint8_t *const ptr = (uint8_t *)&ram[adr - bus_ramStart];
-			*ptr = (uint8_t)value;
+			*((uint8_t *)ramPtr) = (uint8_t)value;
 		} else if (size == 2) {
-			uint16_t *const ptr = (uint16_t *)&ram[adr - bus_ramStart];
-			*ptr = (uint16_t)value;
+			*((uint16_t *)ramPtr) = (uint16_t)value;
 		} else if (size == 4) {
-			uint32_t *const ptr = (uint32_t *)&ram[adr - bus_ramStart];
-			*ptr = value;
+			*((uint32_t *)ramPtr) = value;
 		}
 	} else if (isAdressInRange(adr, mmioStart, mmioEnd)) {
+		const uint32_t mmioAdr = adr - mmioStart;
 		if (size == 1) {
-			mmio_write8(adr - mmioStart, (uint8_t)value);
+			mmio_write8(mmioAdr, (uint8_t)value);
 		} else if (size == 2) {
-			mmio_write16(adr - mmioStart, (uint16_t)value);
+			mmio_write16(mmioAdr, (uint16_t)value);
 		} else if (size == 4) {
-			mmio_write32(adr - mmioStart, value);
+			mmio_write32(mmioAdr, value);
 		}
 	} else if (isAdressInRange(adr, bus_romStart, bus_romEnd)) {
 		memoryViolation('w', adr);

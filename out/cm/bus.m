@@ -25,32 +25,28 @@ const mmioStart = Nat32 0xF00C0000
 const mmioEnd: Nat32 = mmioStart + mmioSize
 
 
-var rom: [romSize]Word8
 var ram: [ramSize]Word8
+var rom: [romSize]Word8
 
 
 public func read (adr: Nat32, size: Nat8) -> Word32 {
 	if isAdressInRange(adr, ramStart, ramEnd) {
+		let ramPtr = Ptr &ram[adr - ramStart]
 		if size == 1 {
-			let ptr = *Word8 Ptr &ram[adr - ramStart]
-			return Word32 *ptr
+			return Word32 *(*Word8 ramPtr)
 		} else if size == 2 {
-			let ptr = *Word16 Ptr &ram[adr - ramStart]
-			return Word32 *ptr
+			return Word32 *(*Word16 ramPtr)
 		} else if size == 4 {
-			let ptr = *Word32 Ptr &ram[adr - ramStart]
-			return *ptr
+			return *(*Word32 ramPtr)
 		}
 	} else if isAdressInRange(adr, romStart, romEnd) {
+		let romPtr = Ptr &rom[adr - romStart]
 		if size == 1 {
-			let ptr = *Word8 Ptr &rom[adr - romStart]
-			return Word32 *ptr
+			return Word32 *(*Word8 romPtr)
 		} else if size == 2 {
-			let ptr = *Word16 Ptr &rom[adr - romStart]
-			return Word32 *ptr
+			return Word32 *(*Word16 romPtr)
 		} else if size == 4 {
-			let ptr = *Word32 Ptr &rom[adr - romStart]
-			return *ptr
+			return *(*Word32 romPtr)
 		}
 	} else if isAdressInRange(adr, mmioStart, mmioEnd) {
 		// MMIO Read
@@ -64,23 +60,22 @@ public func read (adr: Nat32, size: Nat8) -> Word32 {
 
 public func write (adr: Nat32, value: Word32, size: Nat8) -> Unit {
 	if isAdressInRange(adr, ramStart, ramEnd) {
+		let ramPtr = Ptr &ram[adr - ramStart]
 		if size == 1 {
-			let ptr = *Word8 Ptr &ram[adr - ramStart]
-			*ptr = unsafe Word8 value
+			*(*Word8 ramPtr) = unsafe Word8 value
 		} else if size == 2 {
-			let ptr = *Word16 Ptr &ram[adr - ramStart]
-			*ptr = unsafe Word16 value
+			*(*Word16 ramPtr) = unsafe Word16 value
 		} else if size == 4 {
-			let ptr = *Word32 Ptr &ram[adr - ramStart]
-			*ptr = value
+			*(*Word32 ramPtr) = value
 		}
 	} else if isAdressInRange(adr, mmioStart, mmioEnd) {
+		let mmioAdr: Nat32 = adr - mmioStart
 		if size == 1 {
-			mmio.write8(adr - mmioStart, unsafe Word8 value)
+			mmio.write8(mmioAdr, unsafe Word8 value)
 		} else if size == 2 {
-			mmio.write16(adr - mmioStart, unsafe Word16 value)
+			mmio.write16(mmioAdr, unsafe Word16 value)
 		} else if size == 4 {
-			mmio.write32(adr - mmioStart, value)
+			mmio.write32(mmioAdr, value)
 		}
 	} else if isAdressInRange(adr, romStart, romEnd) {
 		memoryViolation("w", adr)

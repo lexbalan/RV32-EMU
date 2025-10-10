@@ -235,22 +235,22 @@ declare %Word32 @mmio_read32(%Nat32 %adr)
 
 
 ; see mem.ld
-@rom = internal global [1048576 x %Word8] zeroinitializer
 @ram = internal global [16384 x %Word8] zeroinitializer
+@rom = internal global [1048576 x %Word8] zeroinitializer
 define %Word32 @bus_read(%Nat32 %adr, %Nat8 %size) {
 ; if_0
 	%1 = call %Bool @isAdressInRange(%Nat32 %adr, %Nat32 268435456, %Nat32 268451840)
 	br %Bool %1 , label %then_0, label %else_0
 then_0:
+	%2 = sub %Nat32 %adr, 268435456
+	%3 = bitcast %Nat32 %2 to %Nat32
+	%4 = getelementptr [16384 x %Word8], [16384 x %Word8]* @ram, %Int32 0, %Nat32 %3
+	%5 = bitcast %Word8* %4 to i8*
 ; if_1
-	%2 = icmp eq %Nat8 %size, 1
-	br %Bool %2 , label %then_1, label %else_1
+	%6 = icmp eq %Nat8 %size, 1
+	br %Bool %6 , label %then_1, label %else_1
 then_1:
-	%3 = sub %Nat32 %adr, 268435456
-	%4 = bitcast %Nat32 %3 to %Nat32
-	%5 = getelementptr [16384 x %Word8], [16384 x %Word8]* @ram, %Int32 0, %Nat32 %4
-	%6 = bitcast %Word8* %5 to i8*
-	%7 = bitcast i8* %6 to %Word8*
+	%7 = bitcast i8* %5 to %Word8*
 	%8 = load %Word8, %Word8* %7
 	%9 = zext %Word8 %8 to %Word32
 	ret %Word32 %9
@@ -260,27 +260,19 @@ else_1:
 	%11 = icmp eq %Nat8 %size, 2
 	br %Bool %11 , label %then_2, label %else_2
 then_2:
-	%12 = sub %Nat32 %adr, 268435456
-	%13 = bitcast %Nat32 %12 to %Nat32
-	%14 = getelementptr [16384 x %Word8], [16384 x %Word8]* @ram, %Int32 0, %Nat32 %13
-	%15 = bitcast %Word8* %14 to i8*
-	%16 = bitcast i8* %15 to %Word16*
-	%17 = load %Word16, %Word16* %16
-	%18 = zext %Word16 %17 to %Word32
-	ret %Word32 %18
+	%12 = bitcast i8* %5 to %Word16*
+	%13 = load %Word16, %Word16* %12
+	%14 = zext %Word16 %13 to %Word32
+	ret %Word32 %14
 	br label %endif_2
 else_2:
 ; if_3
-	%20 = icmp eq %Nat8 %size, 4
-	br %Bool %20 , label %then_3, label %endif_3
+	%16 = icmp eq %Nat8 %size, 4
+	br %Bool %16 , label %then_3, label %endif_3
 then_3:
-	%21 = sub %Nat32 %adr, 268435456
-	%22 = bitcast %Nat32 %21 to %Nat32
-	%23 = getelementptr [16384 x %Word8], [16384 x %Word8]* @ram, %Int32 0, %Nat32 %22
-	%24 = bitcast %Word8* %23 to i8*
-	%25 = bitcast i8* %24 to %Word32*
-	%26 = load %Word32, %Word32* %25
-	ret %Word32 %26
+	%17 = bitcast i8* %5 to %Word32*
+	%18 = load %Word32, %Word32* %17
+	ret %Word32 %18
 	br label %endif_3
 endif_3:
 	br label %endif_2
@@ -290,48 +282,40 @@ endif_1:
 	br label %endif_0
 else_0:
 ; if_4
-	%28 = call %Bool @isAdressInRange(%Nat32 %adr, %Nat32 0, %Nat32 1048576)
-	br %Bool %28 , label %then_4, label %else_4
+	%20 = call %Bool @isAdressInRange(%Nat32 %adr, %Nat32 0, %Nat32 1048576)
+	br %Bool %20 , label %then_4, label %else_4
 then_4:
+	%21 = sub %Nat32 %adr, 0
+	%22 = bitcast %Nat32 %21 to %Nat32
+	%23 = getelementptr [1048576 x %Word8], [1048576 x %Word8]* @rom, %Int32 0, %Nat32 %22
+	%24 = bitcast %Word8* %23 to i8*
 ; if_5
-	%29 = icmp eq %Nat8 %size, 1
-	br %Bool %29 , label %then_5, label %else_5
+	%25 = icmp eq %Nat8 %size, 1
+	br %Bool %25 , label %then_5, label %else_5
 then_5:
-	%30 = sub %Nat32 %adr, 0
-	%31 = bitcast %Nat32 %30 to %Nat32
-	%32 = getelementptr [1048576 x %Word8], [1048576 x %Word8]* @rom, %Int32 0, %Nat32 %31
-	%33 = bitcast %Word8* %32 to i8*
-	%34 = bitcast i8* %33 to %Word8*
-	%35 = load %Word8, %Word8* %34
-	%36 = zext %Word8 %35 to %Word32
-	ret %Word32 %36
+	%26 = bitcast i8* %24 to %Word8*
+	%27 = load %Word8, %Word8* %26
+	%28 = zext %Word8 %27 to %Word32
+	ret %Word32 %28
 	br label %endif_5
 else_5:
 ; if_6
-	%38 = icmp eq %Nat8 %size, 2
-	br %Bool %38 , label %then_6, label %else_6
+	%30 = icmp eq %Nat8 %size, 2
+	br %Bool %30 , label %then_6, label %else_6
 then_6:
-	%39 = sub %Nat32 %adr, 0
-	%40 = bitcast %Nat32 %39 to %Nat32
-	%41 = getelementptr [1048576 x %Word8], [1048576 x %Word8]* @rom, %Int32 0, %Nat32 %40
-	%42 = bitcast %Word8* %41 to i8*
-	%43 = bitcast i8* %42 to %Word16*
-	%44 = load %Word16, %Word16* %43
-	%45 = zext %Word16 %44 to %Word32
-	ret %Word32 %45
+	%31 = bitcast i8* %24 to %Word16*
+	%32 = load %Word16, %Word16* %31
+	%33 = zext %Word16 %32 to %Word32
+	ret %Word32 %33
 	br label %endif_6
 else_6:
 ; if_7
-	%47 = icmp eq %Nat8 %size, 4
-	br %Bool %47 , label %then_7, label %endif_7
+	%35 = icmp eq %Nat8 %size, 4
+	br %Bool %35 , label %then_7, label %endif_7
 then_7:
-	%48 = sub %Nat32 %adr, 0
-	%49 = bitcast %Nat32 %48 to %Nat32
-	%50 = getelementptr [1048576 x %Word8], [1048576 x %Word8]* @rom, %Int32 0, %Nat32 %49
-	%51 = bitcast %Word8* %50 to i8*
-	%52 = bitcast i8* %51 to %Word32*
-	%53 = load %Word32, %Word32* %52
-	ret %Word32 %53
+	%36 = bitcast i8* %24 to %Word32*
+	%37 = load %Word32, %Word32* %36
+	ret %Word32 %37
 	br label %endif_7
 endif_7:
 	br label %endif_6
@@ -341,8 +325,8 @@ endif_5:
 	br label %endif_4
 else_4:
 ; if_8
-	%55 = call %Bool @isAdressInRange(%Nat32 %adr, %Nat32 4027318272, %Nat32 4027383807)
-	br %Bool %55 , label %then_8, label %else_8
+	%39 = call %Bool @isAdressInRange(%Nat32 %adr, %Nat32 4027318272, %Nat32 4027383807)
+	br %Bool %39 , label %then_8, label %else_8
 then_8:
 	; MMIO Read
 	br label %endif_8
@@ -354,8 +338,8 @@ endif_8:
 endif_4:
 	br label %endif_0
 endif_0:
-	%56 = zext i8 0 to %Word32
-	ret %Word32 %56
+	%40 = zext i8 0 to %Word32
+	ret %Word32 %40
 }
 
 define void @bus_write(%Nat32 %adr, %Word32 %value, %Nat8 %size) {
@@ -363,15 +347,15 @@ define void @bus_write(%Nat32 %adr, %Word32 %value, %Nat8 %size) {
 	%1 = call %Bool @isAdressInRange(%Nat32 %adr, %Nat32 268435456, %Nat32 268451840)
 	br %Bool %1 , label %then_0, label %else_0
 then_0:
+	%2 = sub %Nat32 %adr, 268435456
+	%3 = bitcast %Nat32 %2 to %Nat32
+	%4 = getelementptr [16384 x %Word8], [16384 x %Word8]* @ram, %Int32 0, %Nat32 %3
+	%5 = bitcast %Word8* %4 to i8*
 ; if_1
-	%2 = icmp eq %Nat8 %size, 1
-	br %Bool %2 , label %then_1, label %else_1
+	%6 = icmp eq %Nat8 %size, 1
+	br %Bool %6 , label %then_1, label %else_1
 then_1:
-	%3 = sub %Nat32 %adr, 268435456
-	%4 = bitcast %Nat32 %3 to %Nat32
-	%5 = getelementptr [16384 x %Word8], [16384 x %Word8]* @ram, %Int32 0, %Nat32 %4
-	%6 = bitcast %Word8* %5 to i8*
-	%7 = bitcast i8* %6 to %Word8*
+	%7 = bitcast i8* %5 to %Word8*
 	%8 = trunc %Word32 %value to %Word8
 	store %Word8 %8, %Word8* %7
 	br label %endif_1
@@ -380,25 +364,17 @@ else_1:
 	%9 = icmp eq %Nat8 %size, 2
 	br %Bool %9 , label %then_2, label %else_2
 then_2:
-	%10 = sub %Nat32 %adr, 268435456
-	%11 = bitcast %Nat32 %10 to %Nat32
-	%12 = getelementptr [16384 x %Word8], [16384 x %Word8]* @ram, %Int32 0, %Nat32 %11
-	%13 = bitcast %Word8* %12 to i8*
-	%14 = bitcast i8* %13 to %Word16*
-	%15 = trunc %Word32 %value to %Word16
-	store %Word16 %15, %Word16* %14
+	%10 = bitcast i8* %5 to %Word16*
+	%11 = trunc %Word32 %value to %Word16
+	store %Word16 %11, %Word16* %10
 	br label %endif_2
 else_2:
 ; if_3
-	%16 = icmp eq %Nat8 %size, 4
-	br %Bool %16 , label %then_3, label %endif_3
+	%12 = icmp eq %Nat8 %size, 4
+	br %Bool %12 , label %then_3, label %endif_3
 then_3:
-	%17 = sub %Nat32 %adr, 268435456
-	%18 = bitcast %Nat32 %17 to %Nat32
-	%19 = getelementptr [16384 x %Word8], [16384 x %Word8]* @ram, %Int32 0, %Nat32 %18
-	%20 = bitcast %Word8* %19 to i8*
-	%21 = bitcast i8* %20 to %Word32*
-	store %Word32 %value, %Word32* %21
+	%13 = bitcast i8* %5 to %Word32*
+	store %Word32 %value, %Word32* %13
 	br label %endif_3
 endif_3:
 	br label %endif_2
@@ -408,33 +384,31 @@ endif_1:
 	br label %endif_0
 else_0:
 ; if_4
-	%22 = call %Bool @isAdressInRange(%Nat32 %adr, %Nat32 4027318272, %Nat32 4027383807)
-	br %Bool %22 , label %then_4, label %else_4
+	%14 = call %Bool @isAdressInRange(%Nat32 %adr, %Nat32 4027318272, %Nat32 4027383807)
+	br %Bool %14 , label %then_4, label %else_4
 then_4:
+	%15 = sub %Nat32 %adr, 4027318272
 ; if_5
-	%23 = icmp eq %Nat8 %size, 1
-	br %Bool %23 , label %then_5, label %else_5
+	%16 = icmp eq %Nat8 %size, 1
+	br %Bool %16 , label %then_5, label %else_5
 then_5:
-	%24 = sub %Nat32 %adr, 4027318272
-	%25 = trunc %Word32 %value to %Word8
-	call void @mmio_write8(%Nat32 %24, %Word8 %25)
+	%17 = trunc %Word32 %value to %Word8
+	call void @mmio_write8(%Nat32 %15, %Word8 %17)
 	br label %endif_5
 else_5:
 ; if_6
-	%26 = icmp eq %Nat8 %size, 2
-	br %Bool %26 , label %then_6, label %else_6
+	%18 = icmp eq %Nat8 %size, 2
+	br %Bool %18 , label %then_6, label %else_6
 then_6:
-	%27 = sub %Nat32 %adr, 4027318272
-	%28 = trunc %Word32 %value to %Word16
-	call void @mmio_write16(%Nat32 %27, %Word16 %28)
+	%19 = trunc %Word32 %value to %Word16
+	call void @mmio_write16(%Nat32 %15, %Word16 %19)
 	br label %endif_6
 else_6:
 ; if_7
-	%29 = icmp eq %Nat8 %size, 4
-	br %Bool %29 , label %then_7, label %endif_7
+	%20 = icmp eq %Nat8 %size, 4
+	br %Bool %20 , label %then_7, label %endif_7
 then_7:
-	%30 = sub %Nat32 %adr, 4027318272
-	call void @mmio_write32(%Nat32 %30, %Word32 %value)
+	call void @mmio_write32(%Nat32 %15, %Word32 %value)
 	br label %endif_7
 endif_7:
 	br label %endif_6
@@ -444,8 +418,8 @@ endif_5:
 	br label %endif_4
 else_4:
 ; if_8
-	%31 = call %Bool @isAdressInRange(%Nat32 %adr, %Nat32 0, %Nat32 1048576)
-	br %Bool %31 , label %then_8, label %else_8
+	%21 = call %Bool @isAdressInRange(%Nat32 %adr, %Nat32 0, %Nat32 1048576)
+	br %Bool %21 , label %then_8, label %else_8
 then_8:
 	call void @memoryViolation(%Char8 119, %Nat32 %adr)
 	br label %endif_8
