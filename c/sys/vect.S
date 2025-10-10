@@ -2,7 +2,8 @@
 .global vectors
 .global _stack_start
 .global _stack_end
-.global main
+.global _trap
+.global __isr
 .global __mem_violation
 .global trap_empty
 .global system
@@ -14,35 +15,26 @@
 
 vectors:
 	jr zero, %lo(_start)
-
 	jr zero, %lo(trap_empty)
-
 	jr zero, %lo(trap_empty)
-
 	jr zero, %lo(trap_empty)
-
 	jr zero, %lo(trap_empty)
-
 	jr zero, %lo(trap_empty)
-
 	jr zero, %lo(trap_empty)
-
 	jr zero, %lo(trap_empty)
-
 	jr zero, %lo(trap_empty)
-
 	jr zero, %lo(system)
-
 	jr zero, %lo(trap_empty)
-
 	jr zero, %lo(trap_empty)
-
 	jr zero, %lo(__mem_violation)
-
+	jr zero, %lo(trap_empty)
 	jr zero, %lo(trap_empty)
 
-	jr zero, %lo(trap_empty)
 
+
+_trap:
+	jal ra, __isr
+	mret
 
 
 _start:
@@ -50,16 +42,17 @@ _start:
 	lui sp, %hi(_stack_start)
 	addi sp, sp, %lo(_stack_start)
 
+	# setup mtvec
+#	lui a0, %hi(_trap)
+#	addi a0, a0, %lo(_trap)
+#	csrrw zero, mtvec, a0
+
 	jal ra, startup
 
 	ebreak
 
 	j trap_empty
 
-
-trap_empty:
-	#j trap_empty
-	ebreak
 
 
 __mem_violation:

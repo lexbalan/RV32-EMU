@@ -35,6 +35,7 @@
 #define instrECALL  (opSYSTEM | 0x0)
 #define instrEBREAK  (opSYSTEM | 0x100000)
 #define instrPAUSE  (opFENCE | 0x1000000)
+#define instrMRET  (opSYSTEM | 0x30200073)// machine return from trap
 
 // funct3 for CSR
 #define funct3_CSRRW  1
@@ -55,9 +56,12 @@ void hart_init(hart_Hart *hart, uint32_t id, hart_BusInterface *bus) {
 	hart->end = false;
 }
 
+
+__attribute__((always_inline))
 static inline uint32_t fetch(hart_Hart *hart) {
-	return hart->bus->read(hart->pc, /*size=*/4);
+	return hart->bus->read(hart->pc, 4);
 }
+
 
 
 static void trace(uint32_t pc, char *form, ...);
@@ -66,8 +70,14 @@ static void exec(hart_Hart *hart, uint32_t instr);
 void hart_cycle(hart_Hart *hart) {
 	if (hart->irq != 0x0) {
 		trace(hart->pc, "\nINT #%02X\n", hart->irq);
-		const uint32_t vect_offset = hart->irq * 4;
-		hart->pc = vect_offset;
+		const uint32_t adr = hart->csrs[csr_csr_mtvec_adr];
+		printf("ADR = %08X\n", adr);
+		//let vect_offset = Nat32 hart.irq * 4
+		hart->csrs[csr_csr_mepc_adr] = hart->pc;
+		hart->csrs[csr_csr_mcause_adr] = 0x0;
+		hart->csrs[csr_csr_mtval_adr] = 0x0;
+		hart->pc = adr;
+
 		hart->irq = 0x0;
 	}
 
@@ -77,6 +87,7 @@ void hart_cycle(hart_Hart *hart) {
 	// count mcycle
 	hart->csrs[csr_csr_mcycle_adr] = (hart->csrs[csr_csr_mcycle_adr] + 1);
 }
+
 
 
 static void execI(hart_Hart *hart, uint32_t instr);
@@ -132,6 +143,7 @@ static void exec(hart_Hart *hart, uint32_t instr) {
 	}
 }
 
+
 // Immediate instructions
 static void execI(hart_Hart *hart, uint32_t instr) {
 	const uint8_t funct3 = decode_extract_funct3(instr);
@@ -141,7 +153,7 @@ static void execI(hart_Hart *hart, uint32_t instr) {
 	const uint8_t rs1 = decode_extract_rs1(instr);
 
 	if (funct3 == 0x0) {
-		// Add immediate
+		/* Add immediate */
 
 		trace(hart->pc, "addi x%d, x%d, %d\n", rd, rs1, imm);
 
@@ -157,7 +169,7 @@ static void execI(hart_Hart *hart, uint32_t instr) {
 		//
 		hart->regs[rd] = hart->regs[rs1] << ABS(imm);
 	} else if (funct3 == 0x2) {
-		// SLTI - set [1 to rd if rs1] less than immediate
+		/* SLTI - set [1 to rd if rs1] less than immediate */
 
 		trace(hart->pc, "slti x%d, x%d, %d\n", rd, rs1, imm);
 
@@ -195,6 +207,7 @@ static void execI(hart_Hart *hart, uint32_t instr) {
 		hart->regs[rd] = hart->regs[rs1] & (uint32_t)imm;
 	}
 }
+
 
 // Register to register
 
@@ -334,6 +347,7 @@ static void execR(hart_Hart *hart, uint32_t instr) {
 	}
 }
 
+
 // Load upper immediate
 static void execLUI(hart_Hart *hart, uint32_t instr) {
 
@@ -344,6 +358,7 @@ static void execLUI(hart_Hart *hart, uint32_t instr) {
 
 	hart->regs[rd] = imm << 12;
 }
+
 
 // Add upper immediate to PC
 static void execAUIPC(hart_Hart *hart, uint32_t instr) {
@@ -356,6 +371,7 @@ static void execAUIPC(hart_Hart *hart, uint32_t instr) {
 	hart->regs[rd] = x;
 }
 
+
 // Jump and link
 static void execJAL(hart_Hart *hart, uint32_t instr) {
 	const uint8_t rd = decode_extract_rd(instr);
@@ -367,6 +383,7 @@ static void execJAL(hart_Hart *hart, uint32_t instr) {
 	hart->regs[rd] = (hart->pc + 4);
 	hart->pc = ABS(((int32_t)hart->pc + imm));
 }
+
 
 // Jump and link (by register)
 static void execJALR(hart_Hart *hart, uint32_t instr) {
@@ -384,6 +401,7 @@ static void execJALR(hart_Hart *hart, uint32_t instr) {
 	hart->regs[rd] = (uint32_t)next_instr_ptr;
 	hart->pc = nexpc;
 }
+
 
 // Branch instructions
 static void execB(hart_Hart *hart, uint32_t instr) {
@@ -453,6 +471,7 @@ static void execB(hart_Hart *hart, uint32_t instr) {
 	hart->pc = nexpc;
 }
 
+
 // Load instructions
 static void execL(hart_Hart *hart, uint32_t instr) {
 	const uint8_t funct3 = decode_extract_funct3(instr);
@@ -468,33 +487,34 @@ static void execL(hart_Hart *hart, uint32_t instr) {
 
 		trace(hart->pc, "lb x%d, %d(x%d)\n", rd, imm, rs1);
 
-		hart->regs[rd] = hart->bus->read(adr, /*size=*/1);
+		hart->regs[rd] = hart->bus->read(adr, 1);
 	} else if (funct3 == 0x1) {
 		// LH (Load 16-bit signed integer value)
 
 		trace(hart->pc, "lh x%d, %d(x%d)\n", rd, imm, rs1);
 
-		hart->regs[rd] = hart->bus->read(adr, /*size=*/2);
+		hart->regs[rd] = hart->bus->read(adr, 2);
 	} else if (funct3 == 0x2) {
 		// LW (Load 32-bit signed integer value)
 
 		trace(hart->pc, "lw x%d, %d(x%d)\n", rd, imm, rs1);
 
-		hart->regs[rd] = hart->bus->read(adr, /*size=*/4);
+		hart->regs[rd] = hart->bus->read(adr, 4);
 	} else if (funct3 == 0x4) {
 		// LBU (Load 8-bit unsigned integer value)
 
 		trace(hart->pc, "lbu x%d, %d(x%d)\n", rd, imm, rs1);
 
-		hart->regs[rd] = hart->bus->read(adr, /*size=*/1);
+		hart->regs[rd] = hart->bus->read(adr, 1);
 	} else if (funct3 == 0x5) {
 		// LHU (Load 16-bit unsigned integer value)
 
 		trace(hart->pc, "lhu x%d, %d(x%d)\n", rd, imm, rs1);
 
-		hart->regs[rd] = hart->bus->read(adr, /*size=*/2);
+		hart->regs[rd] = hart->bus->read(adr, 2);
 	}
 }
+
 
 // Store instructions
 static void execS(hart_Hart *hart, uint32_t instr) {
@@ -519,7 +539,7 @@ static void execS(hart_Hart *hart, uint32_t instr) {
 		trace(hart->pc, "sb x%d, %d(x%d)\n", rs2, imm, rs1);
 
 		//
-		hart->bus->write(adr, val, /*size=*/1);
+		hart->bus->write(adr, val, 1);
 	} else if (funct3 == 0x1) {
 		// SH (save 16-bit value)
 		// <source:reg>, <offset:12bit_imm>(<address:reg>)
@@ -527,7 +547,7 @@ static void execS(hart_Hart *hart, uint32_t instr) {
 		trace(hart->pc, "sh x%d, %d(x%d)\n", rs2, imm, rs1);
 
 		//
-		hart->bus->write(adr, val, /*size=*/2);
+		hart->bus->write(adr, val, 2);
 	} else if (funct3 == 0x2) {
 		// SW (save 32-bit value)
 		// <source:reg>, <offset:12bit_imm>(<address:reg>)
@@ -535,9 +555,10 @@ static void execS(hart_Hart *hart, uint32_t instr) {
 		trace(hart->pc, "sw x%d, %d(x%d)\n", rs2, imm, rs1);
 
 		//
-		hart->bus->write(adr, val, /*size=*/4);
+		hart->bus->write(adr, val, 4);
 	}
 }
+
 
 
 static void csr_rw(hart_Hart *hart, uint16_t csr, uint8_t rd, uint8_t rs1);
@@ -553,11 +574,23 @@ static void execSystem(hart_Hart *hart, uint32_t instr) {
 	const uint8_t rs1 = decode_extract_rs1(instr);
 	const uint16_t csr = (uint16_t)decode_extract_imm12(instr);
 
+	printf("SYSTEM INSTRUCTION: instr=0x%08X\n", instr);
 	if (instr == instrECALL) {
 		trace(hart->pc, "ecall\n");
-
+		printf("ECALL: hart #%d\n", hart->csrs[csr_csr_mhartid_adr]);
 		//
 		hart->irq = hart->irq | hart_intSysCall;
+	} else if (instr == instrMRET) {
+		trace(hart->pc, "mret\n");
+		// Machine return from trap
+		const uint32_t mepc = hart->csrs[csr_csr_mepc_adr];
+		const uint32_t mcause = hart->csrs[csr_csr_mcause_adr];
+		const uint32_t mtval = hart->csrs[csr_csr_mtval_adr];
+		printf("MRET: hart #%d, mepc=%08X, mcause=%08X, mtval=%08X\n",
+			hart->csrs[csr_csr_mhartid_adr],
+			mepc, mcause, mtval
+		);
+		hart->pc = mepc;
 	} else if (instr == instrEBREAK) {
 		trace(hart->pc, "ebreak\n");
 		hart->end = true;
@@ -589,21 +622,24 @@ static void execSystem(hart_Hart *hart, uint32_t instr) {
 	}
 }
 
+
 static void execFence(hart_Hart *hart, uint32_t instr) {
 	if (instr == instrPAUSE) {
 		trace(hart->pc, "PAUSE\n");
 	}
 }
 
+
 /*
 The CSRRW (Atomic Read/Write CSR) instruction atomically swaps values in the CSRs and integer registers. CSRRW reads the old value of the CSR, zero-extends the value to XLEN bits, then writes it to integer register rd. The initial value in rs1 is written to the CSR. If rd=x0, then the instruction shall not read the CSR and shall not cause any of the side effects that might occur on a CSR read.
 */
 static void csr_rw(hart_Hart *hart, uint16_t csr, uint8_t rd, uint8_t rs1) {
-	//printf("CSR_RW(csr=0x%X, rd=r%d, rs1=r%d)\n", csr, rd, rs1)
+	printf("CSR_RW(csr=0x%X, rd=r%d, rs1=r%d)\n", csr, rd, rs1);
 	const uint32_t nv = hart->regs[rs1];
 	hart->regs[rd] = hart->csrs[csr];
-	hart->csrs[csr] = hart->csrs[rs1];
+	hart->csrs[csr] = nv;
 }
+
 
 /*
 The CSRRS (Atomic Read and Set Bits in CSR) instruction reads the value of the CSR, zero-extends the value to XLEN bits, and writes it to integer register rd. The initial value in integer register rs1 is treated as a bit mask that specifies bit positions to be set in the CSR. Any bit that is high in rs1 will cause the corresponding bit to be set in the CSR, if that CSR bit is writable. Other bits in the CSR are not explicitly written.
@@ -616,6 +652,7 @@ static void csr_rs(hart_Hart *hart, uint16_t csr, uint8_t rd, uint8_t rs1) {
 	hart->csrs[csr] = hart->csrs[csr] | hart->regs[rs1];
 }
 
+
 /*
 The CSRRC (Atomic Read and Clear Bits in CSR) instruction reads the value of the CSR, zero-extends the value to XLEN bits, and writes it to integer register rd. The initial value in integer register rs1 is treated as a bit mask that specifies bit positions to be cleared in the CSR. Any bit that is high in rs1 will cause the corresponding bit to be cleared in the CSR, if that CSR bit is writable. Other bits in the CSR are not explicitly written.
 */
@@ -627,6 +664,7 @@ static void csr_rc(hart_Hart *hart, uint16_t csr, uint8_t rd, uint8_t rs1) {
 	hart->csrs[csr] = hart->csrs[csr] & ~hart->regs[rs1];
 }
 
+
 // read+write immediate(5-bit)
 static void csr_rwi(hart_Hart *hart, uint16_t csr, uint8_t rd, uint8_t imm) {
 	const uint32_t imm32 = (uint32_t)imm;
@@ -634,6 +672,7 @@ static void csr_rwi(hart_Hart *hart, uint16_t csr, uint8_t rd, uint8_t imm) {
 	hart->regs[rd] = hart->csrs[csr];
 	hart->csrs[csr] = imm32;
 }
+
 
 // read+clear immediate(5-bit)
 static void csr_rsi(hart_Hart *hart, uint16_t csr, uint8_t rd, uint8_t imm) {
@@ -643,6 +682,7 @@ static void csr_rsi(hart_Hart *hart, uint16_t csr, uint8_t rd, uint8_t imm) {
 	hart->csrs[csr] = hart->csrs[csr] | imm32;
 }
 
+
 // read+clear immediate(5-bit)
 static void csr_rci(hart_Hart *hart, uint16_t csr, uint8_t rd, uint8_t imm) {
 	const uint32_t imm32 = (uint32_t)imm;
@@ -650,6 +690,7 @@ static void csr_rci(hart_Hart *hart, uint16_t csr, uint8_t rd, uint8_t imm) {
 	hart->regs[rd] = hart->csrs[csr];
 	hart->csrs[csr] = hart->csrs[csr] & ~imm32;
 }
+
 
 static void trace(uint32_t pc, char *form, ...) {
 	if (!traceMode) {
@@ -661,7 +702,11 @@ static void trace(uint32_t pc, char *form, ...) {
 	printf("[%08X] ", pc);
 	vprintf(form, va);
 	va_end(va);
+
+	char c;
+	scanf("%c", &c);
 }
+
 
 static void trace2(uint32_t pc, char *form, ...) {
 	va_list va;
@@ -671,6 +716,7 @@ static void trace2(uint32_t pc, char *form, ...) {
 	va_end(va);
 }
 
+
 static void fatal(char *form, ...) {
 	va_list va;
 	va_start(va, form);
@@ -678,6 +724,7 @@ static void fatal(char *form, ...) {
 	va_end(va);
 	exit(-1);
 }
+
 
 static void notImplemented(char *form, ...) {
 	va_list va;
@@ -689,6 +736,7 @@ static void notImplemented(char *form, ...) {
 	exit(-1);
 }
 
+
 void hart_show_regs(hart_Hart *hart) {
 	uint16_t i = 0;
 	while (i < 16) {
@@ -698,4 +746,5 @@ void hart_show_regs(hart_Hart *hart) {
 		i = i + 1;
 	}
 }
+
 

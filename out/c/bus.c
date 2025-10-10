@@ -15,8 +15,8 @@
 
 // see mem.ld
 
-#define mmioSize  (65535)
-#define mmioStart  (4027318272UL)
+#define mmioSize  (0xFFFF)
+#define mmioStart  (0xF00C0000UL)
 #define mmioEnd  (mmioStart + mmioSize)
 
 static uint8_t rom[bus_romSize];
@@ -58,6 +58,7 @@ uint32_t bus_read(uint32_t adr, uint8_t size) {
 	return 0x0;
 }
 
+
 void bus_write(uint32_t adr, uint32_t value, uint8_t size) {
 	if (isAdressInRange(adr, bus_ramStart, bus_ramEnd)) {
 		if (size == 1) {
@@ -85,9 +86,12 @@ void bus_write(uint32_t adr, uint32_t value, uint8_t size) {
 	}
 }
 
+
+__attribute__((always_inline))
 static inline bool isAdressInRange(uint32_t x, uint32_t a, uint32_t b) {
 	return x >= a && x < b;
 }
+
 
 static uint32_t memviolationCnt = 0;
 static void memoryViolation(char rw, uint32_t adr) {
@@ -100,11 +104,13 @@ static void memoryViolation(char rw, uint32_t adr) {
 }
 
 
+
 static uint32_t load(char *filename, uint8_t *bufptr, uint32_t buf_size);
 
 uint32_t bus_load_rom(char *filename) {
 	return load(filename, (uint8_t *)&rom, bus_romSize);
 }
+
 
 static uint32_t load(char *filename, uint8_t *bufptr, uint32_t buf_size) {
 	printf("LOAD: %s\n", filename);
@@ -135,6 +141,7 @@ static uint32_t load(char *filename, uint8_t *bufptr, uint32_t buf_size) {
 	return (uint32_t)n;
 }
 
+
 void bus_show_ram() {
 	uint32_t i = 0;
 	uint8_t *const ramptr = &ram;
@@ -152,4 +159,5 @@ void bus_show_ram() {
 		i = i + 16;
 	}
 }
+
 

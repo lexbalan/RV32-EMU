@@ -22,11 +22,8 @@ typedef struct hart_BusInterface hart_BusInterface;
 struct hart_Hart {
 	uint32_t regs[32];
 	uint32_t pc;
-
 	hart_BusInterface *bus;
-
 	uint32_t irq;
-
 	bool end;
 	uint32_t csrs[4096];
 };

@@ -91,6 +91,7 @@ public func write (adr: Nat32, value: Word32, size: Nat8) -> Unit {
 
 
 
+@inline
 func isAdressInRange (x: Nat32, a: Nat32, b: Nat32) -> Bool {
 	return x >= a and x < b
 }

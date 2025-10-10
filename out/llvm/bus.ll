@@ -166,8 +166,8 @@ declare void @setbuf(%File* %f, %CharStr* %buf)
 declare %Int @setvbuf(%File* %f, %CharStr* %buf, %Int %mode, %SizeT %size)
 declare %File* @tmpfile()
 declare %CharStr* @tmpnam(%CharStr* %str)
-declare %Int @printf(%ConstCharStr* %s, ...)
-declare %Int @scanf(%ConstCharStr* %s, ...)
+declare %Int @printf(%ConstCharStr* %str, ...)
+declare %Int @scanf(%ConstCharStr* %str, ...)
 declare %Int @fprintf(%File* %f, %Str* %format, ...)
 declare %Int @fscanf(%File* %f, %ConstCharStr* %format, ...)
 declare %Int @sscanf(%ConstCharStr* %buf, %ConstCharStr* %format, ...)
@@ -460,7 +460,7 @@ endif_0:
 	ret void
 }
 
-define internal %Bool @isAdressInRange(%Nat32 %x, %Nat32 %a, %Nat32 %b) {
+define internal %Bool @isAdressInRange(%Nat32 %x, %Nat32 %a, %Nat32 %b) alwaysinline {
 	%1 = icmp uge %Nat32 %x, %a
 	%2 = icmp ult %Nat32 %x, %b
 	%3 = and %Bool %1, %2
@@ -503,41 +503,39 @@ then_0:
 endif_0:
 	%6 = bitcast [0 x %Word8]* %bufptr to i8*
 	%7 = zext %Nat32 %buf_size to %SizeT
-	%8 = bitcast %File* %2 to %File*
-	%9 = call %SizeT @fread(i8* %6, %SizeT 1, %SizeT %7, %File* %8)
-	%10 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([19 x i8]* @str5 to [0 x i8]*), %SizeT %9)
+	%8 = call %SizeT @fread(i8* %6, %SizeT 1, %SizeT %7, %File* %2)
+	%9 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([19 x i8]* @str5 to [0 x i8]*), %SizeT %8)
 ; if_1
 	br %Bool 0 , label %then_1, label %endif_1
 then_1:
-	%11 = alloca %SizeT, align 8
-	store %SizeT 0, %SizeT* %11
+	%10 = alloca %SizeT, align 8
+	store %SizeT 0, %SizeT* %10
 ; while_1
 	br label %again_1
 again_1:
-	%12 = udiv %SizeT %9, 4
-	%13 = load %SizeT, %SizeT* %11
-	%14 = icmp ult %SizeT %13, %12
-	br %Bool %14 , label %body_1, label %break_1
+	%11 = udiv %SizeT %8, 4
+	%12 = load %SizeT, %SizeT* %10
+	%13 = icmp ult %SizeT %12, %11
+	br %Bool %13 , label %body_1, label %break_1
 body_1:
-	%15 = load %SizeT, %SizeT* %11
-	%16 = load %SizeT, %SizeT* %11
-	%17 = bitcast [0 x %Word8]* %bufptr to [0 x %Nat32]*
-	%18 = trunc %SizeT %16 to %Nat32
-	%19 = getelementptr [0 x %Nat32], [0 x %Nat32]* %17, %Int32 0, %Nat32 %18
-	%20 = load %Nat32, %Nat32* %19
-	%21 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([15 x i8]* @str6 to [0 x i8]*), %SizeT %15, %Nat32 %20)
-	%22 = load %SizeT, %SizeT* %11
-	%23 = add %SizeT %22, 4
-	store %SizeT %23, %SizeT* %11
+	%14 = load %SizeT, %SizeT* %10
+	%15 = load %SizeT, %SizeT* %10
+	%16 = bitcast [0 x %Word8]* %bufptr to [0 x %Nat32]*
+	%17 = trunc %SizeT %15 to %Nat32
+	%18 = getelementptr [0 x %Nat32], [0 x %Nat32]* %16, %Int32 0, %Nat32 %17
+	%19 = load %Nat32, %Nat32* %18
+	%20 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([15 x i8]* @str6 to [0 x i8]*), %SizeT %14, %Nat32 %19)
+	%21 = load %SizeT, %SizeT* %10
+	%22 = add %SizeT %21, 4
+	store %SizeT %22, %SizeT* %10
 	br label %again_1
 break_1:
-	%24 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([13 x i8]* @str7 to [0 x i8]*))
+	%23 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([13 x i8]* @str7 to [0 x i8]*))
 	br label %endif_1
 endif_1:
-	%25 = bitcast %File* %2 to %File*
-	%26 = call %Int @fclose(%File* %25)
-	%27 = trunc %SizeT %9 to %Nat32
-	ret %Nat32 %27
+	%24 = call %Int @fclose(%File* %2)
+	%25 = trunc %SizeT %8 to %Nat32
+	ret %Nat32 %25
 }
 
 define void @bus_show_ram() {

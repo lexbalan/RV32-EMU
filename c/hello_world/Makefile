@@ -1,7 +1,9 @@
 
 COMPILER_PATH=/opt/homebrew/opt/llvm@14/bin
+#COMPILER_PATH=/usr/bin
 
 CC=$(COMPILER_PATH)/clang
+#CC=$(COMPILER_PATH)/clang-14
 MACHINE = --target=riscv32 -march=rv32im
 
 # Кароче, -nostdlib -fno-builtin -fno-builtin-memset не помогают
@@ -42,9 +44,11 @@ all:
 	# extract sections from ELF to BIN file
 
 	llvm-objcopy -Iriscv32 main.elf $(ONLYSECTION) -Obinary ../../image.bin
+	#llvm-objcopy-14 -Iriscv32 main.elf $(ONLYSECTION) -Obinary ../../image.bin
 
 	# make ELF dump
 	llvm-objdump --full-contents --section=.text --section=.data -d ./main.elf > ./dump.txt
+	#llvm-objdump-14 --full-contents --section=.text --section=.data -d ./main.elf > ./dump.txt
 
 
 

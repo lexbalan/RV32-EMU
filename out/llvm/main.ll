@@ -181,8 +181,8 @@ declare void @setbuf(%File* %f, %CharStr* %buf)
 declare %Int @setvbuf(%File* %f, %CharStr* %buf, %Int %mode, %SizeT %size)
 declare %File* @tmpfile()
 declare %CharStr* @tmpnam(%CharStr* %str)
-declare %Int @printf(%ConstCharStr* %s, ...)
-declare %Int @scanf(%ConstCharStr* %s, ...)
+declare %Int @printf(%ConstCharStr* %str, ...)
+declare %Int @scanf(%ConstCharStr* %str, ...)
 declare %Int @fprintf(%File* %f, %Str* %format, ...)
 declare %Int @fscanf(%File* %f, %ConstCharStr* %format, ...)
 declare %Int @sscanf(%ConstCharStr* %buf, %ConstCharStr* %format, ...)
@@ -374,7 +374,7 @@ endif_0:
 	%6 = insertvalue %hart_BusInterface %5, void (%Nat32, %Word32, %Nat8)* @bus_write, 1
 	store %hart_BusInterface %6, %hart_BusInterface* %4
 	%7 = bitcast %hart_BusInterface* %4 to %hart_BusInterface*
-	call void @hart_init(%hart_Hart* bitcast (%hart_Hart* @hart to %hart_Hart*), %Nat32 0, %hart_BusInterface* %7)
+	call void @hart_init(%hart_Hart* @hart, %Nat32 0, %hart_BusInterface* %7)
 	%8 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([82 x i8]* @str3 to [0 x i8]*))
 ; while_1
 	br label %again_1
@@ -384,7 +384,7 @@ again_1:
 	%11 = xor %Bool %10, 1
 	br %Bool %11 , label %body_1, label %break_1
 body_1:
-	call void @hart_cycle(%hart_Hart* bitcast (%hart_Hart* @hart to %hart_Hart*))
+	call void @hart_cycle(%hart_Hart* @hart)
 	br label %again_1
 break_1:
 	%12 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([82 x i8]* @str4 to [0 x i8]*))
@@ -394,7 +394,7 @@ break_1:
 	%16 = load %Word32, %Word32* %15
 	%17 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([13 x i8]* @str5 to [0 x i8]*), %Word32 %16)
 	%18 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([13 x i8]* @str6 to [0 x i8]*))
-	call void @hart_show_regs(%hart_Hart* bitcast (%hart_Hart* @hart to %hart_Hart*))
+	call void @hart_show_regs(%hart_Hart* @hart)
 	%19 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([2 x i8]* @str7 to [0 x i8]*))
 	call void @bus_show_ram()
 	ret %Int 0
