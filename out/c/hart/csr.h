@@ -10,40 +10,40 @@
 #include <stdbool.h>
 
 
-#define csr_csr_mstatus_adr  0x300
-#define csr_csr_misa_adr  0x301
-#define csr_csr_medeleg_adr  0x302
-#define csr_csr_mideleg_adr  0x303
-#define csr_csr_mie_adr  0x304
-#define csr_csr_mtvec_adr  0x305
-#define csr_csr_mcounteren_adr  0x306
+#define CSR_CSR_MSTATUS_ADR  0x300
+#define CSR_CSR_MISA_ADR  0x301
+#define CSR_CSR_MEDELEG_ADR  0x302
+#define CSR_CSR_MIDELEG_ADR  0x303
+#define CSR_CSR_MIE_ADR  0x304
+#define CSR_CSR_MTVEC_ADR  0x305
+#define CSR_CSR_MCOUNTEREN_ADR  0x306
 
-#define csr_csr_mscratch_adr  0x340
-#define csr_csr_mepc_adr  0x341
-#define csr_csr_mcause_adr  0x342
-#define csr_csr_mtval_adr  0x343
-#define csr_csr_mip_adr  0x344
+#define CSR_CSR_MSCRATCH_ADR  0x340
+#define CSR_CSR_MEPC_ADR  0x341
+#define CSR_CSR_MCAUSE_ADR  0x342
+#define CSR_CSR_MTVAL_ADR  0x343
+#define CSR_CSR_MIP_ADR  0x344
 
-#define csr_csr_mcycle_adr  0xB00
-#define csr_csr_minstret_adr  0xB02
-#define csr_csr_mcycleh_adr  0xB80
-#define csr_csr_minstreth_adr  0xB82
+#define CSR_CSR_MCYCLE_ADR  0xB00
+#define CSR_CSR_MINSTRET_ADR  0xB02
+#define CSR_CSR_MCYCLEH_ADR  0xB80
+#define CSR_CSR_MINSTRETH_ADR  0xB82
 
-#define csr_csr_mvendorid_adr  0xF11
-#define csr_csr_marchid_adr  0xF12
-#define csr_csr_mimpid_adr  0xF13
-#define csr_csr_mhartid_adr  0xF14
-#define csr_csr_mconfigptr_adr  0xF15
-#define csr_csr_misa_a  (0x1 << 0)
-#define csr_csr_misa_b  (0x1 << 1)
-#define csr_csr_misa_c  (0x1 << 2)
-#define csr_csr_misa_f  (0x1 << 5)
-#define csr_csr_misa_i  (0x1 << 8)
-#define csr_csr_misa_m  (0x1 << 12)
-#define csr_csr_misa_s  (0x1 << 18)
-#define csr_csr_misa_u  (0x1 << 20)
-#define csr_csr_misa_x  (0x1 << 23)
-#define csr_csr_misa_xlen_32  (0x1 << 30)
-#define csr_csr_misa_xlen_64  (0x2 << 30)
+#define CSR_CSR_MVENDORID_ADR  0xF11
+#define CSR_CSR_MARCHID_ADR  0xF12
+#define CSR_CSR_MIMPID_ADR  0xF13
+#define CSR_CSR_MHARTID_ADR  0xF14
+#define CSR_CSR_MCONFIGPTR_ADR  0xF15
+#define CSR_CSR_MISA_A  (0x1 << 0)
+#define CSR_CSR_MISA_B  (0x1 << 1)
+#define CSR_CSR_MISA_C  (0x1 << 2)
+#define CSR_CSR_MISA_F  (0x1 << 5)
+#define CSR_CSR_MISA_I  (0x1 << 8)
+#define CSR_CSR_MISA_M  (0x1 << 12)
+#define CSR_CSR_MISA_S  (0x1 << 18)
+#define CSR_CSR_MISA_U  (0x1 << 20)
+#define CSR_CSR_MISA_X  (0x1 << 23)
+#define CSR_CSR_MISA_XLEN_32  (0x1 << 30)
+#define CSR_CSR_MISA_XLEN_64  (0x2 << 30)
 
 #endif /* CSR_H */

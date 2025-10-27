@@ -9,9 +9,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "csr.h"
-
 #include "bus.h"
 #include "hart.h"
+
 int main();
 
 #endif /* MAIN_H */

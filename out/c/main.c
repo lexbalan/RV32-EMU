@@ -1,4 +1,6 @@
 
+#include "main.h"
+
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -6,17 +8,16 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "main.h"
 
 
-#define text_filename  "./image.bin"
+#define TEXT_FILENAME  "./image.bin"
 
 static hart_Hart hart;
 
 int main() {
 	printf("RISC-V VM\n");
 
-	const uint32_t nbytes = bus_load_rom(text_filename);
+	const uint32_t nbytes = bus_load_rom(TEXT_FILENAME);
 	if (nbytes <= 0) {
 		exit(1);
 	}
@@ -35,7 +36,7 @@ int main() {
 	}
 
 	printf("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
-	printf("mcycle = %u\n", hart.csrs[csr_csr_mcycle_adr]);
+	printf("mcycle = %u\n", hart.csrs[CSR_CSR_MCYCLE_ADR]);
 
 	printf("\nCore dump:\n");
 	hart_show_regs(&hart);

@@ -1,12 +1,13 @@
 //
 //
 
+#include "decode.h"
+
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
 
-#include "decode.h"
 
 
 uint8_t decode_extract_op(uint32_t instr) {

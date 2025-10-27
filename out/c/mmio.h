@@ -7,6 +7,7 @@
 #include <stdbool.h>
 
 #include <stdio.h>
+
 void mmio_write8(uint32_t adr, uint8_t value);
 void mmio_write16(uint32_t adr, uint16_t value);
 void mmio_write32(uint32_t adr, uint32_t value);

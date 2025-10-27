@@ -2,53 +2,52 @@
  * RV32IM simple software implementation
  */
 
+#include "hart.h"
+
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include <stdarg.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
 
-#include "hart.h"
-
-#define ABS(x) ((x) < 0 ? -(x) : (x))
+#include <stdarg.h>
 
 
-#define traceMode  false
+#define TRACE_MODE  false
 
-#define opL  0x3// load
-#define opI  0x13// immediate
-#define opS  0x23// store
-#define opR  0x33// reg
-#define opB  0x63// branch
+#define OP_L  0x3  // load
+#define OP_I  0x13  // immediate
+#define OP_S  0x23  // store
+#define OP_R  0x33  // reg
+#define OP_B  0x63  // branch
 
-#define opLUI  0x37// load upper immediate
-#define opAUIPC  0x17// add upper immediate to PC
-#define opJAL  0x6F// jump and link
-#define opJALR  0x67// jump and link by register
+#define OP_LUI  0x37  // load upper immediate
+#define OP_AUIPC  0x17  // add upper immediate to PC
+#define OP_JAL  0x6F  // jump and link
+#define OP_JALR  0x67  // jump and link by register
 
-#define opSYSTEM  0x73// system
-#define opFENCE  0xF// fence
+#define OP_SYSTEM  0x73  // system
+#define OP_FENCE  0xF  // fence
 
-#define instrECALL  (opSYSTEM | 0x0)
-#define instrEBREAK  (opSYSTEM | 0x100000)
-#define instrPAUSE  (opFENCE | 0x1000000)
-#define instrMRET  (opSYSTEM | 0x30200073)// machine return from trap
+#define INSTR_ECALL  (OP_SYSTEM | 0x0)
+#define INSTR_EBREAK  (OP_SYSTEM | 0x100000)
+#define INSTR_PAUSE  (OP_FENCE | 0x1000000)
+#define INSTR_MRET  (OP_SYSTEM | 0x30200073)  // machine return from trap
 
 // funct3 for CSR
-#define funct3_CSRRW  1
-#define funct3_CSRRS  2
-#define funct3_CSRRC  3
-#define funct3_CSRRWI  4
-#define funct3_CSRRSI  5
-#define funct3_CSRRCI  6
+#define FUNCT3_CSRRW  1
+#define FUNCT3_CSRRS  2
+#define FUNCT3_CSRRC  3
+#define FUNCT3_CSRRWI  4
+#define FUNCT3_CSRRSI  5
+#define FUNCT3_CSRRCI  6
 
 void hart_init(hart_Hart *hart, uint32_t id, hart_BusInterface *bus) {
 	printf("hart #%d init\n", id);
-	hart->csrs[csr_csr_mhartid_adr] = id;
-	hart->csrs[csr_csr_misa_adr] = csr_csr_misa_xlen_32 | csr_csr_misa_i | csr_csr_misa_m;
+	hart->csrs[CSR_CSR_MHARTID_ADR] = id;
+	hart->csrs[CSR_CSR_MISA_ADR] = CSR_CSR_MISA_XLEN_32 | CSR_CSR_MISA_I | CSR_CSR_MISA_M;
 	memset(&hart->regs, 0, sizeof(uint32_t[32]));
 	hart->pc = 0;
 	hart->bus = bus;
@@ -70,12 +69,12 @@ static void exec(hart_Hart *hart, uint32_t instr);
 void hart_cycle(hart_Hart *hart) {
 	if (hart->irq != 0x0) {
 		trace(hart->pc, "\nINT #%02X\n", hart->irq);
-		const uint32_t adr = hart->csrs[csr_csr_mtvec_adr];
+		const uint32_t adr = hart->csrs[CSR_CSR_MTVEC_ADR];
 		printf("ADR = %08X\n", adr);
 		//let vect_offset = Nat32 hart.irq * 4
-		hart->csrs[csr_csr_mepc_adr] = hart->pc;
-		hart->csrs[csr_csr_mcause_adr] = 0x0;
-		hart->csrs[csr_csr_mtval_adr] = 0x0;
+		hart->csrs[CSR_CSR_MEPC_ADR] = hart->pc;
+		hart->csrs[CSR_CSR_MCAUSE_ADR] = 0x0;
+		hart->csrs[CSR_CSR_MTVAL_ADR] = 0x0;
 		hart->pc = adr;
 
 		hart->irq = 0x0;
@@ -85,7 +84,7 @@ void hart_cycle(hart_Hart *hart) {
 	exec(hart, instr);
 
 	// count mcycle
-	hart->csrs[csr_csr_mcycle_adr] = (hart->csrs[csr_csr_mcycle_adr] + 1);
+	hart->csrs[CSR_CSR_MCYCLE_ADR] = (hart->csrs[CSR_CSR_MCYCLE_ADR] + 1);
 }
 
 
@@ -108,34 +107,34 @@ static void exec(hart_Hart *hart, uint32_t instr) {
 
 	hart->regs[0] = 0x0;
 
-	if (op == opI) {
+	if (op == OP_I) {
 		execI(hart, instr);
 		hart->pc = hart->pc + 4;
-	} else if (op == opR) {
+	} else if (op == OP_R) {
 		execR(hart, instr);
 		hart->pc = hart->pc + 4;
-	} else if (op == opLUI) {
+	} else if (op == OP_LUI) {
 		execLUI(hart, instr);
 		hart->pc = hart->pc + 4;
-	} else if (op == opAUIPC) {
+	} else if (op == OP_AUIPC) {
 		execAUIPC(hart, instr);
 		hart->pc = hart->pc + 4;
-	} else if (op == opJAL) {
+	} else if (op == OP_JAL) {
 		execJAL(hart, instr);
-	} else if (op == opJALR && funct3 == 0x0) {
+	} else if (op == OP_JALR && funct3 == 0x0) {
 		execJALR(hart, instr);
-	} else if (op == opB) {
+	} else if (op == OP_B) {
 		execB(hart, instr);
-	} else if (op == opL) {
+	} else if (op == OP_L) {
 		execL(hart, instr);
 		hart->pc = hart->pc + 4;
-	} else if (op == opS) {
+	} else if (op == OP_S) {
 		execS(hart, instr);
 		hart->pc = hart->pc + 4;
-	} else if (op == opSYSTEM) {
+	} else if (op == OP_SYSTEM) {
 		execSystem(hart, instr);
 		hart->pc = hart->pc + 4;
-	} else if (op == opFENCE) {
+	} else if (op == OP_FENCE) {
 		execFence(hart, instr);
 		hart->pc = hart->pc + 4;
 	} else {
@@ -167,7 +166,7 @@ static void execI(hart_Hart *hart, uint32_t instr) {
 		trace(hart->pc, "slli x%d, x%d, %d\n", rd, rs1, imm);
 
 		//
-		hart->regs[rd] = hart->regs[rs1] << ABS(imm);
+		hart->regs[rd] = hart->regs[rs1] << (uint8_t)abs((int)imm);
 	} else if (funct3 == 0x2) {
 		/* SLTI - set [1 to rd if rs1] less than immediate */
 
@@ -179,7 +178,7 @@ static void execI(hart_Hart *hart, uint32_t instr) {
 		trace(hart->pc, "sltiu x%d, x%d, %d\n", rd, rs1, imm);
 
 		//
-		hart->regs[rd] = (uint32_t)(hart->regs[rs1] < ABS(imm));
+		hart->regs[rd] = (uint32_t)(hart->regs[rs1] < (uint32_t)abs((int)imm));
 	} else if (funct3 == 0x4) {
 		trace(hart->pc, "xori x%d, x%d, %d\n", rd, rs1, imm);
 
@@ -189,12 +188,12 @@ static void execI(hart_Hart *hart, uint32_t instr) {
 		trace(hart->pc, "srli x%d, x%d, %d\n", rd, rs1, imm);
 
 		//
-		hart->regs[rd] = (hart->regs[rs1] >> ABS(imm));
+		hart->regs[rd] = (hart->regs[rs1] >> (uint8_t)abs((int)imm));
 	} else if (funct3 == 0x5 && funct7 == 0x20) {
 		trace(hart->pc, "srai x%d, x%d, %d\n", rd, rs1, imm);
 
 		//
-		hart->regs[rd] = hart->regs[rs1] >> ABS(imm);
+		hart->regs[rd] = hart->regs[rs1] >> (uint8_t)abs((int)imm);
 	} else if (funct3 == 0x6) {
 		trace(hart->pc, "ori x%d, x%d, %d\n", rd, rs1, imm);
 
@@ -381,7 +380,7 @@ static void execJAL(hart_Hart *hart, uint32_t instr) {
 	trace(hart->pc, "jal x%d, %d\n", rd, imm);
 
 	hart->regs[rd] = (hart->pc + 4);
-	hart->pc = ABS(((int32_t)hart->pc + imm));
+	hart->pc = (uint32_t)abs((int)((int32_t)hart->pc + imm));
 }
 
 
@@ -419,7 +418,7 @@ static void execB(hart_Hart *hart, uint32_t instr) {
 
 		// Branch if two registers are equal
 		if (hart->regs[rs1] == hart->regs[rs2]) {
-			nexpc = ABS(((int32_t)hart->pc + (int32_t)imm));
+			nexpc = (uint32_t)abs((int)((int32_t)hart->pc + (int32_t)imm));
 		}
 	} else if (funct3 == 0x1) {
 		// BNE - Branch if not equal
@@ -428,7 +427,7 @@ static void execB(hart_Hart *hart, uint32_t instr) {
 
 		//
 		if (hart->regs[rs1] != hart->regs[rs2]) {
-			nexpc = ABS(((int32_t)hart->pc + (int32_t)imm));
+			nexpc = (uint32_t)abs((int)((int32_t)hart->pc + (int32_t)imm));
 		}
 	} else if (funct3 == 0x4) {
 		// BLT - Branch if less than (signed)
@@ -437,7 +436,7 @@ static void execB(hart_Hart *hart, uint32_t instr) {
 
 		//
 		if ((int32_t)hart->regs[rs1] < (int32_t)hart->regs[rs2]) {
-			nexpc = ABS(((int32_t)hart->pc + (int32_t)imm));
+			nexpc = (uint32_t)abs((int)((int32_t)hart->pc + (int32_t)imm));
 		}
 	} else if (funct3 == 0x5) {
 		// BGE - Branch if greater or equal (signed)
@@ -446,7 +445,7 @@ static void execB(hart_Hart *hart, uint32_t instr) {
 
 		//
 		if ((int32_t)hart->regs[rs1] >= (int32_t)hart->regs[rs2]) {
-			nexpc = ABS(((int32_t)hart->pc + (int32_t)imm));
+			nexpc = (uint32_t)abs((int)((int32_t)hart->pc + (int32_t)imm));
 		}
 	} else if (funct3 == 0x6) {
 		// BLTU - Branch if less than (unsigned)
@@ -455,7 +454,7 @@ static void execB(hart_Hart *hart, uint32_t instr) {
 
 		//
 		if (hart->regs[rs1] < hart->regs[rs2]) {
-			nexpc = ABS(((int32_t)hart->pc + (int32_t)imm));
+			nexpc = (uint32_t)abs((int)((int32_t)hart->pc + (int32_t)imm));
 		}
 	} else if (funct3 == 0x7) {
 		// BGEU - Branch if greater or equal (unsigned)
@@ -464,7 +463,7 @@ static void execB(hart_Hart *hart, uint32_t instr) {
 
 		//
 		if (hart->regs[rs1] >= hart->regs[rs2]) {
-			nexpc = ABS(((int32_t)hart->pc + (int32_t)imm));
+			nexpc = (uint32_t)abs((int)((int32_t)hart->pc + (int32_t)imm));
 		}
 	}
 
@@ -480,7 +479,7 @@ static void execL(hart_Hart *hart, uint32_t instr) {
 	const uint8_t rs1 = decode_extract_rs1(instr);
 	const uint8_t rs2 = decode_extract_rs2(instr);
 
-	const uint32_t adr = ABS(((int32_t)hart->regs[rs1] + imm));
+	const uint32_t adr = (uint32_t)abs((int)((int32_t)hart->regs[rs1] + imm));
 
 	if (funct3 == 0x0) {
 		// LB (Load 8-bit signed integer value)
@@ -575,45 +574,45 @@ static void execSystem(hart_Hart *hart, uint32_t instr) {
 	const uint16_t csr = (uint16_t)decode_extract_imm12(instr);
 
 	printf("SYSTEM INSTRUCTION: instr=0x%08X\n", instr);
-	if (instr == instrECALL) {
+	if (instr == INSTR_ECALL) {
 		trace(hart->pc, "ecall\n");
-		printf("ECALL: hart #%d\n", hart->csrs[csr_csr_mhartid_adr]);
+		printf("ECALL: hart #%d\n", hart->csrs[CSR_CSR_MHARTID_ADR]);
 		//
-		hart->irq = hart->irq | hart_intSysCall;
-	} else if (instr == instrMRET) {
+		hart->irq = hart->irq | HART_INT_SYS_CALL;
+	} else if (instr == INSTR_MRET) {
 		trace(hart->pc, "mret\n");
 		// Machine return from trap
-		const uint32_t mepc = hart->csrs[csr_csr_mepc_adr];
-		const uint32_t mcause = hart->csrs[csr_csr_mcause_adr];
-		const uint32_t mtval = hart->csrs[csr_csr_mtval_adr];
+		const uint32_t mepc = hart->csrs[CSR_CSR_MEPC_ADR];
+		const uint32_t mcause = hart->csrs[CSR_CSR_MCAUSE_ADR];
+		const uint32_t mtval = hart->csrs[CSR_CSR_MTVAL_ADR];
 		printf("MRET: hart #%d, mepc=%08X, mcause=%08X, mtval=%08X\n",
-			hart->csrs[csr_csr_mhartid_adr],
+			hart->csrs[CSR_CSR_MHARTID_ADR],
 			mepc, mcause, mtval
 		);
 		hart->pc = mepc;
-	} else if (instr == instrEBREAK) {
+	} else if (instr == INSTR_EBREAK) {
 		trace(hart->pc, "ebreak\n");
 		hart->end = true;
 
 		// CSR instructions
-	} else if (funct3 == funct3_CSRRW) {
+	} else if (funct3 == FUNCT3_CSRRW) {
 		// CSR read & write
 		csr_rw(hart, csr, rd, rs1);
-	} else if (funct3 == funct3_CSRRS) {
+	} else if (funct3 == FUNCT3_CSRRS) {
 		// CSR read & set bit
 		const uint8_t mask_reg = rs1;
 		csr_rs(hart, csr, rd, mask_reg);
-	} else if (funct3 == funct3_CSRRC) {
+	} else if (funct3 == FUNCT3_CSRRC) {
 		// CSR read & clear bit
 		const uint8_t mask_reg = rs1;
 		csr_rc(hart, csr, rd, mask_reg);
-	} else if (funct3 == funct3_CSRRWI) {
+	} else if (funct3 == FUNCT3_CSRRWI) {
 		const uint8_t imm = rs1;
 		csr_rwi(hart, csr, rd, imm);
-	} else if (funct3 == funct3_CSRRSI) {
+	} else if (funct3 == FUNCT3_CSRRSI) {
 		const uint8_t imm = rs1;
 		csr_rsi(hart, csr, rd, imm);
-	} else if (funct3 == funct3_CSRRCI) {
+	} else if (funct3 == FUNCT3_CSRRCI) {
 		const uint8_t imm = rs1;
 		csr_rci(hart, csr, rd, imm);
 	} else {
@@ -624,7 +623,7 @@ static void execSystem(hart_Hart *hart, uint32_t instr) {
 
 
 static void execFence(hart_Hart *hart, uint32_t instr) {
-	if (instr == instrPAUSE) {
+	if (instr == INSTR_PAUSE) {
 		trace(hart->pc, "PAUSE\n");
 	}
 }
@@ -693,7 +692,7 @@ static void csr_rci(hart_Hart *hart, uint16_t csr, uint8_t rd, uint8_t imm) {
 
 
 static void trace(uint32_t pc, char *form, ...) {
-	if (!traceMode) {
+	if (!TRACE_MODE) {
 		return;
 	}
 

@@ -1,10 +1,9 @@
 include "libc/stdlib"
 include "libc/stdio"
 
-include "hart/csr"
-
 import "bus"
 import "hart/hart" as rvHart
+import "hart/csr" as csr
 
 
 const text_filename = "./image.bin"
@@ -35,7 +34,7 @@ public func main () -> Int {
 	}
 
 	printf("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n")
-	printf("mcycle = %u\n", hart.csrs[Nat32 csr_mcycle_adr])
+	printf("mcycle = %u\n", hart.csrs[Nat32 csr.mcycle_adr])
 
 	printf("\nCore dump:\n")
 	rvHart.show_regs(&hart)

@@ -204,10 +204,9 @@ declare %Int @putchar(%Int %char)
 declare %Int @puts(%ConstCharStr* %str)
 declare %Int @ungetc(%Int %char, %File* %f)
 declare void @perror(%ConstCharStr* %str)
-; from included csr
 ; -- end print includes --
 ; -- print imports 'main' --
-; -- 2
+; -- 3
 ; from included ctypes
 
 ; from import "mmio"
@@ -327,6 +326,10 @@ declare %Int16 @decode_extract_b_imm(%Word32 %instr)
 declare %Word32 @decode_extract_jal_imm(%Word32 %instr)
 declare %Int32 @decode_expand12(%Word32 %val_12bit)
 declare %Int32 @decode_expand20(%Word32 %val_20bit)
+
+; from import "csr"
+
+; end from import "csr"
 
 ; from import "rvHart"
 %hart_Hart = type {

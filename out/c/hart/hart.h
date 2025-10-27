@@ -34,8 +34,8 @@ struct hart_BusInterface {
 	void(*write)(uint32_t adr, uint32_t value, uint8_t size);
 };
 
-#define hart_intSysCall  0x8
-#define hart_intMemViolation  0xB
+#define HART_INT_SYS_CALL  0x8
+#define HART_INT_MEM_VIOLATION  0xB
 void hart_init(hart_Hart *hart, uint32_t id, hart_BusInterface *bus);
 void hart_cycle(hart_Hart *hart);
 void hart_show_regs(hart_Hart *hart);

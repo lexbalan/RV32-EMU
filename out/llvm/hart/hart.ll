@@ -293,7 +293,6 @@ declare %LongInt @labs(%LongInt %x)
 declare %Str* @secure_getenv(%Str* %name)
 declare i8* @malloc(%SizeT %size)
 declare %Int @system([0 x %ConstChar]* %string)
-; from included csr
 ; from included decode
 declare %Word8 @decode_extract_op(%Word32 %instr)
 declare %Word8 @decode_extract_funct2(%Word32 %instr)
@@ -311,7 +310,11 @@ declare %Int32 @decode_expand12(%Word32 %val_12bit)
 declare %Int32 @decode_expand20(%Word32 %val_20bit)
 ; -- end print includes --
 ; -- print imports 'hart' --
-; -- 0
+; -- 1
+
+; from import "csr"
+
+; end from import "csr"
 ; -- end print imports 'hart' --
 ; -- strings --
 @str1 = private constant [15 x i8] [i8 104, i8 97, i8 114, i8 116, i8 32, i8 35, i8 37, i8 100, i8 32, i8 105, i8 110, i8 105, i8 116, i8 10, i8 0]

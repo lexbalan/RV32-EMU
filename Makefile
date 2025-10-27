@@ -11,7 +11,7 @@ LLVMPREFIX = $(OUTDIR)/llvm/
 
 CM_OPTS = -funsafe
 
-C_OPTIONS = -I$(CPREFIX)/include -I$(CPREFIX)/hart
+C_OPTIONS = -I$(CPREFIX) -I$(CPREFIX)/hart
 
 
 
