@@ -46,8 +46,8 @@
 
 void hart_init(hart_Hart *hart, uint32_t id, hart_BusInterface *bus) {
 	printf("hart #%d init\n", id);
-	hart->csrs[CSR_CSR_MHARTID_ADR] = id;
-	hart->csrs[CSR_CSR_MISA_ADR] = CSR_CSR_MISA_XLEN_32 | CSR_CSR_MISA_I | CSR_CSR_MISA_M;
+	hart->csrs[CSR_MHARTID_ADR] = id;
+	hart->csrs[CSR_MISA_ADR] = CSR_MISA_XLEN_32 | CSR_MISA_I | CSR_MISA_M;
 	memset(&hart->regs, 0, sizeof(uint32_t[32]));
 	hart->pc = 0;
 	hart->bus = bus;
@@ -69,12 +69,12 @@ static void exec(hart_Hart *hart, uint32_t instr);
 void hart_cycle(hart_Hart *hart) {
 	if (hart->irq != 0x0) {
 		trace(hart->pc, "\nINT #%02X\n", hart->irq);
-		const uint32_t adr = hart->csrs[CSR_CSR_MTVEC_ADR];
+		const uint32_t adr = hart->csrs[CSR_MTVEC_ADR];
 		printf("ADR = %08X\n", adr);
 		//let vect_offset = Nat32 hart.irq * 4
-		hart->csrs[CSR_CSR_MEPC_ADR] = hart->pc;
-		hart->csrs[CSR_CSR_MCAUSE_ADR] = 0x0;
-		hart->csrs[CSR_CSR_MTVAL_ADR] = 0x0;
+		hart->csrs[CSR_MEPC_ADR] = hart->pc;
+		hart->csrs[CSR_MCAUSE_ADR] = 0x0;
+		hart->csrs[CSR_MTVAL_ADR] = 0x0;
 		hart->pc = adr;
 
 		hart->irq = 0x0;
@@ -84,7 +84,7 @@ void hart_cycle(hart_Hart *hart) {
 	exec(hart, instr);
 
 	// count mcycle
-	hart->csrs[CSR_CSR_MCYCLE_ADR] = (hart->csrs[CSR_CSR_MCYCLE_ADR] + 1);
+	hart->csrs[CSR_MCYCLE_ADR] = (hart->csrs[CSR_MCYCLE_ADR] + 1);
 }
 
 
@@ -571,22 +571,22 @@ static void execSystem(hart_Hart *hart, uint32_t instr) {
 	const uint8_t funct3 = decode_extract_funct3(instr);
 	const uint8_t rd = decode_extract_rd(instr);
 	const uint8_t rs1 = decode_extract_rs1(instr);
-	const uint16_t csr = (uint16_t)decode_extract_imm12(instr);
+	const uint16_t xcsr = (uint16_t)decode_extract_imm12(instr);
 
 	printf("SYSTEM INSTRUCTION: instr=0x%08X\n", instr);
 	if (instr == INSTR_ECALL) {
 		trace(hart->pc, "ecall\n");
-		printf("ECALL: hart #%d\n", hart->csrs[CSR_CSR_MHARTID_ADR]);
+		printf("ECALL: hart #%d\n", hart->csrs[CSR_MHARTID_ADR]);
 		//
 		hart->irq = hart->irq | HART_INT_SYS_CALL;
 	} else if (instr == INSTR_MRET) {
 		trace(hart->pc, "mret\n");
 		// Machine return from trap
-		const uint32_t mepc = hart->csrs[CSR_CSR_MEPC_ADR];
-		const uint32_t mcause = hart->csrs[CSR_CSR_MCAUSE_ADR];
-		const uint32_t mtval = hart->csrs[CSR_CSR_MTVAL_ADR];
+		const uint32_t mepc = hart->csrs[CSR_MEPC_ADR];
+		const uint32_t mcause = hart->csrs[CSR_MCAUSE_ADR];
+		const uint32_t mtval = hart->csrs[CSR_MTVAL_ADR];
 		printf("MRET: hart #%d, mepc=%08X, mcause=%08X, mtval=%08X\n",
-			hart->csrs[CSR_CSR_MHARTID_ADR],
+			hart->csrs[CSR_MHARTID_ADR],
 			mepc, mcause, mtval
 		);
 		hart->pc = mepc;
@@ -597,24 +597,24 @@ static void execSystem(hart_Hart *hart, uint32_t instr) {
 		// CSR instructions
 	} else if (funct3 == FUNCT3_CSRRW) {
 		// CSR read & write
-		csr_rw(hart, csr, rd, rs1);
+		csr_rw(hart, xcsr, rd, rs1);
 	} else if (funct3 == FUNCT3_CSRRS) {
 		// CSR read & set bit
 		const uint8_t mask_reg = rs1;
-		csr_rs(hart, csr, rd, mask_reg);
+		csr_rs(hart, xcsr, rd, mask_reg);
 	} else if (funct3 == FUNCT3_CSRRC) {
 		// CSR read & clear bit
 		const uint8_t mask_reg = rs1;
-		csr_rc(hart, csr, rd, mask_reg);
+		csr_rc(hart, xcsr, rd, mask_reg);
 	} else if (funct3 == FUNCT3_CSRRWI) {
 		const uint8_t imm = rs1;
-		csr_rwi(hart, csr, rd, imm);
+		csr_rwi(hart, xcsr, rd, imm);
 	} else if (funct3 == FUNCT3_CSRRSI) {
 		const uint8_t imm = rs1;
-		csr_rsi(hart, csr, rd, imm);
+		csr_rsi(hart, xcsr, rd, imm);
 	} else if (funct3 == FUNCT3_CSRRCI) {
 		const uint8_t imm = rs1;
-		csr_rci(hart, csr, rd, imm);
+		csr_rci(hart, xcsr, rd, imm);
 	} else {
 		trace(hart->pc, "UNKNOWN SYSTEM INSTRUCTION: 0x%x\n", instr);
 		hart->end = true;

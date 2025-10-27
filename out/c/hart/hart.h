@@ -12,8 +12,8 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include "csr.h"
 #include "decode.h"
+#include "csr.h"
 
 
 

@@ -1,12 +1,13 @@
+import "csr"
 include "ctypes"
 include "stdio"
 include "unistd"
 include "stdlib"
-include "csr"
 include "decode"
 /*
  * RV32IM simple software implementation
  */
+import "csr" as csr
 
 
 const traceMode: Bool = false
@@ -63,8 +64,8 @@ public const intMemViolation = 0x0B
 
 public func init (hart: *Hart, id: Nat32, bus: *BusInterface) -> Unit {
 	printf("hart #%d init\n", id)
-	hart.csrs[Nat32 csr_mhartid_adr] = Word32 id
-	hart.csrs[Nat32 csr_misa_adr] = csr_misa_xlen_32 or csr_misa_i or csr_misa_m
+	hart.csrs[Nat32 csr.mhartid_adr] = Word32 id
+	hart.csrs[Nat32 csr.misa_adr] = csr.misa_xlen_32 or csr.misa_i or csr.misa_m
 	hart.regs = []
 	hart.pc = 0
 	hart.bus = bus
@@ -83,12 +84,12 @@ func fetch (hart: *Hart) -> Word32 {
 public func cycle (hart: *Hart) -> Unit {
 	if hart.irq != 0 {
 		trace(hart.pc, "\nINT #%02X\n", hart.irq)
-		let adr = Nat32 hart.csrs[Nat32 csr_mtvec_adr]
+		let adr = Nat32 hart.csrs[Nat32 csr.mtvec_adr]
 		printf("ADR = %08X\n", adr)
 		//let vect_offset = Nat32 hart.irq * 4
-		hart.csrs[Nat32 csr_mepc_adr] = Word32 hart.pc
-		hart.csrs[Nat32 csr_mcause_adr] = 0
-		hart.csrs[Nat32 csr_mtval_adr] = 0
+		hart.csrs[Nat32 csr.mepc_adr] = Word32 hart.pc
+		hart.csrs[Nat32 csr.mcause_adr] = 0
+		hart.csrs[Nat32 csr.mtval_adr] = 0
 		hart.pc = adr
 
 		hart.irq = 0
@@ -98,7 +99,7 @@ public func cycle (hart: *Hart) -> Unit {
 	exec(hart, instr)
 
 	// count mcycle
-	hart.csrs[Nat32 csr_mcycle_adr] = Word32 (Nat32 hart.csrs[Nat32 csr_mcycle_adr] + 1)
+	hart.csrs[Nat32 csr.mcycle_adr] = Word32 (Nat32 hart.csrs[Nat32 csr.mcycle_adr] + 1)
 }
 
 
@@ -561,22 +562,22 @@ func execSystem (hart: *Hart, instr: Word32) -> Unit {
 	let funct3: Word8 = extract_funct3(instr)
 	let rd: Nat8 = extract_rd(instr)
 	let rs1: Nat8 = extract_rs1(instr)
-	let csr: Nat16 = unsafe Nat16 extract_imm12(instr)
+	let xcsr: Nat16 = unsafe Nat16 extract_imm12(instr)
 
 	printf("SYSTEM INSTRUCTION: instr=0x%08X\n", instr)
 	if instr == instrECALL {
 		trace(hart.pc, "ecall\n")
-		printf("ECALL: hart #%d\n", hart.csrs[Nat32 csr_mhartid_adr])
+		printf("ECALL: hart #%d\n", hart.csrs[Nat32 csr.mhartid_adr])
 		//
 		hart.irq = hart.irq or intSysCall
 	} else if instr == instrMRET {
 		trace(hart.pc, "mret\n")
 		// Machine return from trap
-		let mepc: Word32 = hart.csrs[Nat32 csr_mepc_adr]
-		let mcause: Word32 = hart.csrs[Nat32 csr_mcause_adr]
-		let mtval: Word32 = hart.csrs[Nat32 csr_mtval_adr]
+		let mepc: Word32 = hart.csrs[Nat32 csr.mepc_adr]
+		let mcause: Word32 = hart.csrs[Nat32 csr.mcause_adr]
+		let mtval: Word32 = hart.csrs[Nat32 csr.mtval_adr]
 		printf("MRET: hart #%d, mepc=%08X, mcause=%08X, mtval=%08X\n"
-			hart.csrs[Nat32 csr_mhartid_adr]
+			hart.csrs[Nat32 csr.mhartid_adr]
 			mepc, mcause, mtval
 		)
 		hart.pc = Nat32 mepc
@@ -587,24 +588,24 @@ func execSystem (hart: *Hart, instr: Word32) -> Unit {
 		// CSR instructions
 	} else if funct3 == funct3_CSRRW {
 		// CSR read & write
-		csr_rw(hart, csr, rd, rs1)
+		csr_rw(hart, xcsr, rd, rs1)
 	} else if funct3 == funct3_CSRRS {
 		// CSR read & set bit
 		let mask_reg: Nat8 = rs1
-		csr_rs(hart, csr, rd, mask_reg)
+		csr_rs(hart, xcsr, rd, mask_reg)
 	} else if funct3 == funct3_CSRRC {
 		// CSR read & clear bit
 		let mask_reg: Nat8 = rs1
-		csr_rc(hart, csr, rd, mask_reg)
+		csr_rc(hart, xcsr, rd, mask_reg)
 	} else if funct3 == funct3_CSRRWI {
 		let imm: Nat8 = rs1
-		csr_rwi(hart, csr, rd, imm)
+		csr_rwi(hart, xcsr, rd, imm)
 	} else if funct3 == funct3_CSRRSI {
 		let imm: Nat8 = rs1
-		csr_rsi(hart, csr, rd, imm)
+		csr_rsi(hart, xcsr, rd, imm)
 	} else if funct3 == funct3_CSRRCI {
 		let imm: Nat8 = rs1
-		csr_rci(hart, csr, rd, imm)
+		csr_rci(hart, xcsr, rd, imm)
 	} else {
 		trace(hart.pc, "UNKNOWN SYSTEM INSTRUCTION: 0x%x\n", instr)
 		hart.end = true

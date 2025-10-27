@@ -36,7 +36,7 @@ int main() {
 	}
 
 	printf("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
-	printf("mcycle = %u\n", hart.csrs[CSR_CSR_MCYCLE_ADR]);
+	printf("mcycle = %u\n", hart.csrs[CSR_MCYCLE_ADR]);
 
 	printf("\nCore dump:\n");
 	hart_show_regs(&hart);

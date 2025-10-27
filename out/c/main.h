@@ -8,9 +8,9 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include "csr.h"
 #include "bus.h"
 #include "hart.h"
+#include "csr.h"
 
 int main();
 
