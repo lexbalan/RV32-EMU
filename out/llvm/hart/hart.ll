@@ -176,6 +176,7 @@ declare %Int @fprintf(%File* %f, %Str* %format, ...)
 declare %Int @fscanf(%File* %f, %ConstCharStr* %format, ...)
 declare %Int @sscanf(%ConstCharStr* %buf, %ConstCharStr* %format, ...)
 declare %Int @sprintf(%CharStr* %buf, %ConstCharStr* %format, ...)
+declare %Int @snprintf(%CharStr* %buf, %SizeT %size, %ConstCharStr* %format, ...)
 declare %Int @vfprintf(%File* %f, %ConstCharStr* %format, %__VA_List %args)
 declare %Int @vprintf(%ConstCharStr* %format, %__VA_List %args)
 declare %Int @vsprintf(%CharStr* %str, %ConstCharStr* %format, %__VA_List %args)
@@ -385,9 +386,7 @@ declare %Int32 @decode_expand20(%Word32 %val_20bit)
 @str66 = private constant [15 x i8] [i8 120, i8 37, i8 48, i8 50, i8 100, i8 32, i8 61, i8 32, i8 48, i8 120, i8 37, i8 48, i8 56, i8 120, i8 0]
 @str67 = private constant [5 x i8] [i8 32, i8 32, i8 32, i8 32, i8 0]
 @str68 = private constant [16 x i8] [i8 120, i8 37, i8 48, i8 50, i8 100, i8 32, i8 61, i8 32, i8 48, i8 120, i8 37, i8 48, i8 56, i8 120, i8 10, i8 0]
-; -- endstrings --;
-; * RV32IM simple software implementation
-; 
+; -- endstrings --
 %hart_Hart = type {
 	[32 x %Word32],
 	%Nat32,
@@ -401,9 +400,7 @@ declare %Int32 @decode_expand20(%Word32 %val_20bit)
 	%Word32 (%Nat32, %Nat8)*,
 	void (%Nat32, %Word32, %Nat8)*
 };
-; load; immediate; store; reg; branch; load upper immediate; add upper immediate to PC; jump and link; jump and link by register; system; fence; machine return from trap
-
-; funct3 for CSR
+; branch; jump and link by register; fence; machine return from trap
 define void @hart_init(%hart_Hart* %hart, %Nat32 %id, %hart_BusInterface* %bus) {
 	%1 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([15 x i8]* @str1 to [0 x i8]*), %Nat32 %id)
 	%2 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 5
@@ -659,9 +656,6 @@ endif_0:
 	ret void
 }
 
-
-
-; Immediate instructions
 define internal void @execI(%hart_Hart* %hart, %Word32 %instr) {
 	%1 = call %Word8 @decode_extract_funct3(%Word32 %instr)
 	%2 = call %Word8 @decode_extract_funct7(%Word32 %instr)
@@ -906,9 +900,6 @@ endif_0:
 	ret void
 }
 
-
-
-; Register to register
 define internal void @execR(%hart_Hart* %hart, %Word32 %instr) {
 	%1 = call %Word8 @decode_extract_funct3(%Word32 %instr)
 	%2 = call %Word8 @decode_extract_funct7(%Word32 %instr)
@@ -1317,9 +1308,6 @@ endif_9:
 	ret void
 }
 
-
-
-; Load upper immediate
 define internal void @execLUI(%hart_Hart* %hart, %Word32 %instr) {
 	%1 = call %Word32 @decode_extract_imm31_12(%Word32 %instr)
 	%2 = call %Nat8 @decode_extract_rd(%Word32 %instr)
@@ -1335,9 +1323,6 @@ define internal void @execLUI(%hart_Hart* %hart, %Word32 %instr) {
 	ret void
 }
 
-
-
-; Add upper immediate to PC
 define internal void @execAUIPC(%hart_Hart* %hart, %Word32 %instr) {
 	%1 = call %Word32 @decode_extract_imm31_12(%Word32 %instr)
 	%2 = call %Int32 @decode_expand12(%Word32 %1)
@@ -1360,9 +1345,6 @@ define internal void @execAUIPC(%hart_Hart* %hart, %Word32 %instr) {
 	ret void
 }
 
-
-
-; Jump and link
 define internal void @execJAL(%hart_Hart* %hart, %Word32 %instr) {
 	%1 = call %Nat8 @decode_extract_rd(%Word32 %instr)
 	%2 = call %Word32 @decode_extract_jal_imm(%Word32 %instr)
@@ -1388,9 +1370,6 @@ define internal void @execJAL(%hart_Hart* %hart, %Word32 %instr) {
 	ret void
 }
 
-
-
-; Jump and link (by register)
 define internal void @execJALR(%hart_Hart* %hart, %Word32 %instr) {
 	%1 = call %Nat8 @decode_extract_rs1(%Word32 %instr)
 	%2 = call %Nat8 @decode_extract_rd(%Word32 %instr)
@@ -1425,9 +1404,6 @@ define internal void @execJALR(%hart_Hart* %hart, %Word32 %instr) {
 	ret void
 }
 
-
-
-; Branch instructions
 define internal void @execB(%hart_Hart* %hart, %Word32 %instr) {
 	%1 = call %Word8 @decode_extract_funct3(%Word32 %instr)
 	%2 = call %Nat8 @decode_extract_rs1(%Word32 %instr)
@@ -1666,9 +1642,6 @@ endif_0:
 	ret void
 }
 
-
-
-; Load instructions
 define internal void @execL(%hart_Hart* %hart, %Word32 %instr) {
 	%1 = call %Word8 @decode_extract_funct3(%Word32 %instr)
 	%2 = call %Word32 @decode_extract_imm12(%Word32 %instr)
@@ -1794,9 +1767,6 @@ endif_0:
 	ret void
 }
 
-
-
-; Store instructions
 define internal void @execS(%hart_Hart* %hart, %Word32 %instr) {
 	%1 = call %Word8 @decode_extract_funct3(%Word32 %instr)
 	%2 = call %Word8 @decode_extract_funct7(%Word32 %instr)
@@ -2047,12 +2017,6 @@ endif_0:
 	ret void
 }
 
-
-
-
-;
-;The CSRRW (Atomic Read/Write CSR) instruction atomically swaps values in the CSRs and integer registers. CSRRW reads the old value of the CSR, zero-extends the value to XLEN bits, then writes it to integer register rd. The initial value in rs1 is written to the CSR. If rd=x0, then the instruction shall not read the CSR and shall not cause any of the side effects that might occur on a CSR read.
-;
 define internal void @csr_rw(%hart_Hart* %hart, %Nat16 %csr, %Nat8 %rd, %Nat8 %rs1) {
 	%1 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([35 x i8]* @str60 to [0 x i8]*), %Nat16 %csr, %Nat8 %rd, %Nat8 %rs1)
 	%2 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 0
@@ -2074,11 +2038,6 @@ define internal void @csr_rw(%hart_Hart* %hart, %Nat16 %csr, %Nat8 %rd, %Nat8 %r
 	ret void
 }
 
-
-
-;
-;The CSRRS (Atomic Read and Set Bits in CSR) instruction reads the value of the CSR, zero-extends the value to XLEN bits, and writes it to integer register rd. The initial value in integer register rs1 is treated as a bit mask that specifies bit positions to be set in the CSR. Any bit that is high in rs1 will cause the corresponding bit to be set in the CSR, if that CSR bit is writable. Other bits in the CSR are not explicitly written.
-;
 define internal void @csr_rs(%hart_Hart* %hart, %Nat16 %csr, %Nat8 %rd, %Nat8 %rs1) {
 	; csrrs rd, csr, rs
 	;printf("CSR_RS(csr=0x%X, rd=r%d, rs1=r%d)\n", csr, rd, rs1)
@@ -2110,11 +2069,6 @@ define internal void @csr_rs(%hart_Hart* %hart, %Nat16 %csr, %Nat8 %rd, %Nat8 %r
 	ret void
 }
 
-
-
-;
-;The CSRRC (Atomic Read and Clear Bits in CSR) instruction reads the value of the CSR, zero-extends the value to XLEN bits, and writes it to integer register rd. The initial value in integer register rs1 is treated as a bit mask that specifies bit positions to be cleared in the CSR. Any bit that is high in rs1 will cause the corresponding bit to be cleared in the CSR, if that CSR bit is writable. Other bits in the CSR are not explicitly written.
-;
 define internal void @csr_rc(%hart_Hart* %hart, %Nat16 %csr, %Nat8 %rd, %Nat8 %rs1) {
 	; csrrc rd, csr, rs
 	;printf("CSR_RC(csr=0x%X, rd=r%d, rs1=r%d)\n", csr, rd, rs1)
@@ -2147,9 +2101,6 @@ define internal void @csr_rc(%hart_Hart* %hart, %Nat16 %csr, %Nat8 %rd, %Nat8 %r
 	ret void
 }
 
-
-
-; read+write immediate(5-bit)
 define internal void @csr_rwi(%hart_Hart* %hart, %Nat16 %csr, %Nat8 %rd, %Nat8 %imm) {
 	%1 = zext %Nat8 %imm to %Word32
 	;printf("CSR_RWI(csr=0x%X, rd=r%d, imm=%0x%X)\n", csr, rd, imm32)
@@ -2168,9 +2119,6 @@ define internal void @csr_rwi(%hart_Hart* %hart, %Nat16 %csr, %Nat8 %rd, %Nat8 %
 	ret void
 }
 
-
-
-; read+clear immediate(5-bit)
 define internal void @csr_rsi(%hart_Hart* %hart, %Nat16 %csr, %Nat8 %rd, %Nat8 %imm) {
 	%1 = zext %Nat8 %imm to %Word32
 	;printf("CSR_RSI(csr=0x%X, rd=r%d, imm=%0x%X)\n", csr, rd, imm32)
@@ -2194,9 +2142,6 @@ define internal void @csr_rsi(%hart_Hart* %hart, %Nat16 %csr, %Nat8 %rd, %Nat8 %
 	ret void
 }
 
-
-
-; read+clear immediate(5-bit)
 define internal void @csr_rci(%hart_Hart* %hart, %Nat16 %csr, %Nat8 %rd, %Nat8 %imm) {
 	%1 = zext %Nat8 %imm to %Word32
 	;printf("CSR_RCI(csr=0x%X, rd=r%d, imm=%0x%X)\n", csr, rd, imm32)

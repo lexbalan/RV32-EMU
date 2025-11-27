@@ -1,6 +1,9 @@
 //
 //
 
+pragma unsafe
+pragma public_module
+
 include "libc/stdio"
 include "libc/stdlib"
 
@@ -11,26 +14,26 @@ const showText = false
 
 
 // see mem.ld
-public const ramSize = Nat32 16 * 1024
-public const ramStart = Nat32 0x10000000
-public const ramEnd = ramStart + ramSize
+const ramSize = Nat32 16 * 1024
+const ramStart = Nat32 0x10000000
+const ramEnd = ramStart + ramSize
 
 
-public const romSize = Nat32 0x100000
-public const romStart = Nat32 0x00000000
-public const romEnd = romStart + romSize
+const romSize = Nat32 0x100000
+const romStart = Nat32 0x00000000
+const romEnd = romStart + romSize
 
 
-const mmioSize = Nat32 0xFFFF
-const mmioStart = Nat32 0xF00C0000
-const mmioEnd = mmioStart + mmioSize
+private const mmioSize = Nat32 0xFFFF
+private const mmioStart = Nat32 0xF00C0000
+private const mmioEnd = mmioStart + mmioSize
 
 
-var ram: [ramSize]Word8
-var rom: [romSize]Word8
+private var ram: [ramSize]Word8
+private var rom: [romSize]Word8
 
 
-public func read (adr: Nat32, size: Nat8) -> Word32 {
+func read (adr: Nat32, size: Nat8) -> Word32 {
 	if isAdressInRange(adr, ramStart, ramEnd) {
 		let ramPtr = Ptr &ram[adr - ramStart]
 		if size == 1 {
@@ -59,7 +62,7 @@ public func read (adr: Nat32, size: Nat8) -> Word32 {
 }
 
 
-public func write (adr: Nat32, value: Word32, size: Nat8) -> Unit {
+func write (adr: Nat32, value: Word32, size: Nat8) -> Unit {
 	if isAdressInRange(adr, ramStart, ramEnd) {
 		let ramPtr = Ptr &ram[adr - ramStart]
 		if size == 1 {
@@ -104,12 +107,12 @@ func memoryViolation (rw: Char8, adr: Nat32) -> Unit {
 
 
 
-public func load_rom (filename: *Str8) -> Nat32 {
+func load_rom (filename: *Str8) -> Nat32 {
 	return load(filename, &rom, romSize)
 }
 
 
-func load (filename: *Str8, bufptr: *[]Word8, buf_size: Nat32) -> Nat32 {
+private func load (filename: *Str8, bufptr: *[]Word8, buf_size: Nat32) -> Nat32 {
 	printf("LOAD: %s\n", filename)
 
 	let fp = fopen(filename, "rb")
@@ -139,7 +142,7 @@ func load (filename: *Str8, bufptr: *[]Word8, buf_size: Nat32) -> Nat32 {
 }
 
 
-public func show_ram () -> Unit {
+func show_ram () -> Unit {
 	var i = Nat32 0
 	let ramptr = &ram
 	while i < 256 {

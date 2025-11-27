@@ -1,3 +1,6 @@
+
+pragma unsafe
+
 import "mmio"
 include "stdio"
 include "stdlib"

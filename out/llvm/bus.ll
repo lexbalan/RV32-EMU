@@ -172,6 +172,7 @@ declare %Int @fprintf(%File* %f, %Str* %format, ...)
 declare %Int @fscanf(%File* %f, %ConstCharStr* %format, ...)
 declare %Int @sscanf(%ConstCharStr* %buf, %ConstCharStr* %format, ...)
 declare %Int @sprintf(%CharStr* %buf, %ConstCharStr* %format, ...)
+declare %Int @snprintf(%CharStr* %buf, %SizeT %size, %ConstCharStr* %format, ...)
 declare %Int @vfprintf(%File* %f, %ConstCharStr* %format, %__VA_List %args)
 declare %Int @vprintf(%ConstCharStr* %format, %__VA_List %args)
 declare %Int @vsprintf(%CharStr* %str, %ConstCharStr* %format, %__VA_List %args)
@@ -230,16 +231,12 @@ declare %Word32 @mmio_read32(%Nat32 %adr)
 @str8 = private constant [5 x i8] [i8 37, i8 48, i8 56, i8 88, i8 0]
 @str9 = private constant [6 x i8] [i8 32, i8 37, i8 48, i8 50, i8 88, i8 0]
 @str10 = private constant [2 x i8] [i8 10, i8 0]
-; -- endstrings --;
-;
-
-
-; see mem.ld
+; -- endstrings --
 @ram = internal global [16384 x %Word8] zeroinitializer
 @rom = internal global [1048576 x %Word8] zeroinitializer
 define %Word32 @bus_read(%Nat32 %adr, %Nat8 %size) {
 ; if_0
-	%1 = call %Bool @isAdressInRange(%Nat32 %adr, %Nat32 268435456, %Nat32 268451840)
+	%1 = call %Bool @bus_isAdressInRange(%Nat32 %adr, %Nat32 268435456, %Nat32 268451840)
 	br %Bool %1 , label %then_0, label %else_0
 then_0:
 	%2 = sub %Nat32 %adr, 268435456
@@ -282,7 +279,7 @@ endif_1:
 	br label %endif_0
 else_0:
 ; if_4
-	%20 = call %Bool @isAdressInRange(%Nat32 %adr, %Nat32 0, %Nat32 1048576)
+	%20 = call %Bool @bus_isAdressInRange(%Nat32 %adr, %Nat32 0, %Nat32 1048576)
 	br %Bool %20 , label %then_4, label %else_4
 then_4:
 	%21 = sub %Nat32 %adr, 0
@@ -325,13 +322,13 @@ endif_5:
 	br label %endif_4
 else_4:
 ; if_8
-	%39 = call %Bool @isAdressInRange(%Nat32 %adr, %Nat32 4027318272, %Nat32 4027383807)
+	%39 = call %Bool @bus_isAdressInRange(%Nat32 %adr, %Nat32 4027318272, %Nat32 4027383807)
 	br %Bool %39 , label %then_8, label %else_8
 then_8:
 	; MMIO Read
 	br label %endif_8
 else_8:
-	call void @memoryViolation(%Char8 114, %Nat32 %adr)
+	call void @bus_memoryViolation(%Char8 114, %Nat32 %adr)
 	br label %endif_8
 endif_8:
 	br label %endif_4
@@ -344,7 +341,7 @@ endif_0:
 
 define void @bus_write(%Nat32 %adr, %Word32 %value, %Nat8 %size) {
 ; if_0
-	%1 = call %Bool @isAdressInRange(%Nat32 %adr, %Nat32 268435456, %Nat32 268451840)
+	%1 = call %Bool @bus_isAdressInRange(%Nat32 %adr, %Nat32 268435456, %Nat32 268451840)
 	br %Bool %1 , label %then_0, label %else_0
 then_0:
 	%2 = sub %Nat32 %adr, 268435456
@@ -384,7 +381,7 @@ endif_1:
 	br label %endif_0
 else_0:
 ; if_4
-	%14 = call %Bool @isAdressInRange(%Nat32 %adr, %Nat32 4027318272, %Nat32 4027383807)
+	%14 = call %Bool @bus_isAdressInRange(%Nat32 %adr, %Nat32 4027318272, %Nat32 4027383807)
 	br %Bool %14 , label %then_4, label %else_4
 then_4:
 	%15 = sub %Nat32 %adr, 4027318272
@@ -418,13 +415,13 @@ endif_5:
 	br label %endif_4
 else_4:
 ; if_8
-	%21 = call %Bool @isAdressInRange(%Nat32 %adr, %Nat32 0, %Nat32 1048576)
+	%21 = call %Bool @bus_isAdressInRange(%Nat32 %adr, %Nat32 0, %Nat32 1048576)
 	br %Bool %21 , label %then_8, label %else_8
 then_8:
-	call void @memoryViolation(%Char8 119, %Nat32 %adr)
+	call void @bus_memoryViolation(%Char8 119, %Nat32 %adr)
 	br label %endif_8
 else_8:
-	call void @memoryViolation(%Char8 119, %Nat32 %adr)
+	call void @bus_memoryViolation(%Char8 119, %Nat32 %adr)
 	br label %endif_8
 endif_8:
 	br label %endif_4
@@ -434,34 +431,35 @@ endif_0:
 	ret void
 }
 
-define internal %Bool @isAdressInRange(%Nat32 %x, %Nat32 %a, %Nat32 %b) alwaysinline {
+define %Bool @bus_isAdressInRange(%Nat32 %x, %Nat32 %a, %Nat32 %b) alwaysinline {
 	%1 = icmp uge %Nat32 %x, %a
 	%2 = icmp ult %Nat32 %x, %b
 	%3 = and %Bool %1, %2
 	ret %Bool %3
 }
 
-@memviolationCnt = internal global %Nat32 0
-define internal void @memoryViolation(%Char8 %rw, %Nat32 %adr) {
+@bus_memviolationCnt = global %Nat32 0
+define void @bus_memoryViolation(%Char8 %rw, %Nat32 %adr) {
 	%1 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([38 x i8]* @str1 to [0 x i8]*), %Char8 %rw, %Nat32 %adr)
 ; if_0
-	%2 = load %Nat32, %Nat32* @memviolationCnt
+	%2 = load %Nat32, %Nat32* @bus_memviolationCnt
 	%3 = icmp ugt %Nat32 %2, 10
 	br %Bool %3 , label %then_0, label %endif_0
 then_0:
 	call void @exit(%Int 1)
 	br label %endif_0
 endif_0:
-	%4 = load %Nat32, %Nat32* @memviolationCnt
+	%4 = load %Nat32, %Nat32* @bus_memviolationCnt
 	%5 = add %Nat32 %4, 1
-	store %Nat32 %5, %Nat32* @memviolationCnt
+	store %Nat32 %5, %Nat32* @bus_memviolationCnt
 	;	memoryViolation_event(0x55) // !
 	ret void
 }
 
 define %Nat32 @bus_load_rom(%Str8* %filename) {
-	%1 = call %Nat32 @load(%Str8* %filename, [0 x %Word8]* bitcast ([1048576 x %Word8]* @rom to [0 x %Word8]*), %Nat32 1048576)
-	ret %Nat32 %1
+	%1 = bitcast [1048576 x %Word8]* @rom to [0 x %Word8]*
+	%2 = call %Nat32 @load(%Str8* %filename, [0 x %Word8]* %1, %Nat32 1048576)
+	ret %Nat32 %2
 }
 
 define internal %Nat32 @load(%Str8* %filename, [0 x %Word8]* %bufptr, %Nat32 %buf_size) {
