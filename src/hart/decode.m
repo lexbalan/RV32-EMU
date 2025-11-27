@@ -74,6 +74,7 @@ func extract_b_imm (instr: Word32) -> Int16 {
 	return Int16 imm_bits
 }
 
+
 func extract_jal_imm (instr: Word32) -> Word32 {
 	let imm = extract_imm31_12(instr)
 	let bit19to12_msk = ((imm >> 0) and 0xFF) << 12

@@ -223,7 +223,6 @@ declare %Word32 @mmio_read32(%Nat32 %adr)
 ; from import "bus"
 declare %Word32 @bus_read(%Nat32 %adr, %Nat8 %size)
 declare void @bus_write(%Nat32 %adr, %Word32 %value, %Nat8 %size)
-declare %Bool @bus_isAdressInRange(%Nat32 %x, %Nat32 %a, %Nat32 %b)
 declare void @bus_memoryViolation(%Char8 %rw, %Nat32 %adr)
 declare %Nat32 @bus_load_rom(%Str8* %filename)
 declare void @bus_show_ram()

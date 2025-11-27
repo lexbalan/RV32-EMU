@@ -1,15 +1,11 @@
-
-pragma unsafe
-
 import "mmio"
 include "stdio"
 include "stdlib"
-//
-//
+
 import "mmio" as mmio
 
 
-const showText: Bool = false
+public const showText: Bool = false
 
 
 // see mem.ld
@@ -32,25 +28,35 @@ var ram: [ramSize]Word8
 var rom: [romSize]Word8
 
 
+public func readFrom (ptr: Ptr, adr: Nat32, size: Nat8) -> Word32 {
+	if size == 1 {
+		return Word32 *(*Word8 ptr)
+	} else if size == 2 {
+		return Word32 *(*Word16 ptr)
+	} else if size == 4 {
+		return *(*Word32 ptr)
+	}
+	return 0
+}
+
+public func writeTo (ptr: Ptr, adr: Nat32, value: Word32, size: Nat8) -> Unit {
+	if size == 1 {
+		*(*Word8 ptr) = unsafe Word8 value
+	} else if size == 2 {
+		*(*Word16 ptr) = unsafe Word16 value
+	} else if size == 4 {
+		*(*Word32 ptr) = value
+	}
+}
+
+
 public func read (adr: Nat32, size: Nat8) -> Word32 {
 	if isAdressInRange(adr, ramStart, ramEnd) {
 		let ramPtr = Ptr &ram[adr - ramStart]
-		if size == 1 {
-			return Word32 *(*Word8 ramPtr)
-		} else if size == 2 {
-			return Word32 *(*Word16 ramPtr)
-		} else if size == 4 {
-			return *(*Word32 ramPtr)
-		}
+		return readFrom(ramPtr, adr, size)
 	} else if isAdressInRange(adr, romStart, romEnd) {
 		let romPtr = Ptr &rom[adr - romStart]
-		if size == 1 {
-			return Word32 *(*Word8 romPtr)
-		} else if size == 2 {
-			return Word32 *(*Word16 romPtr)
-		} else if size == 4 {
-			return *(*Word32 romPtr)
-		}
+		return readFrom(romPtr, adr, size)
 	} else if isAdressInRange(adr, mmioStart, mmioEnd) {
 		// MMIO Read
 	} else {
@@ -64,13 +70,7 @@ public func read (adr: Nat32, size: Nat8) -> Word32 {
 public func write (adr: Nat32, value: Word32, size: Nat8) -> Unit {
 	if isAdressInRange(adr, ramStart, ramEnd) {
 		let ramPtr = Ptr &ram[adr - ramStart]
-		if size == 1 {
-			*(*Word8 ramPtr) = unsafe Word8 value
-		} else if size == 2 {
-			*(*Word16 ramPtr) = unsafe Word16 value
-		} else if size == 4 {
-			*(*Word32 ramPtr) = value
-		}
+		writeTo(ramPtr, adr, value, size)
 	} else if isAdressInRange(adr, mmioStart, mmioEnd) {
 		let mmioAdr: Nat32 = adr - mmioStart
 		if size == 1 {
@@ -90,13 +90,13 @@ public func write (adr: Nat32, value: Word32, size: Nat8) -> Unit {
 
 
 @inline
-func isAdressInRange (x: Nat32, a: Nat32, b: Nat32) -> Bool {
+public func isAdressInRange (x: Nat32, a: Nat32, b: Nat32) -> Bool {
 	return x >= a and x < b
 }
 
 
-var memviolationCnt = Nat32 0
-func memoryViolation (rw: Char8, adr: Nat32) -> Unit {
+public var memviolationCnt = Nat32 0
+public func memoryViolation (rw: Char8, adr: Nat32) -> Unit {
 	printf("*** MEMORY VIOLATION '%c' 0x%08x ***\n", rw, adr)
 	if memviolationCnt > 10 {
 		exit(1)

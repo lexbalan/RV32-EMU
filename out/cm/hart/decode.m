@@ -1,5 +1,3 @@
-//
-//
 
 
 public func extract_op (instr: Word32) -> Word8 {
@@ -70,6 +68,7 @@ public func extract_b_imm (instr: Word32) -> Int16 {
 
 	return Int16 imm_bits
 }
+
 
 public func extract_jal_imm (instr: Word32) -> Word32 {
 	let imm: Word32 = extract_imm31_12(instr)

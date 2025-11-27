@@ -4,9 +4,7 @@ include "stdio"
 include "unistd"
 include "stdlib"
 include "decode"
-/*
- * RV32IM simple software implementation
- */
+
 import "csr" as csr
 
 
@@ -23,9 +21,9 @@ public type Hart = record {
 }
 
 
-public type BusInterface = record {
-	public read: *(adr: Nat32, size: Nat8) -> Word32
-	public write: *(adr: Nat32, value: Word32, size: Nat8) -> Unit
+public type BusInterface = @public record {
+	read: *(adr: Nat32, size: Nat8) -> Word32
+	write: *(adr: Nat32, value: Word32, size: Nat8) -> Unit
 }
 
 

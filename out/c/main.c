@@ -14,7 +14,7 @@
 
 static hart_Hart hart;
 
-int main() {
+int main(void) {
 	printf("RISC-V VM\n");
 
 	const uint32_t nbytes = bus_load_rom(TEXT_FILENAME);

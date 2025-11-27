@@ -1,6 +1,3 @@
-/*
- * RV32IM simple software implementation
- */
 
 #ifndef HART_H
 #define HART_H

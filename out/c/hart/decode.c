@@ -1,5 +1,3 @@
-//
-//
 
 #include "decode.h"
 
@@ -50,6 +48,7 @@ uint8_t decode_extract_funct7(uint32_t instr) {
 }
 
 
+
 // bits: (31 .. 20)
 uint32_t decode_extract_imm12(uint32_t instr) {
 	return (instr >> 20) & 0xFFF;
@@ -90,6 +89,7 @@ uint32_t decode_extract_jal_imm(uint32_t instr) {
 }
 
 
+
 // sign expand (12bit -> 32bit)
 int32_t decode_expand12(uint32_t val_12bit) {
 	uint32_t v = val_12bit;
@@ -98,6 +98,7 @@ int32_t decode_expand12(uint32_t val_12bit) {
 	}
 	return (int32_t)v;
 }
+
 
 
 // sign expand (20bit -> 32bit)

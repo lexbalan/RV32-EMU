@@ -36,7 +36,7 @@ CM:
 	mcc -o $(CMPREFIX)/main $(CM_OPTS) -mbackend=cm $(INDIR)/main.m
 	mcc -o $(CMPREFIX)/hart/hart $(CM_OPTS) -mbackend=cm $(INDIR)/hart/hart.m
 	mcc -o $(CMPREFIX)/hart/decode $(CM_OPTS) -mbackend=cm $(INDIR)/hart/decode.m
-	mcc -o $(CMPREFIX)/hart/csr $(CM_OPTS) $(CM_OPTS) -mbackend=c $(INDIR)/hart/csr.m
+	mcc -o $(CMPREFIX)/hart/csr $(CM_OPTS) -mbackend=cm $(INDIR)/hart/csr.m
 	mcc -o $(CMPREFIX)/bus $(CM_OPTS) -mbackend=cm $(INDIR)/bus.m
 	mcc -o $(CMPREFIX)/mmio $(CM_OPTS) -mbackend=cm $(INDIR)/mmio.m
 
