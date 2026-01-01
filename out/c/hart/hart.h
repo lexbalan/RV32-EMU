@@ -13,11 +13,12 @@
 #include "csr.h"
 
 
+typedef uint32_t hart_RegType;
 
 struct hart_BusInterface;
 typedef struct hart_BusInterface hart_BusInterface;
 struct hart_Hart {
-	uint32_t regs[32];
+	hart_RegType regs[32];
 	uint32_t pc;
 	hart_BusInterface *bus;
 	uint32_t irq;

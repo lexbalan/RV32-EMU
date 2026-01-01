@@ -9,7 +9,7 @@ MACHINE = --target=riscv32 -march=rv32im
 # Кароче, -nostdlib -fno-builtin -fno-builtin-memset не помогают
 # гребаный компайлер все равно норовит вызывать memset и невозможно отделаться!
 
-CFLAGS = $(MACHINE)
+CFLAGS = -O0 $(MACHINE)
 
 # only-section=.isr  не поможет - эту секцию хрен продавишь, хз почему так
 ONLYSECTION=--only-section=.text --only-section=.data

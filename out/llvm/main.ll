@@ -334,8 +334,9 @@ declare %Int32 @decode_expand20(%Word32 %val_20bit)
 ; end from import "csr"
 
 ; from import "rvHart"
+%hart_RegType = type %Word32;
 %hart_Hart = type {
-	[32 x %Word32],
+	[32 x %hart_RegType],
 	%Nat32,
 	%hart_BusInterface*,
 	%Word32,

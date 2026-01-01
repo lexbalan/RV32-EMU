@@ -28,28 +28,6 @@ var ram: [ramSize]Word8
 var rom: [romSize]Word8
 
 
-public func readFrom (ptr: Ptr, adr: Nat32, size: Nat8) -> Word32 {
-	if size == 1 {
-		return Word32 *(*Word8 ptr)
-	} else if size == 2 {
-		return Word32 *(*Word16 ptr)
-	} else if size == 4 {
-		return *(*Word32 ptr)
-	}
-	return 0
-}
-
-public func writeTo (ptr: Ptr, adr: Nat32, value: Word32, size: Nat8) -> Unit {
-	if size == 1 {
-		*(*Word8 ptr) = unsafe Word8 value
-	} else if size == 2 {
-		*(*Word16 ptr) = unsafe Word16 value
-	} else if size == 4 {
-		*(*Word32 ptr) = value
-	}
-}
-
-
 public func read (adr: Nat32, size: Nat8) -> Word32 {
 	if isAdressInRange(adr, ramStart, ramEnd) {
 		let ramPtr = Ptr &ram[adr - ramStart]
@@ -89,8 +67,33 @@ public func write (adr: Nat32, value: Word32, size: Nat8) -> Unit {
 
 
 
+func readFrom (ptr: Ptr, adr: Nat32, size: Nat8) -> Word32 {
+	if size == 1 {
+		return Word32 *(*Word8 ptr)
+	} else if size == 2 {
+		return Word32 *(*Word16 ptr)
+	} else if size == 4 {
+		return *(*Word32 ptr)
+	}
+	return 0
+}
+
+
+func writeTo (ptr: Ptr, adr: Nat32, value: Word32, size: Nat8) -> Unit {
+	if size == 1 {
+		*(*Word8 ptr) = unsafe Word8 value
+	} else if size == 2 {
+		*(*Word16 ptr) = unsafe Word16 value
+	} else if size == 4 {
+		*(*Word32 ptr) = value
+	}
+}
+
+
+
+
 @inline
-public func isAdressInRange (x: Nat32, a: Nat32, b: Nat32) -> Bool {
+func isAdressInRange (x: Nat32, a: Nat32, b: Nat32) -> Bool {
 	return x >= a and x < b
 }
 
