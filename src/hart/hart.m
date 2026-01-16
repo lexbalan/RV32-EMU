@@ -115,7 +115,8 @@ func exec (hart: *Hart, instr: Word32) -> Unit {
 	// R0 must be always zero
 	hart.regs[0] = 0
 
-	var nexpc: Nat32 = hart.pc + 4
+	var nexpc = hart.pc + 4
+
 	if op == opI {
 		execI(hart, instr)
 	} else if op == opR {
