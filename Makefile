@@ -33,21 +33,21 @@ LLVM:
 
 
 CM:
-	mcc -o $(CMPREFIX)/main $(CM_OPTS) -mbackend=cm $(INDIR)/main.m
-	mcc -o $(CMPREFIX)/hart/hart $(CM_OPTS) -mbackend=cm $(INDIR)/hart/hart.m
-	mcc -o $(CMPREFIX)/hart/decode $(CM_OPTS) -mbackend=cm $(INDIR)/hart/decode.m
-	mcc -o $(CMPREFIX)/hart/csr $(CM_OPTS) -mbackend=cm $(INDIR)/hart/csr.m
-	mcc -o $(CMPREFIX)/bus $(CM_OPTS) -mbackend=cm $(INDIR)/bus.m
-	mcc -o $(CMPREFIX)/mmio $(CM_OPTS) -mbackend=cm $(INDIR)/mmio.m
+	mcc -o $(CMPREFIX)/main $(CM_OPTS) -mbackend=modest $(INDIR)/main.m
+	mcc -o $(CMPREFIX)/hart/hart $(CM_OPTS) -mbackend=modest $(INDIR)/hart/hart.m
+	mcc -o $(CMPREFIX)/hart/decode $(CM_OPTS) -mbackend=modest $(INDIR)/hart/decode.m
+	mcc -o $(CMPREFIX)/hart/csr $(CM_OPTS) -mbackend=modest $(INDIR)/hart/csr.m
+	mcc -o $(CMPREFIX)/bus $(CM_OPTS) -mbackend=modest $(INDIR)/bus.m
+	mcc -o $(CMPREFIX)/mmio $(CM_OPTS) -mbackend=modest $(INDIR)/mmio.m
 
 
 C:
-	mcc -o $(CPREFIX)/main $(CM_OPTS) -mbackend=c $(INDIR)/main.m
-	mcc -o $(CPREFIX)/hart/hart $(CM_OPTS) -mbackend=c $(CM_OPTS) $(INDIR)/hart/hart.m
-	mcc -o $(CPREFIX)/hart/csr $(CM_OPTS) $(COPTIONS) -mbackend=c $(INDIR)/hart/csr.m
-	mcc -o $(CPREFIX)/hart/decode $(CM_OPTS) -mbackend=c $(CM_OPTS) $(INDIR)/hart/decode.m
-	mcc -o $(CPREFIX)/bus $(CM_OPTS) $(CM_OPTS) -mbackend=c $(INDIR)/bus.m
-	mcc -o $(CPREFIX)/mmio $(CM_OPTS) $(CM_OPTS) -mbackend=c $(INDIR)/mmio.m
+	mcc -o $(CPREFIX)/main $(CM_OPTS) -mbackend=c11 $(INDIR)/main.m
+	mcc -o $(CPREFIX)/hart/hart $(CM_OPTS) -mbackend=c11 $(CM_OPTS) $(INDIR)/hart/hart.m
+	mcc -o $(CPREFIX)/hart/csr $(CM_OPTS) $(COPTIONS) -mbackend=c11 $(INDIR)/hart/csr.m
+	mcc -o $(CPREFIX)/hart/decode $(CM_OPTS) -mbackend=c11 $(CM_OPTS) $(INDIR)/hart/decode.m
+	mcc -o $(CPREFIX)/bus $(CM_OPTS) $(CM_OPTS) -mbackend=c11 $(INDIR)/bus.m
+	mcc -o $(CPREFIX)/mmio $(CM_OPTS) $(CM_OPTS) -mbackend=c11 $(INDIR)/mmio.m
 	CC $(C_OPTIONS) \
 		$(CPREFIX)/main.c \
 		$(CPREFIX)/hart/hart.c \

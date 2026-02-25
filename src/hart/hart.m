@@ -9,15 +9,16 @@ include "libc/stdio"
 include "libc/unistd"
 include "libc/stdlib"
 
-import "csr"
 include "decode"
+
+import "csr"
 
 
 const traceMode = false
 
-public type RegType = Word32
-public type Hart = record {
-	regs: [32]RegType
+
+public type Hart = {
+	regs: [32]Word32
 	pc: Nat32
 	bus: *BusInterface
 	irq: Word32
@@ -26,7 +27,7 @@ public type Hart = record {
 }
 
 
-public type BusInterface = @public record {
+public type BusInterface = @public {
 	read: *(adr: Nat32, size: Nat8) -> Word32
 	write: *(adr: Nat32, value: Word32, size: Nat8) -> Unit
 }
@@ -155,7 +156,7 @@ func execI (hart: *Hart, instr: Word32) -> Unit {
 	let rd = extract_rd(instr)
 	let rs1 = extract_rs1(instr)
 
-	var result: RegType
+	var result: Word32
 	if funct3 == 0 {
 		// ADDI (Add immediate)
 
@@ -217,7 +218,7 @@ func execI (hart: *Hart, instr: Word32) -> Unit {
 }
 
 
-// Register to register
+// Word32 to register
 func execR (hart: *Hart, instr: Word32) -> Unit {
 	let funct3 = extract_funct3(instr)
 	let funct7 = extract_funct7(instr)
@@ -228,7 +229,7 @@ func execR (hart: *Hart, instr: Word32) -> Unit {
 	let v0 = hart.regs[rs1]
 	let v1 = hart.regs[rs2]
 
-	var result: RegType
+	var result: Word32
 
 	if funct7 == 1 {
 
@@ -497,7 +498,7 @@ func execL (hart: *Hart, instr: Word32) -> Unit {
 
 	let adr = Nat32 (Int32 hart.regs[rs1] + imm)
 
-	var result: RegType
+	var result: Word32
 
 	if funct3 == 0 {
 		// LB (Load 8-bit signed integer value)

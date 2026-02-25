@@ -9,19 +9,22 @@ public const showText: Bool = false
 
 
 // see mem.ld
-public const ramSize: Nat32 = Nat32 16 * 1024
+public const ramSize = 16 * 1024
 public const ramStart = Nat32 0x10000000
 public const ramEnd: Nat32 = ramStart + ramSize
-
 
 public const romSize = Nat32 0x100000
 public const romStart = Nat32 0x00000000
 public const romEnd: Nat32 = romStart + romSize
 
-
 const mmioSize = Nat32 0xFFFF
 const mmioStart = Nat32 0xF00C0000
 const mmioEnd: Nat32 = mmioStart + mmioSize
+
+
+public const ramRegion = {from = ramStart, to = ramEnd}
+public const romRegion = {from = romStart, to = romEnd}
+public const mmioRegion = {from = mmioStart, to = mmioEnd}
 
 
 var ram: [ramSize]Word8
@@ -29,13 +32,13 @@ var rom: [romSize]Word8
 
 
 public func read (adr: Nat32, size: Nat8) -> Word32 {
-	if isAdressInRange(adr, ramStart, ramEnd) {
+	if isAdressInRegion(adr, ramRegion) {
 		let ramPtr = Ptr &ram[adr - ramStart]
 		return readFrom(ramPtr, adr, size)
-	} else if isAdressInRange(adr, romStart, romEnd) {
+	} else if isAdressInRegion(adr, romRegion) {
 		let romPtr = Ptr &rom[adr - romStart]
 		return readFrom(romPtr, adr, size)
-	} else if isAdressInRange(adr, mmioStart, mmioEnd) {
+	} else if isAdressInRegion(adr, mmioRegion) {
 		// MMIO Read
 	} else {
 		memoryViolation("r", adr)
@@ -46,10 +49,10 @@ public func read (adr: Nat32, size: Nat8) -> Word32 {
 
 
 public func write (adr: Nat32, value: Word32, size: Nat8) -> Unit {
-	if isAdressInRange(adr, ramStart, ramEnd) {
+	if isAdressInRegion(adr, ramRegion) {
 		let ramPtr = Ptr &ram[adr - ramStart]
 		writeTo(ramPtr, adr, value, size)
-	} else if isAdressInRange(adr, mmioStart, mmioEnd) {
+	} else if isAdressInRegion(adr, mmioRegion) {
 		let mmioAdr: Nat32 = adr - mmioStart
 		if size == 1 {
 			mmio.write8(mmioAdr, unsafe Word8 value)
@@ -58,7 +61,7 @@ public func write (adr: Nat32, value: Word32, size: Nat8) -> Unit {
 		} else if size == 4 {
 			mmio.write32(mmioAdr, value)
 		}
-	} else if isAdressInRange(adr, romStart, romEnd) {
+	} else if isAdressInRegion(adr, romRegion) {
 		memoryViolation("w", adr)
 	} else {
 		memoryViolation("w", adr)
@@ -93,8 +96,11 @@ func writeTo (ptr: Ptr, adr: Nat32, value: Word32, size: Nat8) -> Unit {
 
 
 @inline
-func isAdressInRange (x: Nat32, a: Nat32, b: Nat32) -> Bool {
-	return x >= a and x < b
+func isAdressInRegion (x: Nat32, region: {
+	from: Nat32
+	to: Nat32
+}) -> Bool {
+	return x >= region.from and x < region.to
 }
 
 
@@ -118,7 +124,7 @@ public func load_rom (filename: *Str8) -> Nat32 {
 func load (filename: *Str8, bufptr: *[]Word8, buf_size: Nat32) -> Nat32 {
 	printf("LOAD: %s\n", filename)
 
-	let fp: *File = fopen(filename, "rb")
+	let fp: Ptr = fopen(filename, "rb")
 
 	if fp == nil {
 		printf("error: cannot open file '%s'", filename)

@@ -10,9 +10,9 @@ import "csr" as csr
 
 const traceMode: Bool = false
 
-public type RegType = Word32
-public type Hart = record {
-	regs: [32]RegType
+
+public type Hart = {
+	regs: [32]Word32
 	pc: Nat32
 	bus: *BusInterface
 	irq: Word32
@@ -21,7 +21,7 @@ public type Hart = record {
 }
 
 
-public type BusInterface = @public record {
+public type BusInterface = @public {
 	read: *(adr: Nat32, size: Nat8) -> Word32
 	write: *(adr: Nat32, value: Word32, size: Nat8) -> Unit
 }
@@ -86,8 +86,8 @@ public func cycle (hart: *Hart) -> Unit {
 		printf("ADR = %08X\n", adr)
 		//let vect_offset = Nat32 hart.irq * 4
 		hart.csrs[Nat32 csr.mepc_adr] = Word32 hart.pc
-		hart.csrs[Nat32 csr.mcause_adr] = 0// interrupt cause
-		hart.csrs[Nat32 csr.mtval_adr] = 0// interrupt value (address, etc.)
+		hart.csrs[Nat32 csr.mcause_adr] = 0; // interrupt cause
+		hart.csrs[Nat32 csr.mtval_adr] = 0; // interrupt value (address, etc.)
 		hart.pc = adr
 
 		hart.irq = 0
@@ -109,6 +109,7 @@ func exec (hart: *Hart, instr: Word32) -> Unit {
 	hart.regs[0] = 0
 
 	var nexpc: Nat32 = hart.pc + 4
+
 	if op == opI {
 		execI(hart, instr)
 	} else if op == opR {
@@ -147,7 +148,7 @@ func execI (hart: *Hart, instr: Word32) -> Unit {
 	let rd: Nat8 = extract_rd(instr)
 	let rs1: Nat8 = extract_rs1(instr)
 
-	var result: RegType
+	var result: Word32
 	if funct3 == 0 {
 		// ADDI (Add immediate)
 
@@ -200,7 +201,7 @@ func execI (hart: *Hart, instr: Word32) -> Unit {
 }
 
 
-// Register to register
+// Word32 to register
 func execR (hart: *Hart, instr: Word32) -> Unit {
 	let funct3: Word8 = extract_funct3(instr)
 	let funct7: Word8 = extract_funct7(instr)
@@ -208,10 +209,10 @@ func execR (hart: *Hart, instr: Word32) -> Unit {
 	let rs1: Nat8 = extract_rs1(instr)
 	let rs2: Nat8 = extract_rs2(instr)
 
-	let v0: RegType = hart.regs[rs1]
-	let v1: RegType = hart.regs[rs2]
+	let v0: Word32 = hart.regs[rs1]
+	let v1: Word32 = hart.regs[rs2]
 
-	var result: RegType
+	var result: Word32
 
 	if funct7 == 1 {
 
@@ -387,8 +388,8 @@ func execB (hart: *Hart, instr: Word32) -> Nat32 {
 	let rs1: Nat8 = extract_rs1(instr)
 	let rs2: Nat8 = extract_rs2(instr)
 	let imm: Int16 = extract_b_imm(instr)
-	let left: RegType = hart.regs[rs1]
-	let right: RegType = hart.regs[rs2]
+	let left: Word32 = hart.regs[rs1]
+	let right: Word32 = hart.regs[rs2]
 
 	var nexpc: Nat32 = hart.pc + 4
 
@@ -458,7 +459,7 @@ func execL (hart: *Hart, instr: Word32) -> Unit {
 
 	let adr = Nat32 (Int32 hart.regs[rs1] + imm)
 
-	var result: RegType
+	var result: Word32
 
 	if funct3 == 0 {
 		// LB (Load 8-bit signed integer value)
@@ -510,7 +511,7 @@ func execS (hart: *Hart, instr: Word32) -> Unit {
 	let imm: Int32 = expand12(_imm)
 
 	let adr = Nat32 Word32 (Int32 hart.regs[rs1] + imm)
-	let val: RegType = hart.regs[rs2]
+	let val: Word32 = hart.regs[rs2]
 
 	if funct3 == 0 {
 		// SB (save 8-bit value)
@@ -606,7 +607,7 @@ The CSRRW (Atomic Read/Write CSR) instruction atomically swaps values in the CSR
 */
 func csr_rw (hart: *Hart, csr: Nat16, rd: Nat8, rs1: Nat8) -> Unit {
 	printf("CSR_RW(csr=0x%X, rd=r%d, rs1=r%d)\n", csr, rd, rs1)
-	let nv: RegType = hart.regs[rs1]
+	let nv: Word32 = hart.regs[rs1]
 	hart.regs[rd] = hart.csrs[csr]
 	hart.csrs[csr] = nv
 }
@@ -618,7 +619,7 @@ The CSRRS (Atomic Read and Set Bits in CSR) instruction reads the value of the C
 func csr_rs (hart: *Hart, csr: Nat16, rd: Nat8, rs1: Nat8) -> Unit {
 	// csrrs rd, csr, rs
 	//printf("CSR_RS(csr=0x%X, rd=r%d, rs1=r%d)\n", csr, rd, rs1)
-	let set: RegType = hart.regs[rs1]
+	let set: Word32 = hart.regs[rs1]
 	hart.regs[rd] = hart.csrs[csr]
 	hart.csrs[csr] = hart.csrs[csr] or hart.regs[rs1]
 }
@@ -630,7 +631,7 @@ The CSRRC (Atomic Read and Clear Bits in CSR) instruction reads the value of the
 func csr_rc (hart: *Hart, csr: Nat16, rd: Nat8, rs1: Nat8) -> Unit {
 	// csrrc rd, csr, rs
 	//printf("CSR_RC(csr=0x%X, rd=r%d, rs1=r%d)\n", csr, rd, rs1)
-	let set: RegType = hart.regs[rs1]
+	let set: Word32 = hart.regs[rs1]
 	hart.regs[rd] = hart.csrs[csr]
 	hart.csrs[csr] = hart.csrs[csr] and not hart.regs[rs1]
 }

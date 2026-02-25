@@ -14,19 +14,22 @@ const showText = false
 
 
 // see mem.ld
-const ramSize = Nat32 16 * 1024
+const ramSize = 16 * 1024
 const ramStart = Nat32 0x10000000
 const ramEnd = ramStart + ramSize
-
 
 const romSize = Nat32 0x100000
 const romStart = Nat32 0x00000000
 const romEnd = romStart + romSize
 
-
 private const mmioSize = Nat32 0xFFFF
 private const mmioStart = Nat32 0xF00C0000
 private const mmioEnd = mmioStart + mmioSize
+
+
+const ramRegion = {from=ramStart, to=ramEnd}
+const romRegion = {from=romStart, to=romEnd}
+const mmioRegion = {from=mmioStart, to=mmioEnd}
 
 
 private var ram: [ramSize]Word8
@@ -34,14 +37,17 @@ private var rom: [romSize]Word8
 
 
 func read (adr: Nat32, size: Nat8) -> Word32 {
-	if isAdressInRange(adr, ramStart, ramEnd) {
+	if isAdressInRegion(adr, ramRegion) {
 		let ramPtr = Ptr &ram[adr - ramStart]
 		return readFrom(ramPtr, adr, size)
-	} else if isAdressInRange(adr, romStart, romEnd) {
+
+	} else if isAdressInRegion(adr, romRegion) {
 		let romPtr = Ptr &rom[adr - romStart]
 		return readFrom(romPtr, adr, size)
-	} else if isAdressInRange(adr, mmioStart, mmioEnd) {
+
+	} else if isAdressInRegion(adr, mmioRegion) {
 		// MMIO Read
+
 	} else {
 		memoryViolation("r", adr)
 	}
@@ -51,10 +57,11 @@ func read (adr: Nat32, size: Nat8) -> Word32 {
 
 
 func write (adr: Nat32, value: Word32, size: Nat8) -> Unit {
-	if isAdressInRange(adr, ramStart, ramEnd) {
+	if isAdressInRegion(adr, ramRegion) {
 		let ramPtr = Ptr &ram[adr - ramStart]
 		writeTo(ramPtr, adr, value, size)
-	} else if isAdressInRange(adr, mmioStart, mmioEnd) {
+
+	} else if isAdressInRegion(adr, mmioRegion) {
 		let mmioAdr = adr - mmioStart
 		if size == 1 {
 			mmio.write8(mmioAdr, unsafe Word8 value)
@@ -63,7 +70,8 @@ func write (adr: Nat32, value: Word32, size: Nat8) -> Unit {
 		} else if size == 4 {
 			mmio.write32(mmioAdr, value)
 		}
-	} else if isAdressInRange(adr, romStart, romEnd) {
+
+	} else if isAdressInRegion(adr, romRegion) {
 		memoryViolation("w", adr)
 	} else {
 		memoryViolation("w", adr)
@@ -97,8 +105,8 @@ private func writeTo (ptr: Ptr, adr: Nat32, value: Word32, size: Nat8) -> Unit {
 
 
 @inline
-private func isAdressInRange (x: Nat32, a: Nat32, b: Nat32) -> Bool {
-	return x >= a and x < b
+private func isAdressInRegion (x: Nat32, region: {from: Nat32, to: Nat32}) -> Bool {
+	return x >= region.from and x < region.to
 }
 
 

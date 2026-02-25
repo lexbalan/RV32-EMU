@@ -69,8 +69,6 @@ int16_t decode_extract_b_imm(uint32_t instr) {
 	const uint16_t bit12 = (uint16_t)(imm12_10to5 & 0x40) << 6;
 
 	uint16_t imm_bits = (bit12 | bit11 | bit10to5 | bit4to1);
-
-	// распространяем знак (если он есть)
 	if ((imm_bits & (0x1 << 12)) != 0x0) {
 		imm_bits = 0xF000 | imm_bits;
 	}
@@ -94,7 +92,7 @@ uint32_t decode_extract_jal_imm(uint32_t instr) {
 int32_t decode_expand12(uint32_t val_12bit) {
 	uint32_t v = val_12bit;
 	if ((v & 0x800) != 0x0) {
-		v = v | 0xFFFFF000UL;
+		v = v | 0xFFFFF000L;
 	}
 	return (int32_t)v;
 }
@@ -105,7 +103,7 @@ int32_t decode_expand12(uint32_t val_12bit) {
 int32_t decode_expand20(uint32_t val_20bit) {
 	uint32_t v = val_20bit;
 	if ((v & 0x80000) != 0x0) {
-		v = v | 0xFFF00000UL;
+		v = v | 0xFFF00000L;
 	}
 	return (int32_t)v;
 }

@@ -5,6 +5,7 @@ target triple = "arm64-apple-macosx12.0.0"
 
 %Unit = type i1
 %Bool = type i1
+%Byte = type i8
 %Word8 = type i8
 %Word16 = type i16
 %Word32 = type i32
@@ -28,6 +29,8 @@ target triple = "arm64-apple-macosx12.0.0"
 %Nat256 = type i256
 %Float32 = type float
 %Float64 = type double
+%Fixed32 = type i32
+%Fixed64 = type i64
 %Size = type i64
 %Pointer = type i8*
 %Str8 = type [0 x %Char8]
@@ -213,8 +216,6 @@ define %Int16 @decode_extract_b_imm(%Word32 %instr) {
 	%18 = or %Word16 %11, %17
 	%19 = or %Word16 %15, %18
 	store %Word16 %19, %Word16* %16
-
-	; распространяем знак (если он есть)
 ; if_0
 	%20 = load %Word16, %Word16* %16
 	%21 = and %Word16 %20, 4096

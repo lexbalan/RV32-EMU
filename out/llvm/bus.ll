@@ -5,6 +5,7 @@ target triple = "arm64-apple-macosx12.0.0"
 
 %Unit = type i1
 %Bool = type i1
+%Byte = type i8
 %Word8 = type i8
 %Word16 = type i16
 %Word32 = type i32
@@ -28,6 +29,8 @@ target triple = "arm64-apple-macosx12.0.0"
 %Nat256 = type i256
 %Float32 = type float
 %Float64 = type double
+%Fixed32 = type i32
+%Fixed64 = type i64
 %Size = type i64
 %Pointer = type i8*
 %Str8 = type [0 x %Char8]
@@ -147,48 +150,48 @@ break_2:
 %FposT = type %Nat8;
 %CharStr = type %Str;
 %ConstCharStr = type %CharStr;
-declare %Int @fclose(%File* %f)
-declare %Int @feof(%File* %f)
-declare %Int @ferror(%File* %f)
-declare %Int @fflush(%File* %f)
-declare %Int @fgetpos(%File* %f, %FposT* %pos)
-declare %File* @fopen(%ConstCharStr* %fname, %ConstCharStr* %mode)
-declare %SizeT @fread(i8* %buf, %SizeT %size, %SizeT %count, %File* %f)
-declare %SizeT @fwrite(i8* %buf, %SizeT %size, %SizeT %count, %File* %f)
-declare %File* @freopen(%ConstCharStr* %fname, %ConstCharStr* %mode, %File* %f)
-declare %Int @fseek(%File* %f, %LongInt %offset, %Int %whence)
-declare %Int @fsetpos(%File* %f, %FposT* %pos)
-declare %LongInt @ftell(%File* %f)
+declare %Int @fclose(i8* %f)
+declare %Int @feof(i8* %f)
+declare %Int @ferror(i8* %f)
+declare %Int @fflush(i8* %f)
+declare %Int @fgetpos(i8* %f, %FposT* %pos)
+declare i8* @fopen(%ConstCharStr* %fname, %ConstCharStr* %mode)
+declare %SizeT @fread(i8* %buf, %SizeT %size, %SizeT %count, i8* %f)
+declare %SizeT @fwrite(i8* %buf, %SizeT %size, %SizeT %count, i8* %f)
+declare i8* @freopen(%ConstCharStr* %fname, %ConstCharStr* %mode, i8* %f)
+declare %Int @fseek(i8* %f, %LongInt %offset, %Int %whence)
+declare %Int @fsetpos(i8* %f, %FposT* %pos)
+declare %LongInt @ftell(i8* %f)
 declare %Int @remove(%ConstCharStr* %fname)
 declare %Int @rename(%ConstCharStr* %old_filename, %ConstCharStr* %new_filename)
-declare void @rewind(%File* %f)
-declare void @setbuf(%File* %f, %CharStr* %buf)
-declare %Int @setvbuf(%File* %f, %CharStr* %buf, %Int %mode, %SizeT %size)
-declare %File* @tmpfile()
+declare void @rewind(i8* %f)
+declare void @setbuf(i8* %f, %CharStr* %buf)
+declare %Int @setvbuf(i8* %f, %CharStr* %buf, %Int %mode, %SizeT %size)
+declare i8* @tmpfile()
 declare %CharStr* @tmpnam(%CharStr* %str)
 declare %Int @printf(%ConstCharStr* %str, ...)
 declare %Int @scanf(%ConstCharStr* %str, ...)
-declare %Int @fprintf(%File* %f, %Str* %format, ...)
-declare %Int @fscanf(%File* %f, %ConstCharStr* %format, ...)
+declare %Int @fprintf(i8* %f, %Str* %format, ...)
+declare %Int @fscanf(i8* %f, %ConstCharStr* %format, ...)
 declare %Int @sscanf(%ConstCharStr* %buf, %ConstCharStr* %format, ...)
 declare %Int @sprintf(%CharStr* %buf, %ConstCharStr* %format, ...)
 declare %Int @snprintf(%CharStr* %buf, %SizeT %size, %ConstCharStr* %format, ...)
-declare %Int @vfprintf(%File* %f, %ConstCharStr* %format, %__VA_List %args)
+declare %Int @vfprintf(i8* %f, %ConstCharStr* %format, %__VA_List %args)
 declare %Int @vprintf(%ConstCharStr* %format, %__VA_List %args)
 declare %Int @vsprintf(%CharStr* %str, %ConstCharStr* %format, %__VA_List %args)
 declare %Int @vsnprintf(%CharStr* %str, %SizeT %n, %ConstCharStr* %format, %__VA_List %args)
 declare %Int @__vsnprintf_chk(%CharStr* %dest, %SizeT %len, %Int %flags, %SizeT %dstlen, %ConstCharStr* %format, %__VA_List %arg)
-declare %Int @fgetc(%File* %f)
-declare %Int @fputc(%Int %char, %File* %f)
-declare %CharStr* @fgets(%CharStr* %str, %Int %n, %File* %f)
-declare %Int @fputs(%ConstCharStr* %str, %File* %f)
-declare %Int @getc(%File* %f)
+declare %Int @fgetc(i8* %f)
+declare %Int @fputc(%Int %char, i8* %f)
+declare %CharStr* @fgets(%CharStr* %str, %Int %n, i8* %f)
+declare %Int @fputs(%ConstCharStr* %str, i8* %f)
+declare %Int @getc(i8* %f)
 declare %Int @getchar()
 declare %CharStr* @gets(%CharStr* %str)
-declare %Int @putc(%Int %char, %File* %f)
+declare %Int @putc(%Int %char, i8* %f)
 declare %Int @putchar(%Int %char)
 declare %Int @puts(%ConstCharStr* %str)
-declare %Int @ungetc(%Int %char, %File* %f)
+declare %Int @ungetc(%Int %char, i8* %f)
 declare void @perror(%ConstCharStr* %str)
 ; from included stdlib
 declare void @abort()
@@ -236,34 +239,38 @@ declare %Word32 @mmio_read32(%Nat32 %adr)
 @rom = internal global [1048576 x %Word8] zeroinitializer
 define %Word32 @bus_read(%Nat32 %adr, %Nat8 %size) {
 ; if_0
-	%1 = call %Bool @isAdressInRange(%Nat32 %adr, %Nat32 268435456, %Nat32 268451840)
-	br %Bool %1 , label %then_0, label %else_0
+	%1 = insertvalue {%Nat32,%Nat32} zeroinitializer, %Nat32 268435456, 0
+	%2 = insertvalue {%Nat32,%Nat32} %1, %Nat32 268451840, 1
+	%3 = call %Bool @isAdressInRegion(%Nat32 %adr, {%Nat32,%Nat32} %2)
+	br %Bool %3 , label %then_0, label %else_0
 then_0:
-	%2 = sub %Nat32 %adr, 268435456
-	%3 = bitcast %Nat32 %2 to %Nat32
-	%4 = getelementptr [16384 x %Word8], [16384 x %Word8]* @ram, %Int32 0, %Nat32 %3
-	%5 = bitcast %Word8* %4 to i8*
-	%6 = call %Word32 @readFrom(i8* %5, %Nat32 %adr, %Nat8 %size)
-	ret %Word32 %6
+	%4 = sub %Nat32 %adr, 268435456
+	%5 = bitcast %Nat32 %4 to %Nat32
+	%6 = getelementptr [16384 x %Word8], [16384 x %Word8]* @ram, %Int32 0, %Nat32 %5
+	%7 = bitcast %Word8* %6 to i8*
+	%8 = call %Word32 @readFrom(i8* %7, %Nat32 %adr, %Nat8 %size)
+	ret %Word32 %8
 	br label %endif_0
 else_0:
 ; if_1
-	%8 = call %Bool @isAdressInRange(%Nat32 %adr, %Nat32 0, %Nat32 1048576)
-	br %Bool %8 , label %then_1, label %else_1
+	%10 = insertvalue {%Nat32,%Nat32} zeroinitializer, %Nat32 1048576, 1
+	%11 = call %Bool @isAdressInRegion(%Nat32 %adr, {%Nat32,%Nat32} %10)
+	br %Bool %11 , label %then_1, label %else_1
 then_1:
-	%9 = sub %Nat32 %adr, 0
-	%10 = bitcast %Nat32 %9 to %Nat32
-	%11 = getelementptr [1048576 x %Word8], [1048576 x %Word8]* @rom, %Int32 0, %Nat32 %10
-	%12 = bitcast %Word8* %11 to i8*
-	%13 = call %Word32 @readFrom(i8* %12, %Nat32 %adr, %Nat8 %size)
-	ret %Word32 %13
+	%12 = sub %Nat32 %adr, 0
+	%13 = bitcast %Nat32 %12 to %Nat32
+	%14 = getelementptr [1048576 x %Word8], [1048576 x %Word8]* @rom, %Int32 0, %Nat32 %13
+	%15 = bitcast %Word8* %14 to i8*
+	%16 = call %Word32 @readFrom(i8* %15, %Nat32 %adr, %Nat8 %size)
+	ret %Word32 %16
 	br label %endif_1
 else_1:
 ; if_2
-	%15 = call %Bool @isAdressInRange(%Nat32 %adr, %Nat32 4027318272, %Nat32 4027383807)
-	br %Bool %15 , label %then_2, label %else_2
+	%18 = insertvalue {%Nat32,%Nat32} zeroinitializer, %Nat32 4027318272, 0
+	%19 = insertvalue {%Nat32,%Nat32} %18, %Nat32 4027383807, 1
+	%20 = call %Bool @isAdressInRegion(%Nat32 %adr, {%Nat32,%Nat32} %19)
+	br %Bool %20 , label %then_2, label %else_2
 then_2:
-	; MMIO Read
 	br label %endif_2
 else_2:
 	call void @bus_memoryViolation(%Char8 114, %Nat32 %adr)
@@ -273,48 +280,52 @@ endif_2:
 endif_1:
 	br label %endif_0
 endif_0:
-	%16 = zext i8 0 to %Word32
-	ret %Word32 %16
+	%21 = zext i8 0 to %Word32
+	ret %Word32 %21
 }
 
 define void @bus_write(%Nat32 %adr, %Word32 %value, %Nat8 %size) {
 ; if_0
-	%1 = call %Bool @isAdressInRange(%Nat32 %adr, %Nat32 268435456, %Nat32 268451840)
-	br %Bool %1 , label %then_0, label %else_0
+	%1 = insertvalue {%Nat32,%Nat32} zeroinitializer, %Nat32 268435456, 0
+	%2 = insertvalue {%Nat32,%Nat32} %1, %Nat32 268451840, 1
+	%3 = call %Bool @isAdressInRegion(%Nat32 %adr, {%Nat32,%Nat32} %2)
+	br %Bool %3 , label %then_0, label %else_0
 then_0:
-	%2 = sub %Nat32 %adr, 268435456
-	%3 = bitcast %Nat32 %2 to %Nat32
-	%4 = getelementptr [16384 x %Word8], [16384 x %Word8]* @ram, %Int32 0, %Nat32 %3
-	%5 = bitcast %Word8* %4 to i8*
-	call void @writeTo(i8* %5, %Nat32 %adr, %Word32 %value, %Nat8 %size)
+	%4 = sub %Nat32 %adr, 268435456
+	%5 = bitcast %Nat32 %4 to %Nat32
+	%6 = getelementptr [16384 x %Word8], [16384 x %Word8]* @ram, %Int32 0, %Nat32 %5
+	%7 = bitcast %Word8* %6 to i8*
+	call void @writeTo(i8* %7, %Nat32 %adr, %Word32 %value, %Nat8 %size)
 	br label %endif_0
 else_0:
 ; if_1
-	%6 = call %Bool @isAdressInRange(%Nat32 %adr, %Nat32 4027318272, %Nat32 4027383807)
-	br %Bool %6 , label %then_1, label %else_1
+	%8 = insertvalue {%Nat32,%Nat32} zeroinitializer, %Nat32 4027318272, 0
+	%9 = insertvalue {%Nat32,%Nat32} %8, %Nat32 4027383807, 1
+	%10 = call %Bool @isAdressInRegion(%Nat32 %adr, {%Nat32,%Nat32} %9)
+	br %Bool %10 , label %then_1, label %else_1
 then_1:
-	%7 = sub %Nat32 %adr, 4027318272
+	%11 = sub %Nat32 %adr, 4027318272
 ; if_2
-	%8 = icmp eq %Nat8 %size, 1
-	br %Bool %8 , label %then_2, label %else_2
+	%12 = icmp eq %Nat8 %size, 1
+	br %Bool %12 , label %then_2, label %else_2
 then_2:
-	%9 = trunc %Word32 %value to %Word8
-	call void @mmio_write8(%Nat32 %7, %Word8 %9)
+	%13 = trunc %Word32 %value to %Word8
+	call void @mmio_write8(%Nat32 %11, %Word8 %13)
 	br label %endif_2
 else_2:
 ; if_3
-	%10 = icmp eq %Nat8 %size, 2
-	br %Bool %10 , label %then_3, label %else_3
+	%14 = icmp eq %Nat8 %size, 2
+	br %Bool %14 , label %then_3, label %else_3
 then_3:
-	%11 = trunc %Word32 %value to %Word16
-	call void @mmio_write16(%Nat32 %7, %Word16 %11)
+	%15 = trunc %Word32 %value to %Word16
+	call void @mmio_write16(%Nat32 %11, %Word16 %15)
 	br label %endif_3
 else_3:
 ; if_4
-	%12 = icmp eq %Nat8 %size, 4
-	br %Bool %12 , label %then_4, label %endif_4
+	%16 = icmp eq %Nat8 %size, 4
+	br %Bool %16 , label %then_4, label %endif_4
 then_4:
-	call void @mmio_write32(%Nat32 %7, %Word32 %value)
+	call void @mmio_write32(%Nat32 %11, %Word32 %value)
 	br label %endif_4
 endif_4:
 	br label %endif_3
@@ -324,8 +335,9 @@ endif_2:
 	br label %endif_1
 else_1:
 ; if_5
-	%13 = call %Bool @isAdressInRange(%Nat32 %adr, %Nat32 0, %Nat32 1048576)
-	br %Bool %13 , label %then_5, label %else_5
+	%17 = insertvalue {%Nat32,%Nat32} zeroinitializer, %Nat32 1048576, 1
+	%18 = call %Bool @isAdressInRegion(%Nat32 %adr, {%Nat32,%Nat32} %17)
+	br %Bool %18 , label %then_5, label %else_5
 then_5:
 	call void @bus_memoryViolation(%Char8 119, %Nat32 %adr)
 	br label %endif_5
@@ -412,11 +424,13 @@ endif_0:
 	ret void
 }
 
-define internal %Bool @isAdressInRange(%Nat32 %x, %Nat32 %a, %Nat32 %b) alwaysinline {
-	%1 = icmp uge %Nat32 %x, %a
-	%2 = icmp ult %Nat32 %x, %b
-	%3 = and %Bool %1, %2
-	ret %Bool %3
+define internal %Bool @isAdressInRegion(%Nat32 %x, {%Nat32,%Nat32} %region) alwaysinline {
+	%1 = extractvalue {%Nat32,%Nat32} %region, 0
+	%2 = icmp uge %Nat32 %x, %1
+	%3 = extractvalue {%Nat32,%Nat32} %region, 1
+	%4 = icmp ult %Nat32 %x, %3
+	%5 = and %Bool %2, %4
+	ret %Bool %5
 }
 
 @bus_memviolationCnt = global %Nat32 0
@@ -433,7 +447,6 @@ endif_0:
 	%4 = load %Nat32, %Nat32* @bus_memviolationCnt
 	%5 = add %Nat32 %4, 1
 	store %Nat32 %5, %Nat32* @bus_memviolationCnt
-	;	memoryViolation_event(0x55) // !
 	ret void
 }
 
@@ -445,9 +458,9 @@ define %Nat32 @bus_load_rom(%Str8* %filename) {
 
 define internal %Nat32 @load(%Str8* %filename, [0 x %Word8]* %bufptr, %Nat32 %buf_size) {
 	%1 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([10 x i8]* @str2 to [0 x i8]*), %Str8* %filename)
-	%2 = call %File* @fopen(%Str8* %filename, %ConstCharStr* bitcast ([3 x i8]* @str3 to [0 x i8]*))
+	%2 = call i8* @fopen(%Str8* %filename, %ConstCharStr* bitcast ([3 x i8]* @str3 to [0 x i8]*))
 ; if_0
-	%3 = icmp eq %File* %2, null
+	%3 = icmp eq i8* %2, null
 	br %Bool %3 , label %then_0, label %endif_0
 then_0:
 	%4 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([29 x i8]* @str4 to [0 x i8]*), %Str8* %filename)
@@ -456,7 +469,7 @@ then_0:
 endif_0:
 	%6 = bitcast [0 x %Word8]* %bufptr to i8*
 	%7 = zext %Nat32 %buf_size to %SizeT
-	%8 = call %SizeT @fread(i8* %6, %SizeT 1, %SizeT %7, %File* %2)
+	%8 = call %SizeT @fread(i8* %6, %SizeT 1, %SizeT %7, i8* %2)
 	%9 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([19 x i8]* @str5 to [0 x i8]*), %SizeT %8)
 ; if_1
 	br %Bool 0 , label %then_1, label %endif_1
@@ -486,7 +499,7 @@ break_1:
 	%23 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([13 x i8]* @str7 to [0 x i8]*))
 	br label %endif_1
 endif_1:
-	%24 = call %Int @fclose(%File* %2)
+	%24 = call %Int @fclose(i8* %2)
 	%25 = trunc %SizeT %8 to %Nat32
 	ret %Nat32 %25
 }
