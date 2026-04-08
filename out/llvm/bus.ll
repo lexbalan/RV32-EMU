@@ -209,8 +209,13 @@ declare %Str* @secure_getenv(%Str* %name)
 declare i8* @malloc(%SizeT %size)
 declare %Int @system([0 x %ConstChar]* %string)
 ; -- end print includes --
-; -- print imports 'bus' --
-; -- 1
+; -- print imports private 'bus' --
+
+; from import "builtin"
+
+; end from import "builtin"
+; -- end print imports private 'bus' --
+; -- print imports public 'bus' --
 ; from included ctypes
 
 ; from import "mmio"
@@ -222,7 +227,7 @@ declare %Word16 @mmio_read16(%Nat32 %adr)
 declare %Word32 @mmio_read32(%Nat32 %adr)
 
 ; end from import "mmio"
-; -- end print imports 'bus' --
+; -- end print imports public 'bus' --
 ; -- strings --
 @str1 = private constant [38 x i8] [i8 42, i8 42, i8 42, i8 32, i8 77, i8 69, i8 77, i8 79, i8 82, i8 89, i8 32, i8 86, i8 73, i8 79, i8 76, i8 65, i8 84, i8 73, i8 79, i8 78, i8 32, i8 39, i8 37, i8 99, i8 39, i8 32, i8 48, i8 120, i8 37, i8 48, i8 56, i8 120, i8 32, i8 42, i8 42, i8 42, i8 10, i8 0]
 @str2 = private constant [10 x i8] [i8 76, i8 79, i8 65, i8 68, i8 58, i8 32, i8 37, i8 115, i8 10, i8 0]

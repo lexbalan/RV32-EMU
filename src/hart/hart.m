@@ -48,10 +48,10 @@ const opSYSTEM = 0x73 // system
 const opFENCE = 0x0F  // fence
 
 
-const instrECALL = opSYSTEM or 0x00000000
-const instrEBREAK = opSYSTEM or 0x00100000
-const instrPAUSE = opFENCE or 0x01000000
-const instrMRET = opSYSTEM or 0x30200073  // machine return from trap
+const instrECALL = opSYSTEM | 0x00000000
+const instrEBREAK = opSYSTEM | 0x00100000
+const instrPAUSE = opFENCE | 0x01000000
+const instrMRET = opSYSTEM | 0x30200073  // machine return from trap
 
 // funct3 for CSR
 const funct3_CSRRW = 1
@@ -69,10 +69,7 @@ public const intMemViolation = 0x0B
 public func init (hart: *Hart, id: Nat32, bus: *BusInterface) -> Unit {
 	printf("hart #%d init\n", id)
 	hart.csrs[Nat32 csr.mhartid_adr] = Word32 id
-	hart.csrs[Nat32 csr.misa_adr] =
-		csr.misa_xlen_32 or
-		csr.misa_i or
-		csr.misa_m
+	hart.csrs[Nat32 csr.misa_adr] = csr.misa_xlen_32 | csr.misa_i | csr.misa_m
 	hart.regs = []
 	hart.pc = 0
 	hart.bus = bus
@@ -186,7 +183,7 @@ func execI (hart: *Hart, instr: Word32) -> Unit {
 	} else if funct3 == 4 {
 		trace(hart.pc, "xori x%d, x%d, %d\n", rd, rs1, imm)
 
-		result = hart.regs[rs1] xor Word32 imm
+		result = hart.regs[rs1] ^ Word32 imm
 
 	} else if funct3 == 5 and funct7 == 0 {
 		// SRLI is a logical right shift (zeros are shifted into the upper bits)
@@ -203,12 +200,12 @@ func execI (hart: *Hart, instr: Word32) -> Unit {
 	} else if funct3 == 6 {
 		trace(hart.pc, "ori x%d, x%d, %d\n", rd, rs1, imm)
 
-		result = hart.regs[rs1] or Word32 imm
+		result = hart.regs[rs1] | Word32 imm
 
 	} else if funct3 == 7 {
 		trace(hart.pc, "andi x%d, x%d, %d\n", rd, rs1, imm)
 
-		result = hart.regs[rs1] and Word32 imm
+		result = hart.regs[rs1] & Word32 imm
 
 	} else {
 		// ERROR: unknown instruction
@@ -327,7 +324,7 @@ func execR (hart: *Hart, instr: Word32) -> Unit {
 
 		trace(hart.pc, "xor x%d, x%d, x%d\n", rd, rs1, rs2)
 
-		result = v0 xor v1
+		result = v0 ^ v1
 
 	} else if funct3 == 5 and funct7 == 0 {
 		// SRL - shift right logical
@@ -347,12 +344,12 @@ func execR (hart: *Hart, instr: Word32) -> Unit {
 	} else if funct3 == 6 {
 		trace(hart.pc, "or x%d, x%d, x%d\n", rd, rs1, rs2)
 
-		result = v0 or v1
+		result = v0 | v1
 
 	} else if funct3 == 7 {
 		trace(hart.pc, "and x%d, x%d, x%d\n", rd, rs1, rs2)
 
-		result = v0 and v1
+		result = v0 & v1
 	}
 
 	hart.regs[rd] = result
@@ -409,7 +406,7 @@ func execJALR (hart: *Hart, instr: Word32) -> Nat32 {
 	// pc <- (rs1 + imm) & ~1
 
 	let next_instr_ptr = Int32 (hart.pc + 4)
-	let nexpc = Nat32 (Word32(Int32 hart.regs[rs1] + imm) and 0xFFFFFFFE)
+	let nexpc = Nat32 (Word32(Int32 hart.regs[rs1] + imm) & 0xFFFFFFFE)
 	hart.regs[rd] = Word32 next_instr_ptr
 	return nexpc
 }
@@ -550,7 +547,7 @@ func execS (hart: *Hart, instr: Word32) -> Unit {
 
 	let imm4to0 = Nat32 rd
 	let imm11to5 = Nat32 funct7
-	let _imm = (unsafe Word32 imm11to5 << 5) or unsafe Word32 imm4to0
+	let _imm = (unsafe Word32 imm11to5 << 5) | unsafe Word32 imm4to0
 	let imm = expand12(_imm)
 
 	let adr = Nat32 Word32 (Int32 hart.regs[rs1] + imm)
@@ -594,7 +591,7 @@ func execSystem (hart: *Hart, instr: Word32) -> Unit {
 		trace(hart.pc, "ecall\n")
 		printf("ECALL: hart #%d\n", hart.csrs[Nat32 csr.mhartid_adr])
 		//
-		hart.irq = hart.irq or intSysCall
+		hart.irq = hart.irq | intSysCall
 
 	} else if instr == instrMRET {
 		trace(hart.pc, "mret\n")
@@ -669,7 +666,7 @@ func csr_rs (hart: *Hart, csr: Nat16, rd: Nat8, rs1: Nat8) -> Unit {
 	//printf("CSR_RS(csr=0x%X, rd=r%d, rs1=r%d)\n", csr, rd, rs1)
 	let set = hart.regs[rs1]
 	hart.regs[rd] = hart.csrs[csr]
-	hart.csrs[csr] = hart.csrs[csr] or hart.regs[rs1]
+	hart.csrs[csr] = hart.csrs[csr] | hart.regs[rs1]
 }
 
 
@@ -681,7 +678,7 @@ func csr_rc (hart: *Hart, csr: Nat16, rd: Nat8, rs1: Nat8) -> Unit {
 	//printf("CSR_RC(csr=0x%X, rd=r%d, rs1=r%d)\n", csr, rd, rs1)
 	let set = hart.regs[rs1]
 	hart.regs[rd] = hart.csrs[csr]
-	hart.csrs[csr] = hart.csrs[csr] and not hart.regs[rs1]
+	hart.csrs[csr] = hart.csrs[csr] & ~hart.regs[rs1]
 }
 
 
@@ -699,7 +696,7 @@ func csr_rsi (hart: *Hart, csr: Nat16, rd: Nat8, imm: Nat8) -> Unit {
 	let imm32 = Word32 imm
 	//printf("CSR_RSI(csr=0x%X, rd=r%d, imm=%0x%X)\n", csr, rd, imm32)
 	hart.regs[rd] = hart.csrs[csr]
-	hart.csrs[csr] = hart.csrs[csr] or imm32
+	hart.csrs[csr] = hart.csrs[csr] | imm32
 }
 
 
@@ -708,7 +705,7 @@ func csr_rci (hart: *Hart, csr: Nat16, rd: Nat8, imm: Nat8) -> Unit {
 	let imm32 = Word32 imm
 	//printf("CSR_RCI(csr=0x%X, rd=r%d, imm=%0x%X)\n", csr, rd, imm32)
 	hart.regs[rd] = hart.csrs[csr]
-	hart.csrs[csr] = hart.csrs[csr] and not imm32
+	hart.csrs[csr] = hart.csrs[csr] & ~imm32
 }
 
 

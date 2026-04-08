@@ -1,3 +1,4 @@
+private import "builtin"
 import "mmio"
 include "stdio"
 include "stdlib"
@@ -39,7 +40,6 @@ public func read (adr: Nat32, size: Nat8) -> Word32 {
 		let romPtr = Ptr &rom[adr - romStart]
 		return readFrom(romPtr, adr, size)
 	} else if isAdressInRegion(adr, mmioRegion) {
-		// MMIO Read
 	} else {
 		memoryViolation("r", adr)
 	}
@@ -96,10 +96,7 @@ func writeTo (ptr: Ptr, adr: Nat32, value: Word32, size: Nat8) -> Unit {
 
 
 @inline
-func isAdressInRegion (x: Nat32, region: {
-	from: Nat32
-	to: Nat32
-}) -> Bool {
+func isAdressInRegion (x: Nat32, region: {from: Nat32, to: Nat32}) -> Bool {
 	return x >= region.from and x < region.to
 }
 
@@ -111,7 +108,6 @@ public func memoryViolation (rw: Char8, adr: Nat32) -> Unit {
 		exit(1)
 	}
 	memviolationCnt = memviolationCnt + 1
-	//	memoryViolation_event(0x55) // !
 }
 
 

@@ -1,6 +1,7 @@
-import "bus"
-import "hart/hart"
-import "hart/csr"
+private import "builtin"
+private import "bus"
+private import "hart/hart"
+private import "hart/csr"
 include "stdlib"
 include "stdio"
 
