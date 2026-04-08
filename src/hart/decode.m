@@ -67,7 +67,7 @@ func extract_b_imm (instr: Word32) -> Int16 {
 	var imm_bits = bit12 | bit11 | bit10to5 | bit4to1
 
 	// распространяем знак (если он есть)
-	if (imm_bits & (Word16 1 << 12)) != 0 {
+	if imm_bits & (Word16 1 << 12) != 0 {
 		imm_bits = 0xF000 | imm_bits
 	}
 
