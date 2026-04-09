@@ -393,8 +393,7 @@ static void execSystem(hart_Hart *hart, uint32_t instr) {
 		const uint8_t imm = rs1;
 		csr_rsi(hart, xcsr, rd, imm);
 	} else if (funct3 == (const uint8_t)FUNCT3_CSRRCI) {
-		const uint8_t imm = rs1;
-		csr_rci(hart, xcsr, rd, imm);
+		csr_rci(hart, xcsr, rd, rs1);
 	} else {
 		trace(hart->pc, "UNKNOWN SYSTEM INSTRUCTION: 0x%x\n", instr);
 		hart->end = true;

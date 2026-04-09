@@ -28,8 +28,8 @@ public type Hart = {
 
 
 public type BusInterface = @public {
-	read: *(adr: Nat32, size: Nat8) -> Word32
-	write: *(adr: Nat32, value: Word32, size: Nat8) -> Unit
+	read  : *(adr: Nat32, size: Nat8) -> Word32
+	write : *(adr: Nat32, value: Word32, size: Nat8) -> Unit
 }
 
 
@@ -624,14 +624,11 @@ func execSystem (hart: *Hart, instr: Word32) -> Unit {
 		let mask_reg = rs1
 		csr_rc(hart, xcsr, rd, mask_reg)
 	} else if funct3 == funct3_CSRRWI {
-		let imm = rs1
-		csr_rwi(hart, xcsr, rd, imm)
+		csr_rwi(hart, xcsr, rd, imm=rs1)
 	} else if funct3 == funct3_CSRRSI {
-		let imm = rs1
-		csr_rsi(hart, xcsr, rd, imm)
+		csr_rsi(hart, xcsr, rd, imm=rs1)
 	} else if funct3 == funct3_CSRRCI {
-		let imm = rs1
-		csr_rci(hart, xcsr, rd, imm)
+		csr_rci(hart, xcsr, rd, imm=rs1)
 	} else {
 		trace(hart.pc, "UNKNOWN SYSTEM INSTRUCTION: 0x%x\n", instr)
 		hart.end = true
