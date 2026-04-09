@@ -87,20 +87,18 @@ func extract_jal_imm (instr: Word32) -> Word32 {
 
 // sign expand (12bit -> 32bit)
 func expand12 (val_12bit: Word32) -> Int32 {
-	var v = val_12bit
-	if v & 0x800 != 0 {
-		v = v | 0xFFFFF000
+	if val_12bit & 0x800 != 0 {
+		return Int32 (val_12bit | 0xFFFFF000)
 	}
-	return Int32 v
+	return Int32 val_12bit
 }
 
 
 // sign expand (20bit -> 32bit)
 func expand20 (val_20bit: Word32) -> Int32 {
-	var v = val_20bit
-	if v & 0x80000 != 0 {
-		v = v | 0xFFF00000
+	if val_20bit & 0x80000 != 0 {
+		return Int32 (val_20bit | 0xFFF00000)
 	}
-	return Int32 v
+	return Int32 val_20bit
 }
 

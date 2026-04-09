@@ -69,18 +69,16 @@ uint32_t decode_extract_jal_imm(uint32_t instr) {
 }
 
 int32_t decode_expand12(uint32_t val_12bit) {
-	uint32_t v = val_12bit;
-	if ((v & 0x800U) != 0x0U) {
-		v = v | 0xFFFFF000U;
+	if ((val_12bit & 0x800U) != 0x0U) {
+		return val_12bit | 0xFFFFF000U;
 	}
-	return v;
+	return val_12bit;
 }
 
 int32_t decode_expand20(uint32_t val_20bit) {
-	uint32_t v = val_20bit;
-	if ((v & 0x80000U) != 0x0U) {
-		v = v | 0xFFF00000U;
+	if ((val_20bit & 0x80000U) != 0x0U) {
+		return val_20bit | 0xFFF00000U;
 	}
-	return v;
+	return val_20bit;
 }
 
