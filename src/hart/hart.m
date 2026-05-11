@@ -48,10 +48,10 @@ const opSYSTEM = 0x73 // system
 const opFENCE = 0x0F  // fence
 
 
-const instrECALL = opSYSTEM | 0x00000000
-const instrEBREAK = opSYSTEM | 0x00100000
-const instrPAUSE = opFENCE | 0x01000000
-const instrMRET = opSYSTEM | 0x30200073  // machine return from trap
+const instrECALL = Word32 opSYSTEM | 0x00000000
+const instrEBREAK = Word32 opSYSTEM | 0x00100000
+const instrPAUSE = Word32 opFENCE | 0x01000000
+const instrMRET = Word32 opSYSTEM | 0x30200073  // machine return from trap
 
 // funct3 for CSR
 const funct3_CSRRW = 1
@@ -153,7 +153,8 @@ func execI (hart: *Hart, instr: Word32) -> Unit {
 	let rd = extract_rd(instr)
 	let rs1 = extract_rs1(instr)
 
-	var result: Word32
+	var result: Word32 = 0
+
 	if funct3 == 0 {
 		// ADDI (Add immediate)
 

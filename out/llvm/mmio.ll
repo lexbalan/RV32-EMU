@@ -204,10 +204,10 @@ declare void @perror(%ConstCharStr* %str)
 ; -- print imports public 'mmio' --
 ; -- end print imports public 'mmio' --
 ; -- strings --
-@str1 = private constant [3 x i8] [i8 37, i8 117, i8 0]
-@str2 = private constant [3 x i8] [i8 37, i8 117, i8 0]
-@str3 = private constant [3 x i8] [i8 37, i8 120, i8 0]
-@str4 = private constant [4 x i8] [i8 37, i8 117, i8 120, i8 0]
+@.str1 = private constant [3 x i8] [i8 37, i8 117, i8 0]
+@.str2 = private constant [3 x i8] [i8 37, i8 117, i8 0]
+@.str3 = private constant [3 x i8] [i8 37, i8 120, i8 0]
+@.str4 = private constant [4 x i8] [i8 37, i8 117, i8 120, i8 0]
 ; -- endstrings --
 define void @mmio_write8(%Nat32 %adr, %Word8 %value) {
 ; if_0
@@ -249,7 +249,7 @@ else_0:
 	%5 = icmp eq %Nat32 %adr, 32
 	br %Bool %5 , label %then_1, label %else_1
 then_1:
-	%6 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([3 x i8]* @str1 to [0 x i8]*), %Word32 %value)
+	%6 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([3 x i8]* @.str1 to [0 x i8]*), %Word32 %value)
 	ret void
 	br label %endif_1
 else_1:
@@ -257,7 +257,7 @@ else_1:
 	%8 = icmp eq %Nat32 %adr, 36
 	br %Bool %8 , label %then_2, label %else_2
 then_2:
-	%9 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([3 x i8]* @str2 to [0 x i8]*), %Word32 %value)
+	%9 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([3 x i8]* @.str2 to [0 x i8]*), %Word32 %value)
 	ret void
 	br label %endif_2
 else_2:
@@ -265,7 +265,7 @@ else_2:
 	%11 = icmp eq %Nat32 %adr, 40
 	br %Bool %11 , label %then_3, label %else_3
 then_3:
-	%12 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([3 x i8]* @str3 to [0 x i8]*), %Word32 %value)
+	%12 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([3 x i8]* @.str3 to [0 x i8]*), %Word32 %value)
 	ret void
 	br label %endif_3
 else_3:
@@ -273,7 +273,7 @@ else_3:
 	%14 = icmp eq %Nat32 %adr, 44
 	br %Bool %14 , label %then_4, label %endif_4
 then_4:
-	%15 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([4 x i8]* @str4 to [0 x i8]*), %Word32 %value)
+	%15 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([4 x i8]* @.str4 to [0 x i8]*), %Word32 %value)
 	ret void
 	br label %endif_4
 endif_4:

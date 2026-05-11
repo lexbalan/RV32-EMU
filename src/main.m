@@ -12,7 +12,7 @@ const text_filename = "./image.bin"
 var hart: rvHart.Hart
 
 
-public func main () -> Int {
+func main () -> Int {
 	printf("RISC-V VM\n")
 
 	let nbytes = bus.load_rom(text_filename)

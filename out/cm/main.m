@@ -16,7 +16,8 @@ const text_filename = "./image.bin"
 var hart: Hart
 
 
-public func main () -> Int {
+@nonstatic
+func main () -> Int {
 	printf("RISC-V VM\n")
 
 	let nbytes: Nat32 = bus.load_rom(text_filename)
@@ -24,7 +25,7 @@ public func main () -> Int {
 		exit(1)
 	}
 
-	var busctl: BusInterface = BusInterface {
+	var busctl = BusInterface {
 		read = &bus.read
 		write = &bus.write
 	}

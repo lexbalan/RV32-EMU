@@ -61,7 +61,7 @@ public func extract_b_imm (instr: Word32) -> Int16 {
 	let bit12: Word16 = Word16 (imm12_10to5 & 0x40) << 6
 
 	var imm_bits: Word16 = bit12 | bit11 | bit10to5 | bit4to1
-	if (imm_bits & (Word16 1 << 12)) != 0 {
+	if imm_bits & (Word16 1 << 12) != 0 {
 		imm_bits = 0xF000 | imm_bits
 	}
 
@@ -81,20 +81,18 @@ public func extract_jal_imm (instr: Word32) -> Word32 {
 
 // sign expand (12bit -> 32bit)
 public func expand12 (val_12bit: Word32) -> Int32 {
-	var v: Word32 = val_12bit
-	if v & 0x800 != 0 {
-		v = v | 0xFFFFF000
+	if val_12bit & 0x800 != 0 {
+		return Int32 (val_12bit | 0xFFFFF000)
 	}
-	return Int32 v
+	return Int32 val_12bit
 }
 
 
 // sign expand (20bit -> 32bit)
 public func expand20 (val_20bit: Word32) -> Int32 {
-	var v: Word32 = val_20bit
-	if v & 0x80000 != 0 {
-		v = v | 0xFFF00000
+	if val_20bit & 0x80000 != 0 {
+		return Int32 (val_20bit | 0xFFF00000)
 	}
-	return Int32 v
+	return Int32 val_20bit
 }
 

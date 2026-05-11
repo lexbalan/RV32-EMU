@@ -37,9 +37,6 @@ target triple = "arm64-apple-macosx12.0.0"
 %Str16 = type [0 x %Char16]
 %Str32 = type [0 x %Char32]
 %__VA_List = type i8*
-declare void @llvm.va_start(i8*)
-declare void @llvm.va_copy(i8*, i8*)
-declare void @llvm.va_end(i8*)
 declare void @llvm.memcpy.p0.p0.i32(i8*, i8*, i32, i1)
 declare void @llvm.memset.p0.i32(i8*, i8, i32, i1)
 
@@ -326,74 +323,74 @@ declare %Int32 @decode_expand20(%Word32 %val_20bit)
 ; -- print imports public 'hart' --
 ; -- end print imports public 'hart' --
 ; -- strings --
-@str1 = private constant [15 x i8] [i8 104, i8 97, i8 114, i8 116, i8 32, i8 35, i8 37, i8 100, i8 32, i8 105, i8 110, i8 105, i8 116, i8 10, i8 0]
-@str2 = private constant [12 x i8] [i8 10, i8 73, i8 78, i8 84, i8 32, i8 35, i8 37, i8 48, i8 50, i8 88, i8 10, i8 0]
-@str3 = private constant [12 x i8] [i8 65, i8 68, i8 82, i8 32, i8 61, i8 32, i8 37, i8 48, i8 56, i8 88, i8 10, i8 0]
-@str4 = private constant [22 x i8] [i8 85, i8 78, i8 75, i8 78, i8 79, i8 87, i8 78, i8 32, i8 79, i8 80, i8 67, i8 79, i8 68, i8 69, i8 58, i8 32, i8 37, i8 48, i8 56, i8 88, i8 10, i8 0]
-@str5 = private constant [19 x i8] [i8 97, i8 100, i8 100, i8 105, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 37, i8 100, i8 10, i8 0]
-@str6 = private constant [19 x i8] [i8 115, i8 108, i8 108, i8 105, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 37, i8 100, i8 10, i8 0]
-@str7 = private constant [19 x i8] [i8 115, i8 108, i8 116, i8 105, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 37, i8 100, i8 10, i8 0]
-@str8 = private constant [20 x i8] [i8 115, i8 108, i8 116, i8 105, i8 117, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 37, i8 100, i8 10, i8 0]
-@str9 = private constant [19 x i8] [i8 120, i8 111, i8 114, i8 105, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 37, i8 100, i8 10, i8 0]
-@str10 = private constant [19 x i8] [i8 115, i8 114, i8 108, i8 105, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 37, i8 100, i8 10, i8 0]
-@str11 = private constant [19 x i8] [i8 115, i8 114, i8 97, i8 105, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 37, i8 100, i8 10, i8 0]
-@str12 = private constant [18 x i8] [i8 111, i8 114, i8 105, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 37, i8 100, i8 10, i8 0]
-@str13 = private constant [19 x i8] [i8 97, i8 110, i8 100, i8 105, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 37, i8 100, i8 10, i8 0]
-@str14 = private constant [19 x i8] [i8 109, i8 117, i8 108, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 10, i8 0]
-@str15 = private constant [20 x i8] [i8 109, i8 117, i8 108, i8 104, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 10, i8 0]
-@str16 = private constant [22 x i8] [i8 109, i8 117, i8 108, i8 104, i8 115, i8 117, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 10, i8 0]
-@str17 = private constant [21 x i8] [i8 109, i8 117, i8 108, i8 104, i8 115, i8 117, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 0]
-@str18 = private constant [21 x i8] [i8 109, i8 117, i8 108, i8 104, i8 117, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 10, i8 0]
-@str19 = private constant [21 x i8] [i8 109, i8 117, i8 108, i8 104, i8 117, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 10, i8 0]
-@str20 = private constant [19 x i8] [i8 100, i8 105, i8 118, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 10, i8 0]
-@str21 = private constant [20 x i8] [i8 100, i8 105, i8 118, i8 117, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 10, i8 0]
-@str22 = private constant [19 x i8] [i8 114, i8 101, i8 109, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 10, i8 0]
-@str23 = private constant [20 x i8] [i8 114, i8 101, i8 109, i8 117, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 10, i8 0]
-@str24 = private constant [19 x i8] [i8 97, i8 100, i8 100, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 10, i8 0]
-@str25 = private constant [19 x i8] [i8 115, i8 117, i8 98, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 10, i8 0]
-@str26 = private constant [19 x i8] [i8 115, i8 108, i8 108, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 10, i8 0]
-@str27 = private constant [19 x i8] [i8 115, i8 108, i8 116, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 10, i8 0]
-@str28 = private constant [20 x i8] [i8 115, i8 108, i8 116, i8 117, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 10, i8 0]
-@str29 = private constant [19 x i8] [i8 120, i8 111, i8 114, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 10, i8 0]
-@str30 = private constant [19 x i8] [i8 115, i8 114, i8 108, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 10, i8 0]
-@str31 = private constant [19 x i8] [i8 115, i8 114, i8 97, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 10, i8 0]
-@str32 = private constant [18 x i8] [i8 111, i8 114, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 10, i8 0]
-@str33 = private constant [19 x i8] [i8 97, i8 110, i8 100, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 10, i8 0]
-@str34 = private constant [15 x i8] [i8 108, i8 117, i8 105, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 48, i8 120, i8 37, i8 88, i8 10, i8 0]
-@str35 = private constant [17 x i8] [i8 97, i8 117, i8 105, i8 112, i8 99, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 48, i8 120, i8 37, i8 88, i8 10, i8 0]
-@str36 = private constant [13 x i8] [i8 106, i8 97, i8 108, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 37, i8 100, i8 10, i8 0]
-@str37 = private constant [14 x i8] [i8 106, i8 97, i8 108, i8 114, i8 32, i8 37, i8 100, i8 40, i8 120, i8 37, i8 100, i8 41, i8 10, i8 0]
-@str38 = private constant [18 x i8] [i8 98, i8 101, i8 113, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 37, i8 100, i8 10, i8 0]
-@str39 = private constant [18 x i8] [i8 98, i8 110, i8 101, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 37, i8 100, i8 10, i8 0]
-@str40 = private constant [18 x i8] [i8 98, i8 108, i8 116, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 37, i8 100, i8 10, i8 0]
-@str41 = private constant [18 x i8] [i8 98, i8 103, i8 101, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 37, i8 100, i8 10, i8 0]
-@str42 = private constant [19 x i8] [i8 98, i8 108, i8 116, i8 117, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 37, i8 100, i8 10, i8 0]
-@str43 = private constant [19 x i8] [i8 98, i8 103, i8 101, i8 117, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 37, i8 100, i8 10, i8 0]
-@str44 = private constant [17 x i8] [i8 108, i8 98, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 37, i8 100, i8 40, i8 120, i8 37, i8 100, i8 41, i8 10, i8 0]
-@str45 = private constant [17 x i8] [i8 108, i8 104, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 37, i8 100, i8 40, i8 120, i8 37, i8 100, i8 41, i8 10, i8 0]
-@str46 = private constant [17 x i8] [i8 108, i8 119, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 37, i8 100, i8 40, i8 120, i8 37, i8 100, i8 41, i8 10, i8 0]
-@str47 = private constant [18 x i8] [i8 108, i8 98, i8 117, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 37, i8 100, i8 40, i8 120, i8 37, i8 100, i8 41, i8 10, i8 0]
-@str48 = private constant [18 x i8] [i8 108, i8 104, i8 117, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 37, i8 100, i8 40, i8 120, i8 37, i8 100, i8 41, i8 10, i8 0]
-@str49 = private constant [17 x i8] [i8 115, i8 98, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 37, i8 100, i8 40, i8 120, i8 37, i8 100, i8 41, i8 10, i8 0]
-@str50 = private constant [17 x i8] [i8 115, i8 104, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 37, i8 100, i8 40, i8 120, i8 37, i8 100, i8 41, i8 10, i8 0]
-@str51 = private constant [17 x i8] [i8 115, i8 119, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 37, i8 100, i8 40, i8 120, i8 37, i8 100, i8 41, i8 10, i8 0]
-@str52 = private constant [28 x i8] [i8 83, i8 89, i8 83, i8 84, i8 69, i8 77, i8 32, i8 73, i8 78, i8 83, i8 84, i8 82, i8 85, i8 67, i8 84, i8 73, i8 79, i8 78, i8 58, i8 32, i8 48, i8 120, i8 37, i8 48, i8 56, i8 88, i8 10, i8 0]
-@str53 = private constant [7 x i8] [i8 101, i8 99, i8 97, i8 108, i8 108, i8 10, i8 0]
-@str54 = private constant [17 x i8] [i8 69, i8 67, i8 65, i8 76, i8 76, i8 58, i8 32, i8 104, i8 97, i8 114, i8 116, i8 32, i8 35, i8 37, i8 100, i8 10, i8 0]
-@str55 = private constant [6 x i8] [i8 109, i8 114, i8 101, i8 116, i8 10, i8 0]
-@str56 = private constant [52 x i8] [i8 77, i8 82, i8 69, i8 84, i8 58, i8 32, i8 104, i8 97, i8 114, i8 116, i8 32, i8 35, i8 37, i8 100, i8 44, i8 32, i8 109, i8 101, i8 112, i8 99, i8 61, i8 37, i8 48, i8 56, i8 88, i8 44, i8 32, i8 109, i8 99, i8 97, i8 117, i8 115, i8 101, i8 61, i8 37, i8 48, i8 56, i8 88, i8 44, i8 32, i8 109, i8 116, i8 118, i8 97, i8 108, i8 61, i8 37, i8 48, i8 56, i8 88, i8 10, i8 0]
-@str57 = private constant [8 x i8] [i8 101, i8 98, i8 114, i8 101, i8 97, i8 107, i8 10, i8 0]
-@str58 = private constant [34 x i8] [i8 85, i8 78, i8 75, i8 78, i8 79, i8 87, i8 78, i8 32, i8 83, i8 89, i8 83, i8 84, i8 69, i8 77, i8 32, i8 73, i8 78, i8 83, i8 84, i8 82, i8 85, i8 67, i8 84, i8 73, i8 79, i8 78, i8 58, i8 32, i8 48, i8 120, i8 37, i8 120, i8 10, i8 0]
-@str59 = private constant [7 x i8] [i8 80, i8 65, i8 85, i8 83, i8 69, i8 10, i8 0]
-@str60 = private constant [35 x i8] [i8 67, i8 83, i8 82, i8 95, i8 82, i8 87, i8 40, i8 99, i8 115, i8 114, i8 61, i8 48, i8 120, i8 37, i8 88, i8 44, i8 32, i8 114, i8 100, i8 61, i8 114, i8 37, i8 100, i8 44, i8 32, i8 114, i8 115, i8 49, i8 61, i8 114, i8 37, i8 100, i8 41, i8 10, i8 0]
-@str61 = private constant [8 x i8] [i8 91, i8 37, i8 48, i8 56, i8 88, i8 93, i8 32, i8 0]
-@str62 = private constant [3 x i8] [i8 37, i8 99, i8 0]
-@str63 = private constant [8 x i8] [i8 91, i8 37, i8 48, i8 56, i8 88, i8 93, i8 32, i8 0]
-@str64 = private constant [33 x i8] [i8 10, i8 10, i8 73, i8 78, i8 83, i8 84, i8 82, i8 85, i8 67, i8 84, i8 73, i8 79, i8 78, i8 95, i8 78, i8 79, i8 84, i8 95, i8 73, i8 77, i8 80, i8 76, i8 69, i8 77, i8 69, i8 78, i8 84, i8 69, i8 68, i8 58, i8 32, i8 34, i8 0]
-@str65 = private constant [3 x i8] [i8 34, i8 10, i8 0]
-@str66 = private constant [15 x i8] [i8 120, i8 37, i8 48, i8 50, i8 100, i8 32, i8 61, i8 32, i8 48, i8 120, i8 37, i8 48, i8 56, i8 120, i8 0]
-@str67 = private constant [5 x i8] [i8 32, i8 32, i8 32, i8 32, i8 0]
-@str68 = private constant [16 x i8] [i8 120, i8 37, i8 48, i8 50, i8 100, i8 32, i8 61, i8 32, i8 48, i8 120, i8 37, i8 48, i8 56, i8 120, i8 10, i8 0]
+@.str1 = private constant [15 x i8] [i8 104, i8 97, i8 114, i8 116, i8 32, i8 35, i8 37, i8 100, i8 32, i8 105, i8 110, i8 105, i8 116, i8 10, i8 0]
+@.str2 = private constant [12 x i8] [i8 10, i8 73, i8 78, i8 84, i8 32, i8 35, i8 37, i8 48, i8 50, i8 88, i8 10, i8 0]
+@.str3 = private constant [12 x i8] [i8 65, i8 68, i8 82, i8 32, i8 61, i8 32, i8 37, i8 48, i8 56, i8 88, i8 10, i8 0]
+@.str4 = private constant [22 x i8] [i8 85, i8 78, i8 75, i8 78, i8 79, i8 87, i8 78, i8 32, i8 79, i8 80, i8 67, i8 79, i8 68, i8 69, i8 58, i8 32, i8 37, i8 48, i8 56, i8 88, i8 10, i8 0]
+@.str5 = private constant [19 x i8] [i8 97, i8 100, i8 100, i8 105, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 37, i8 100, i8 10, i8 0]
+@.str6 = private constant [19 x i8] [i8 115, i8 108, i8 108, i8 105, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 37, i8 100, i8 10, i8 0]
+@.str7 = private constant [19 x i8] [i8 115, i8 108, i8 116, i8 105, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 37, i8 100, i8 10, i8 0]
+@.str8 = private constant [20 x i8] [i8 115, i8 108, i8 116, i8 105, i8 117, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 37, i8 100, i8 10, i8 0]
+@.str9 = private constant [19 x i8] [i8 120, i8 111, i8 114, i8 105, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 37, i8 100, i8 10, i8 0]
+@.str10 = private constant [19 x i8] [i8 115, i8 114, i8 108, i8 105, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 37, i8 100, i8 10, i8 0]
+@.str11 = private constant [19 x i8] [i8 115, i8 114, i8 97, i8 105, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 37, i8 100, i8 10, i8 0]
+@.str12 = private constant [18 x i8] [i8 111, i8 114, i8 105, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 37, i8 100, i8 10, i8 0]
+@.str13 = private constant [19 x i8] [i8 97, i8 110, i8 100, i8 105, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 37, i8 100, i8 10, i8 0]
+@.str14 = private constant [19 x i8] [i8 109, i8 117, i8 108, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 10, i8 0]
+@.str15 = private constant [20 x i8] [i8 109, i8 117, i8 108, i8 104, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 10, i8 0]
+@.str16 = private constant [22 x i8] [i8 109, i8 117, i8 108, i8 104, i8 115, i8 117, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 10, i8 0]
+@.str17 = private constant [21 x i8] [i8 109, i8 117, i8 108, i8 104, i8 115, i8 117, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 0]
+@.str18 = private constant [21 x i8] [i8 109, i8 117, i8 108, i8 104, i8 117, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 10, i8 0]
+@.str19 = private constant [21 x i8] [i8 109, i8 117, i8 108, i8 104, i8 117, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 10, i8 0]
+@.str20 = private constant [19 x i8] [i8 100, i8 105, i8 118, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 10, i8 0]
+@.str21 = private constant [20 x i8] [i8 100, i8 105, i8 118, i8 117, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 10, i8 0]
+@.str22 = private constant [19 x i8] [i8 114, i8 101, i8 109, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 10, i8 0]
+@.str23 = private constant [20 x i8] [i8 114, i8 101, i8 109, i8 117, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 10, i8 0]
+@.str24 = private constant [19 x i8] [i8 97, i8 100, i8 100, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 10, i8 0]
+@.str25 = private constant [19 x i8] [i8 115, i8 117, i8 98, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 10, i8 0]
+@.str26 = private constant [19 x i8] [i8 115, i8 108, i8 108, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 10, i8 0]
+@.str27 = private constant [19 x i8] [i8 115, i8 108, i8 116, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 10, i8 0]
+@.str28 = private constant [20 x i8] [i8 115, i8 108, i8 116, i8 117, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 10, i8 0]
+@.str29 = private constant [19 x i8] [i8 120, i8 111, i8 114, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 10, i8 0]
+@.str30 = private constant [19 x i8] [i8 115, i8 114, i8 108, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 10, i8 0]
+@.str31 = private constant [19 x i8] [i8 115, i8 114, i8 97, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 10, i8 0]
+@.str32 = private constant [18 x i8] [i8 111, i8 114, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 10, i8 0]
+@.str33 = private constant [19 x i8] [i8 97, i8 110, i8 100, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 10, i8 0]
+@.str34 = private constant [15 x i8] [i8 108, i8 117, i8 105, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 48, i8 120, i8 37, i8 88, i8 10, i8 0]
+@.str35 = private constant [17 x i8] [i8 97, i8 117, i8 105, i8 112, i8 99, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 48, i8 120, i8 37, i8 88, i8 10, i8 0]
+@.str36 = private constant [13 x i8] [i8 106, i8 97, i8 108, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 37, i8 100, i8 10, i8 0]
+@.str37 = private constant [14 x i8] [i8 106, i8 97, i8 108, i8 114, i8 32, i8 37, i8 100, i8 40, i8 120, i8 37, i8 100, i8 41, i8 10, i8 0]
+@.str38 = private constant [18 x i8] [i8 98, i8 101, i8 113, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 37, i8 100, i8 10, i8 0]
+@.str39 = private constant [18 x i8] [i8 98, i8 110, i8 101, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 37, i8 100, i8 10, i8 0]
+@.str40 = private constant [18 x i8] [i8 98, i8 108, i8 116, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 37, i8 100, i8 10, i8 0]
+@.str41 = private constant [18 x i8] [i8 98, i8 103, i8 101, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 37, i8 100, i8 10, i8 0]
+@.str42 = private constant [19 x i8] [i8 98, i8 108, i8 116, i8 117, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 37, i8 100, i8 10, i8 0]
+@.str43 = private constant [19 x i8] [i8 98, i8 103, i8 101, i8 117, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 37, i8 100, i8 10, i8 0]
+@.str44 = private constant [17 x i8] [i8 108, i8 98, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 37, i8 100, i8 40, i8 120, i8 37, i8 100, i8 41, i8 10, i8 0]
+@.str45 = private constant [17 x i8] [i8 108, i8 104, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 37, i8 100, i8 40, i8 120, i8 37, i8 100, i8 41, i8 10, i8 0]
+@.str46 = private constant [17 x i8] [i8 108, i8 119, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 37, i8 100, i8 40, i8 120, i8 37, i8 100, i8 41, i8 10, i8 0]
+@.str47 = private constant [18 x i8] [i8 108, i8 98, i8 117, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 37, i8 100, i8 40, i8 120, i8 37, i8 100, i8 41, i8 10, i8 0]
+@.str48 = private constant [18 x i8] [i8 108, i8 104, i8 117, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 37, i8 100, i8 40, i8 120, i8 37, i8 100, i8 41, i8 10, i8 0]
+@.str49 = private constant [17 x i8] [i8 115, i8 98, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 37, i8 100, i8 40, i8 120, i8 37, i8 100, i8 41, i8 10, i8 0]
+@.str50 = private constant [17 x i8] [i8 115, i8 104, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 37, i8 100, i8 40, i8 120, i8 37, i8 100, i8 41, i8 10, i8 0]
+@.str51 = private constant [17 x i8] [i8 115, i8 119, i8 32, i8 120, i8 37, i8 100, i8 44, i8 32, i8 37, i8 100, i8 40, i8 120, i8 37, i8 100, i8 41, i8 10, i8 0]
+@.str52 = private constant [28 x i8] [i8 83, i8 89, i8 83, i8 84, i8 69, i8 77, i8 32, i8 73, i8 78, i8 83, i8 84, i8 82, i8 85, i8 67, i8 84, i8 73, i8 79, i8 78, i8 58, i8 32, i8 48, i8 120, i8 37, i8 48, i8 56, i8 88, i8 10, i8 0]
+@.str53 = private constant [7 x i8] [i8 101, i8 99, i8 97, i8 108, i8 108, i8 10, i8 0]
+@.str54 = private constant [17 x i8] [i8 69, i8 67, i8 65, i8 76, i8 76, i8 58, i8 32, i8 104, i8 97, i8 114, i8 116, i8 32, i8 35, i8 37, i8 100, i8 10, i8 0]
+@.str55 = private constant [6 x i8] [i8 109, i8 114, i8 101, i8 116, i8 10, i8 0]
+@.str56 = private constant [52 x i8] [i8 77, i8 82, i8 69, i8 84, i8 58, i8 32, i8 104, i8 97, i8 114, i8 116, i8 32, i8 35, i8 37, i8 100, i8 44, i8 32, i8 109, i8 101, i8 112, i8 99, i8 61, i8 37, i8 48, i8 56, i8 88, i8 44, i8 32, i8 109, i8 99, i8 97, i8 117, i8 115, i8 101, i8 61, i8 37, i8 48, i8 56, i8 88, i8 44, i8 32, i8 109, i8 116, i8 118, i8 97, i8 108, i8 61, i8 37, i8 48, i8 56, i8 88, i8 10, i8 0]
+@.str57 = private constant [8 x i8] [i8 101, i8 98, i8 114, i8 101, i8 97, i8 107, i8 10, i8 0]
+@.str58 = private constant [34 x i8] [i8 85, i8 78, i8 75, i8 78, i8 79, i8 87, i8 78, i8 32, i8 83, i8 89, i8 83, i8 84, i8 69, i8 77, i8 32, i8 73, i8 78, i8 83, i8 84, i8 82, i8 85, i8 67, i8 84, i8 73, i8 79, i8 78, i8 58, i8 32, i8 48, i8 120, i8 37, i8 120, i8 10, i8 0]
+@.str59 = private constant [7 x i8] [i8 80, i8 65, i8 85, i8 83, i8 69, i8 10, i8 0]
+@.str60 = private constant [35 x i8] [i8 67, i8 83, i8 82, i8 95, i8 82, i8 87, i8 40, i8 99, i8 115, i8 114, i8 61, i8 48, i8 120, i8 37, i8 88, i8 44, i8 32, i8 114, i8 100, i8 61, i8 114, i8 37, i8 100, i8 44, i8 32, i8 114, i8 115, i8 49, i8 61, i8 114, i8 37, i8 100, i8 41, i8 10, i8 0]
+@.str61 = private constant [8 x i8] [i8 91, i8 37, i8 48, i8 56, i8 88, i8 93, i8 32, i8 0]
+@.str62 = private constant [3 x i8] [i8 37, i8 99, i8 0]
+@.str63 = private constant [8 x i8] [i8 91, i8 37, i8 48, i8 56, i8 88, i8 93, i8 32, i8 0]
+@.str64 = private constant [33 x i8] [i8 10, i8 10, i8 73, i8 78, i8 83, i8 84, i8 82, i8 85, i8 67, i8 84, i8 73, i8 79, i8 78, i8 95, i8 78, i8 79, i8 84, i8 95, i8 73, i8 77, i8 80, i8 76, i8 69, i8 77, i8 69, i8 78, i8 84, i8 69, i8 68, i8 58, i8 32, i8 34, i8 0]
+@.str65 = private constant [3 x i8] [i8 34, i8 10, i8 0]
+@.str66 = private constant [15 x i8] [i8 120, i8 37, i8 48, i8 50, i8 100, i8 32, i8 61, i8 32, i8 48, i8 120, i8 37, i8 48, i8 56, i8 120, i8 0]
+@.str67 = private constant [5 x i8] [i8 32, i8 32, i8 32, i8 32, i8 0]
+@.str68 = private constant [16 x i8] [i8 120, i8 37, i8 48, i8 50, i8 100, i8 32, i8 61, i8 32, i8 48, i8 120, i8 37, i8 48, i8 56, i8 120, i8 10, i8 0]
 ; -- endstrings --
 %hart_Hart = type {
 	[32 x %Word32],
@@ -410,7 +407,7 @@ declare %Int32 @decode_expand20(%Word32 %val_20bit)
 };
 ; branch; jump and link by register; fence; machine return from trap
 define void @hart_init(%hart_Hart* %hart, %Nat32 %id, %hart_BusInterface* %bus) {
-	%1 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([15 x i8]* @str1 to [0 x i8]*), %Nat32 %id)
+	%1 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([15 x i8]* @.str1 to [0 x i8]*), %Nat32 %id)
 	%2 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 5
 	%3 = bitcast %Nat32 3860 to %Nat32
 	%4 = getelementptr [4096 x %Word32], [4096 x %Word32]* %2, %Int32 0, %Nat32 %3
@@ -460,13 +457,13 @@ then_0:
 	%6 = load %Nat32, %Nat32* %5
 	%7 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 3
 	%8 = load %Word32, %Word32* %7
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %6, %Str8* bitcast ([12 x i8]* @str2 to [0 x i8]*), %Word32 %8)
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %6, %Str8* bitcast ([12 x i8]* @.str2 to [0 x i8]*), %Word32 %8)
 	%9 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 5
 	%10 = bitcast %Nat32 773 to %Nat32
 	%11 = getelementptr [4096 x %Word32], [4096 x %Word32]* %9, %Int32 0, %Nat32 %10
 	%12 = load %Word32, %Word32* %11
 	%13 = bitcast %Word32 %12 to %Nat32
-	%14 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([12 x i8]* @str3 to [0 x i8]*), %Nat32 %13)
+	%14 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([12 x i8]* @.str3 to [0 x i8]*), %Nat32 %13)
 	%15 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 5
 	%16 = bitcast %Nat32 833 to %Nat32
 	%17 = getelementptr [4096 x %Word32], [4096 x %Word32]* %15, %Int32 0, %Nat32 %16
@@ -615,7 +612,7 @@ then_10:
 else_10:
 	%38 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
 	%39 = load %Nat32, %Nat32* %38
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %39, %Str8* bitcast ([22 x i8]* @str4 to [0 x i8]*), %Word8 %1)
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %39, %Str8* bitcast ([22 x i8]* @.str4 to [0 x i8]*), %Word8 %1)
 	br label %endif_10
 endif_10:
 	br label %endif_9
@@ -652,173 +649,175 @@ define internal void @execI(%hart_Hart* %hart, %Word32 %instr) {
 	%5 = call %Nat8 @decode_extract_rd(%Word32 %instr)
 	%6 = call %Nat8 @decode_extract_rs1(%Word32 %instr)
 	%7 = alloca %Word32, align 4
+	%8 = zext i8 0 to %Word32
+	store %Word32 %8, %Word32* %7
 ; if_0
-	%8 = bitcast i8 0 to %Word8
-	%9 = icmp eq %Word8 %1, %8
-	br %Bool %9 , label %then_0, label %else_0
+	%9 = bitcast i8 0 to %Word8
+	%10 = icmp eq %Word8 %1, %9
+	br %Bool %10 , label %then_0, label %else_0
 then_0:
-	%10 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
-	%11 = load %Nat32, %Nat32* %10
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %11, %Str8* bitcast ([19 x i8]* @str5 to [0 x i8]*), %Nat8 %5, %Nat8 %6, %Int32 %4)
-	%12 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 0
-	%13 = zext %Nat8 %6 to %Nat32
-	%14 = getelementptr [32 x %Word32], [32 x %Word32]* %12, %Int32 0, %Nat32 %13
-	%15 = load %Word32, %Word32* %14
-	%16 = bitcast %Word32 %15 to %Int32
-	%17 = add %Int32 %16, %4
-	%18 = bitcast %Int32 %17 to %Word32
-	store %Word32 %18, %Word32* %7
+	%11 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
+	%12 = load %Nat32, %Nat32* %11
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %12, %Str8* bitcast ([19 x i8]* @.str5 to [0 x i8]*), %Nat8 %5, %Nat8 %6, %Int32 %4)
+	%13 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 0
+	%14 = zext %Nat8 %6 to %Nat32
+	%15 = getelementptr [32 x %Word32], [32 x %Word32]* %13, %Int32 0, %Nat32 %14
+	%16 = load %Word32, %Word32* %15
+	%17 = bitcast %Word32 %16 to %Int32
+	%18 = add %Int32 %17, %4
+	%19 = bitcast %Int32 %18 to %Word32
+	store %Word32 %19, %Word32* %7
 	br label %endif_0
 else_0:
 ; if_1
-	%19 = bitcast i8 1 to %Word8
-	%20 = icmp eq %Word8 %1, %19
-	%21 = bitcast i8 0 to %Word8
-	%22 = icmp eq %Word8 %2, %21
-	%23 = and %Bool %20, %22
-	br %Bool %23 , label %then_1, label %else_1
+	%20 = bitcast i8 1 to %Word8
+	%21 = icmp eq %Word8 %1, %20
+	%22 = bitcast i8 0 to %Word8
+	%23 = icmp eq %Word8 %2, %22
+	%24 = and %Bool %21, %23
+	br %Bool %24 , label %then_1, label %else_1
 then_1:
-	%24 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
-	%25 = load %Nat32, %Nat32* %24
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %25, %Str8* bitcast ([19 x i8]* @str6 to [0 x i8]*), %Nat8 %5, %Nat8 %6, %Int32 %4)
-	%26 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 0
-	%27 = zext %Nat8 %6 to %Nat32
-	%28 = getelementptr [32 x %Word32], [32 x %Word32]* %26, %Int32 0, %Nat32 %27
-	%29 = load %Word32, %Word32* %28
-	%30 = trunc %Int32 %4 to %Nat8
-	%31 = zext %Nat8 %30 to %Word32
-	%32 = shl %Word32 %29, %31
-	store %Word32 %32, %Word32* %7
+	%25 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
+	%26 = load %Nat32, %Nat32* %25
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %26, %Str8* bitcast ([19 x i8]* @.str6 to [0 x i8]*), %Nat8 %5, %Nat8 %6, %Int32 %4)
+	%27 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 0
+	%28 = zext %Nat8 %6 to %Nat32
+	%29 = getelementptr [32 x %Word32], [32 x %Word32]* %27, %Int32 0, %Nat32 %28
+	%30 = load %Word32, %Word32* %29
+	%31 = trunc %Int32 %4 to %Nat8
+	%32 = zext %Nat8 %31 to %Word32
+	%33 = shl %Word32 %30, %32
+	store %Word32 %33, %Word32* %7
 	br label %endif_1
 else_1:
 ; if_2
-	%33 = bitcast i8 2 to %Word8
-	%34 = icmp eq %Word8 %1, %33
-	br %Bool %34 , label %then_2, label %else_2
+	%34 = bitcast i8 2 to %Word8
+	%35 = icmp eq %Word8 %1, %34
+	br %Bool %35 , label %then_2, label %else_2
 then_2:
-	%35 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
-	%36 = load %Nat32, %Nat32* %35
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %36, %Str8* bitcast ([19 x i8]* @str7 to [0 x i8]*), %Nat8 %5, %Nat8 %6, %Int32 %4)
-	%37 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 0
-	%38 = zext %Nat8 %6 to %Nat32
-	%39 = getelementptr [32 x %Word32], [32 x %Word32]* %37, %Int32 0, %Nat32 %38
-	%40 = load %Word32, %Word32* %39
-	%41 = bitcast %Word32 %40 to %Int32
-	%42 = icmp slt %Int32 %41, %4
-	%43 = zext %Bool %42 to %Word32
-	store %Word32 %43, %Word32* %7
+	%36 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
+	%37 = load %Nat32, %Nat32* %36
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %37, %Str8* bitcast ([19 x i8]* @.str7 to [0 x i8]*), %Nat8 %5, %Nat8 %6, %Int32 %4)
+	%38 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 0
+	%39 = zext %Nat8 %6 to %Nat32
+	%40 = getelementptr [32 x %Word32], [32 x %Word32]* %38, %Int32 0, %Nat32 %39
+	%41 = load %Word32, %Word32* %40
+	%42 = bitcast %Word32 %41 to %Int32
+	%43 = icmp slt %Int32 %42, %4
+	%44 = zext %Bool %43 to %Word32
+	store %Word32 %44, %Word32* %7
 	br label %endif_2
 else_2:
 ; if_3
-	%44 = bitcast i8 3 to %Word8
-	%45 = icmp eq %Word8 %1, %44
-	br %Bool %45 , label %then_3, label %else_3
+	%45 = bitcast i8 3 to %Word8
+	%46 = icmp eq %Word8 %1, %45
+	br %Bool %46 , label %then_3, label %else_3
 then_3:
-	%46 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
-	%47 = load %Nat32, %Nat32* %46
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %47, %Str8* bitcast ([20 x i8]* @str8 to [0 x i8]*), %Nat8 %5, %Nat8 %6, %Int32 %4)
-	%48 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 0
-	%49 = zext %Nat8 %6 to %Nat32
-	%50 = getelementptr [32 x %Word32], [32 x %Word32]* %48, %Int32 0, %Nat32 %49
-	%51 = load %Word32, %Word32* %50
-	%52 = bitcast %Word32 %51 to %Nat32
-	%53 = bitcast %Int32 %4 to %Nat32
-	%54 = icmp ult %Nat32 %52, %53
-	%55 = zext %Bool %54 to %Word32
-	store %Word32 %55, %Word32* %7
+	%47 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
+	%48 = load %Nat32, %Nat32* %47
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %48, %Str8* bitcast ([20 x i8]* @.str8 to [0 x i8]*), %Nat8 %5, %Nat8 %6, %Int32 %4)
+	%49 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 0
+	%50 = zext %Nat8 %6 to %Nat32
+	%51 = getelementptr [32 x %Word32], [32 x %Word32]* %49, %Int32 0, %Nat32 %50
+	%52 = load %Word32, %Word32* %51
+	%53 = bitcast %Word32 %52 to %Nat32
+	%54 = bitcast %Int32 %4 to %Nat32
+	%55 = icmp ult %Nat32 %53, %54
+	%56 = zext %Bool %55 to %Word32
+	store %Word32 %56, %Word32* %7
 	br label %endif_3
 else_3:
 ; if_4
-	%56 = bitcast i8 4 to %Word8
-	%57 = icmp eq %Word8 %1, %56
-	br %Bool %57 , label %then_4, label %else_4
+	%57 = bitcast i8 4 to %Word8
+	%58 = icmp eq %Word8 %1, %57
+	br %Bool %58 , label %then_4, label %else_4
 then_4:
-	%58 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
-	%59 = load %Nat32, %Nat32* %58
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %59, %Str8* bitcast ([19 x i8]* @str9 to [0 x i8]*), %Nat8 %5, %Nat8 %6, %Int32 %4)
-	%60 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 0
-	%61 = zext %Nat8 %6 to %Nat32
-	%62 = getelementptr [32 x %Word32], [32 x %Word32]* %60, %Int32 0, %Nat32 %61
-	%63 = bitcast %Int32 %4 to %Word32
-	%64 = load %Word32, %Word32* %62
-	%65 = xor %Word32 %64, %63
-	store %Word32 %65, %Word32* %7
+	%59 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
+	%60 = load %Nat32, %Nat32* %59
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %60, %Str8* bitcast ([19 x i8]* @.str9 to [0 x i8]*), %Nat8 %5, %Nat8 %6, %Int32 %4)
+	%61 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 0
+	%62 = zext %Nat8 %6 to %Nat32
+	%63 = getelementptr [32 x %Word32], [32 x %Word32]* %61, %Int32 0, %Nat32 %62
+	%64 = bitcast %Int32 %4 to %Word32
+	%65 = load %Word32, %Word32* %63
+	%66 = xor %Word32 %65, %64
+	store %Word32 %66, %Word32* %7
 	br label %endif_4
 else_4:
 ; if_5
-	%66 = bitcast i8 5 to %Word8
-	%67 = icmp eq %Word8 %1, %66
-	%68 = bitcast i8 0 to %Word8
-	%69 = icmp eq %Word8 %2, %68
-	%70 = and %Bool %67, %69
-	br %Bool %70 , label %then_5, label %else_5
+	%67 = bitcast i8 5 to %Word8
+	%68 = icmp eq %Word8 %1, %67
+	%69 = bitcast i8 0 to %Word8
+	%70 = icmp eq %Word8 %2, %69
+	%71 = and %Bool %68, %70
+	br %Bool %71 , label %then_5, label %else_5
 then_5:
-	%71 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
-	%72 = load %Nat32, %Nat32* %71
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %72, %Str8* bitcast ([19 x i8]* @str10 to [0 x i8]*), %Nat8 %5, %Nat8 %6, %Int32 %4)
-	%73 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 0
-	%74 = zext %Nat8 %6 to %Nat32
-	%75 = getelementptr [32 x %Word32], [32 x %Word32]* %73, %Int32 0, %Nat32 %74
-	%76 = load %Word32, %Word32* %75
-	%77 = trunc %Int32 %4 to %Nat8
-	%78 = zext %Nat8 %77 to %Word32
-	%79 = lshr %Word32 %76, %78
-	store %Word32 %79, %Word32* %7
+	%72 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
+	%73 = load %Nat32, %Nat32* %72
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %73, %Str8* bitcast ([19 x i8]* @.str10 to [0 x i8]*), %Nat8 %5, %Nat8 %6, %Int32 %4)
+	%74 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 0
+	%75 = zext %Nat8 %6 to %Nat32
+	%76 = getelementptr [32 x %Word32], [32 x %Word32]* %74, %Int32 0, %Nat32 %75
+	%77 = load %Word32, %Word32* %76
+	%78 = trunc %Int32 %4 to %Nat8
+	%79 = zext %Nat8 %78 to %Word32
+	%80 = lshr %Word32 %77, %79
+	store %Word32 %80, %Word32* %7
 	br label %endif_5
 else_5:
 ; if_6
-	%80 = bitcast i8 5 to %Word8
-	%81 = icmp eq %Word8 %1, %80
-	%82 = bitcast i8 32 to %Word8
-	%83 = icmp eq %Word8 %2, %82
-	%84 = and %Bool %81, %83
-	br %Bool %84 , label %then_6, label %else_6
+	%81 = bitcast i8 5 to %Word8
+	%82 = icmp eq %Word8 %1, %81
+	%83 = bitcast i8 32 to %Word8
+	%84 = icmp eq %Word8 %2, %83
+	%85 = and %Bool %82, %84
+	br %Bool %85 , label %then_6, label %else_6
 then_6:
-	%85 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
-	%86 = load %Nat32, %Nat32* %85
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %86, %Str8* bitcast ([19 x i8]* @str11 to [0 x i8]*), %Nat8 %5, %Nat8 %6, %Int32 %4)
-	%87 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 0
-	%88 = zext %Nat8 %6 to %Nat32
-	%89 = getelementptr [32 x %Word32], [32 x %Word32]* %87, %Int32 0, %Nat32 %88
-	%90 = load %Word32, %Word32* %89
-	%91 = trunc %Int32 %4 to %Nat8
-	%92 = zext %Nat8 %91 to %Word32
-	%93 = lshr %Word32 %90, %92
-	store %Word32 %93, %Word32* %7
+	%86 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
+	%87 = load %Nat32, %Nat32* %86
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %87, %Str8* bitcast ([19 x i8]* @.str11 to [0 x i8]*), %Nat8 %5, %Nat8 %6, %Int32 %4)
+	%88 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 0
+	%89 = zext %Nat8 %6 to %Nat32
+	%90 = getelementptr [32 x %Word32], [32 x %Word32]* %88, %Int32 0, %Nat32 %89
+	%91 = load %Word32, %Word32* %90
+	%92 = trunc %Int32 %4 to %Nat8
+	%93 = zext %Nat8 %92 to %Word32
+	%94 = lshr %Word32 %91, %93
+	store %Word32 %94, %Word32* %7
 	br label %endif_6
 else_6:
 ; if_7
-	%94 = bitcast i8 6 to %Word8
-	%95 = icmp eq %Word8 %1, %94
-	br %Bool %95 , label %then_7, label %else_7
+	%95 = bitcast i8 6 to %Word8
+	%96 = icmp eq %Word8 %1, %95
+	br %Bool %96 , label %then_7, label %else_7
 then_7:
-	%96 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
-	%97 = load %Nat32, %Nat32* %96
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %97, %Str8* bitcast ([18 x i8]* @str12 to [0 x i8]*), %Nat8 %5, %Nat8 %6, %Int32 %4)
-	%98 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 0
-	%99 = zext %Nat8 %6 to %Nat32
-	%100 = getelementptr [32 x %Word32], [32 x %Word32]* %98, %Int32 0, %Nat32 %99
-	%101 = bitcast %Int32 %4 to %Word32
-	%102 = load %Word32, %Word32* %100
-	%103 = or %Word32 %102, %101
-	store %Word32 %103, %Word32* %7
+	%97 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
+	%98 = load %Nat32, %Nat32* %97
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %98, %Str8* bitcast ([18 x i8]* @.str12 to [0 x i8]*), %Nat8 %5, %Nat8 %6, %Int32 %4)
+	%99 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 0
+	%100 = zext %Nat8 %6 to %Nat32
+	%101 = getelementptr [32 x %Word32], [32 x %Word32]* %99, %Int32 0, %Nat32 %100
+	%102 = bitcast %Int32 %4 to %Word32
+	%103 = load %Word32, %Word32* %101
+	%104 = or %Word32 %103, %102
+	store %Word32 %104, %Word32* %7
 	br label %endif_7
 else_7:
 ; if_8
-	%104 = bitcast i8 7 to %Word8
-	%105 = icmp eq %Word8 %1, %104
-	br %Bool %105 , label %then_8, label %else_8
+	%105 = bitcast i8 7 to %Word8
+	%106 = icmp eq %Word8 %1, %105
+	br %Bool %106 , label %then_8, label %else_8
 then_8:
-	%106 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
-	%107 = load %Nat32, %Nat32* %106
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %107, %Str8* bitcast ([19 x i8]* @str13 to [0 x i8]*), %Nat8 %5, %Nat8 %6, %Int32 %4)
-	%108 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 0
-	%109 = zext %Nat8 %6 to %Nat32
-	%110 = getelementptr [32 x %Word32], [32 x %Word32]* %108, %Int32 0, %Nat32 %109
-	%111 = bitcast %Int32 %4 to %Word32
-	%112 = load %Word32, %Word32* %110
-	%113 = and %Word32 %112, %111
-	store %Word32 %113, %Word32* %7
+	%107 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
+	%108 = load %Nat32, %Nat32* %107
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %108, %Str8* bitcast ([19 x i8]* @.str13 to [0 x i8]*), %Nat8 %5, %Nat8 %6, %Int32 %4)
+	%109 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 0
+	%110 = zext %Nat8 %6 to %Nat32
+	%111 = getelementptr [32 x %Word32], [32 x %Word32]* %109, %Int32 0, %Nat32 %110
+	%112 = bitcast %Int32 %4 to %Word32
+	%113 = load %Word32, %Word32* %111
+	%114 = and %Word32 %113, %112
+	store %Word32 %114, %Word32* %7
 	br label %endif_8
 else_8:
 	br label %endif_8
@@ -839,11 +838,11 @@ endif_2:
 endif_1:
 	br label %endif_0
 endif_0:
-	%114 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 0
-	%115 = zext %Nat8 %5 to %Nat32
-	%116 = getelementptr [32 x %Word32], [32 x %Word32]* %114, %Int32 0, %Nat32 %115
-	%117 = load %Word32, %Word32* %7
-	store %Word32 %117, %Word32* %116
+	%115 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 0
+	%116 = zext %Nat8 %5 to %Nat32
+	%117 = getelementptr [32 x %Word32], [32 x %Word32]* %115, %Int32 0, %Nat32 %116
+	%118 = load %Word32, %Word32* %7
+	store %Word32 %118, %Word32* %117
 	ret void
 }
 
@@ -874,7 +873,7 @@ then_0:
 then_1:
 	%19 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
 	%20 = load %Nat32, %Nat32* %19
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %20, %Str8* bitcast ([19 x i8]* @str14 to [0 x i8]*), %Nat8 %3, %Nat8 %4, %Nat8 %5)
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %20, %Str8* bitcast ([19 x i8]* @.str14 to [0 x i8]*), %Nat8 %3, %Nat8 %4, %Nat8 %5)
 	%21 = bitcast %Word32 %9 to %Int32
 	%22 = bitcast %Word32 %13 to %Int32
 	%23 = mul %Int32 %21, %22
@@ -889,7 +888,7 @@ else_1:
 then_2:
 	%27 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
 	%28 = load %Nat32, %Nat32* %27
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %28, %Str8* bitcast ([20 x i8]* @str15 to [0 x i8]*), %Nat8 %3, %Nat8 %4, %Nat8 %5)
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %28, %Str8* bitcast ([20 x i8]* @.str15 to [0 x i8]*), %Nat8 %3, %Nat8 %4, %Nat8 %5)
 	%29 = sext %Word32 %9 to %Int64
 	%30 = sext %Word32 %13 to %Int64
 	%31 = mul %Int64 %29, %30
@@ -907,8 +906,8 @@ else_2:
 then_3:
 	%38 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
 	%39 = load %Nat32, %Nat32* %38
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %39, %Str8* bitcast ([22 x i8]* @str16 to [0 x i8]*), %Nat8 %3, %Nat8 %4, %Nat8 %5)
-	call void (%Str8*, ...) @notImplemented(%Str8* bitcast ([21 x i8]* @str17 to [0 x i8]*), %Nat8 %3, %Nat8 %4, %Nat8 %5)
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %39, %Str8* bitcast ([22 x i8]* @.str16 to [0 x i8]*), %Nat8 %3, %Nat8 %4, %Nat8 %5)
+	call void (%Str8*, ...) @notImplemented(%Str8* bitcast ([21 x i8]* @.str17 to [0 x i8]*), %Nat8 %3, %Nat8 %4, %Nat8 %5)
 	br label %endif_3
 else_3:
 ; if_4
@@ -918,8 +917,8 @@ else_3:
 then_4:
 	%42 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
 	%43 = load %Nat32, %Nat32* %42
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %43, %Str8* bitcast ([21 x i8]* @str18 to [0 x i8]*), %Nat8 %3, %Nat8 %4, %Nat8 %5)
-	call void (%Str8*, ...) @notImplemented(%Str8* bitcast ([21 x i8]* @str19 to [0 x i8]*), %Nat8 %3, %Nat8 %4, %Nat8 %5)
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %43, %Str8* bitcast ([21 x i8]* @.str18 to [0 x i8]*), %Nat8 %3, %Nat8 %4, %Nat8 %5)
+	call void (%Str8*, ...) @notImplemented(%Str8* bitcast ([21 x i8]* @.str19 to [0 x i8]*), %Nat8 %3, %Nat8 %4, %Nat8 %5)
 	br label %endif_4
 else_4:
 ; if_5
@@ -929,7 +928,7 @@ else_4:
 then_5:
 	%46 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
 	%47 = load %Nat32, %Nat32* %46
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %47, %Str8* bitcast ([19 x i8]* @str20 to [0 x i8]*), %Nat8 %3, %Nat8 %4, %Nat8 %5)
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %47, %Str8* bitcast ([19 x i8]* @.str20 to [0 x i8]*), %Nat8 %3, %Nat8 %4, %Nat8 %5)
 	%48 = bitcast %Word32 %9 to %Int32
 	%49 = bitcast %Word32 %13 to %Int32
 	%50 = sdiv %Int32 %48, %49
@@ -944,7 +943,7 @@ else_5:
 then_6:
 	%54 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
 	%55 = load %Nat32, %Nat32* %54
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %55, %Str8* bitcast ([20 x i8]* @str21 to [0 x i8]*), %Nat8 %3, %Nat8 %4, %Nat8 %5)
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %55, %Str8* bitcast ([20 x i8]* @.str21 to [0 x i8]*), %Nat8 %3, %Nat8 %4, %Nat8 %5)
 	%56 = bitcast %Word32 %9 to %Nat32
 	%57 = bitcast %Word32 %13 to %Nat32
 	%58 = udiv %Nat32 %56, %57
@@ -959,7 +958,7 @@ else_6:
 then_7:
 	%62 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
 	%63 = load %Nat32, %Nat32* %62
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %63, %Str8* bitcast ([19 x i8]* @str22 to [0 x i8]*), %Nat8 %3, %Nat8 %4, %Nat8 %5)
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %63, %Str8* bitcast ([19 x i8]* @.str22 to [0 x i8]*), %Nat8 %3, %Nat8 %4, %Nat8 %5)
 	%64 = bitcast %Word32 %9 to %Int32
 	%65 = bitcast %Word32 %13 to %Int32
 	%66 = srem %Int32 %64, %65
@@ -974,7 +973,7 @@ else_7:
 then_8:
 	%70 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
 	%71 = load %Nat32, %Nat32* %70
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %71, %Str8* bitcast ([20 x i8]* @str23 to [0 x i8]*), %Nat8 %3, %Nat8 %4, %Nat8 %5)
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %71, %Str8* bitcast ([20 x i8]* @.str23 to [0 x i8]*), %Nat8 %3, %Nat8 %4, %Nat8 %5)
 	%72 = bitcast %Word32 %9 to %Nat32
 	%73 = bitcast %Word32 %13 to %Nat32
 	%74 = urem %Nat32 %72, %73
@@ -1008,7 +1007,7 @@ else_0:
 then_9:
 	%81 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
 	%82 = load %Nat32, %Nat32* %81
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %82, %Str8* bitcast ([19 x i8]* @str24 to [0 x i8]*), %Nat8 %3, %Nat8 %4, %Nat8 %5)
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %82, %Str8* bitcast ([19 x i8]* @.str24 to [0 x i8]*), %Nat8 %3, %Nat8 %4, %Nat8 %5)
 	%83 = bitcast %Word32 %9 to %Int32
 	%84 = bitcast %Word32 %13 to %Int32
 	%85 = add %Int32 %83, %84
@@ -1026,7 +1025,7 @@ else_9:
 then_10:
 	%92 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
 	%93 = load %Nat32, %Nat32* %92
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %93, %Str8* bitcast ([19 x i8]* @str25 to [0 x i8]*), %Nat8 %3, %Nat8 %4, %Nat8 %5)
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %93, %Str8* bitcast ([19 x i8]* @.str25 to [0 x i8]*), %Nat8 %3, %Nat8 %4, %Nat8 %5)
 	%94 = bitcast %Word32 %9 to %Int32
 	%95 = bitcast %Word32 %13 to %Int32
 	%96 = sub %Int32 %94, %95
@@ -1041,7 +1040,7 @@ else_10:
 then_11:
 	%100 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
 	%101 = load %Nat32, %Nat32* %100
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %101, %Str8* bitcast ([19 x i8]* @str26 to [0 x i8]*), %Nat8 %3, %Nat8 %4, %Nat8 %5)
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %101, %Str8* bitcast ([19 x i8]* @.str26 to [0 x i8]*), %Nat8 %3, %Nat8 %4, %Nat8 %5)
 	%102 = trunc %Word32 %13 to %Nat8
 	%103 = zext %Nat8 %102 to %Word32
 	%104 = shl %Word32 %9, %103
@@ -1055,7 +1054,7 @@ else_11:
 then_12:
 	%107 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
 	%108 = load %Nat32, %Nat32* %107
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %108, %Str8* bitcast ([19 x i8]* @str27 to [0 x i8]*), %Nat8 %3, %Nat8 %4, %Nat8 %5)
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %108, %Str8* bitcast ([19 x i8]* @.str27 to [0 x i8]*), %Nat8 %3, %Nat8 %4, %Nat8 %5)
 	%109 = bitcast %Word32 %9 to %Int32
 	%110 = bitcast %Word32 %13 to %Int32
 	%111 = icmp slt %Int32 %109, %110
@@ -1070,7 +1069,7 @@ else_12:
 then_13:
 	%115 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
 	%116 = load %Nat32, %Nat32* %115
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %116, %Str8* bitcast ([20 x i8]* @str28 to [0 x i8]*), %Nat8 %3, %Nat8 %4, %Nat8 %5)
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %116, %Str8* bitcast ([20 x i8]* @.str28 to [0 x i8]*), %Nat8 %3, %Nat8 %4, %Nat8 %5)
 	%117 = bitcast %Word32 %9 to %Nat32
 	%118 = bitcast %Word32 %13 to %Nat32
 	%119 = icmp ult %Nat32 %117, %118
@@ -1085,7 +1084,7 @@ else_13:
 then_14:
 	%123 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
 	%124 = load %Nat32, %Nat32* %123
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %124, %Str8* bitcast ([19 x i8]* @str29 to [0 x i8]*), %Nat8 %3, %Nat8 %4, %Nat8 %5)
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %124, %Str8* bitcast ([19 x i8]* @.str29 to [0 x i8]*), %Nat8 %3, %Nat8 %4, %Nat8 %5)
 	%125 = xor %Word32 %9, %13
 	store %Word32 %125, %Word32* %14
 	br label %endif_14
@@ -1100,7 +1099,7 @@ else_14:
 then_15:
 	%131 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
 	%132 = load %Nat32, %Nat32* %131
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %132, %Str8* bitcast ([19 x i8]* @str30 to [0 x i8]*), %Nat8 %3, %Nat8 %4, %Nat8 %5)
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %132, %Str8* bitcast ([19 x i8]* @.str30 to [0 x i8]*), %Nat8 %3, %Nat8 %4, %Nat8 %5)
 	%133 = trunc %Word32 %13 to %Nat8
 	%134 = zext %Nat8 %133 to %Word32
 	%135 = lshr %Word32 %9, %134
@@ -1117,7 +1116,7 @@ else_15:
 then_16:
 	%141 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
 	%142 = load %Nat32, %Nat32* %141
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %142, %Str8* bitcast ([19 x i8]* @str31 to [0 x i8]*), %Nat8 %3, %Nat8 %4, %Nat8 %5)
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %142, %Str8* bitcast ([19 x i8]* @.str31 to [0 x i8]*), %Nat8 %3, %Nat8 %4, %Nat8 %5)
 	br label %endif_16
 else_16:
 ; if_17
@@ -1127,7 +1126,7 @@ else_16:
 then_17:
 	%145 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
 	%146 = load %Nat32, %Nat32* %145
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %146, %Str8* bitcast ([18 x i8]* @str32 to [0 x i8]*), %Nat8 %3, %Nat8 %4, %Nat8 %5)
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %146, %Str8* bitcast ([18 x i8]* @.str32 to [0 x i8]*), %Nat8 %3, %Nat8 %4, %Nat8 %5)
 	%147 = or %Word32 %9, %13
 	store %Word32 %147, %Word32* %14
 	br label %endif_17
@@ -1139,7 +1138,7 @@ else_17:
 then_18:
 	%150 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
 	%151 = load %Nat32, %Nat32* %150
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %151, %Str8* bitcast ([19 x i8]* @str33 to [0 x i8]*), %Nat8 %3, %Nat8 %4, %Nat8 %5)
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %151, %Str8* bitcast ([19 x i8]* @.str33 to [0 x i8]*), %Nat8 %3, %Nat8 %4, %Nat8 %5)
 	%152 = and %Word32 %9, %13
 	store %Word32 %152, %Word32* %14
 	br label %endif_18
@@ -1177,7 +1176,7 @@ define internal void @execLUI(%hart_Hart* %hart, %Word32 %instr) {
 	%2 = call %Nat8 @decode_extract_rd(%Word32 %instr)
 	%3 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
 	%4 = load %Nat32, %Nat32* %3
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %4, %Str8* bitcast ([15 x i8]* @str34 to [0 x i8]*), %Nat8 %2, %Word32 %1)
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %4, %Str8* bitcast ([15 x i8]* @.str34 to [0 x i8]*), %Nat8 %2, %Word32 %1)
 	%5 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 0
 	%6 = zext %Nat8 %2 to %Nat32
 	%7 = getelementptr [32 x %Word32], [32 x %Word32]* %5, %Int32 0, %Nat32 %6
@@ -1200,7 +1199,7 @@ define internal void @execAUIPC(%hart_Hart* %hart, %Word32 %instr) {
 	%10 = call %Nat8 @decode_extract_rd(%Word32 %instr)
 	%11 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
 	%12 = load %Nat32, %Nat32* %11
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %12, %Str8* bitcast ([17 x i8]* @str35 to [0 x i8]*), %Nat8 %10, %Int32 %2)
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %12, %Str8* bitcast ([17 x i8]* @.str35 to [0 x i8]*), %Nat8 %10, %Int32 %2)
 	%13 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 0
 	%14 = zext %Nat8 %10 to %Nat32
 	%15 = getelementptr [32 x %Word32], [32 x %Word32]* %13, %Int32 0, %Nat32 %14
@@ -1215,7 +1214,7 @@ define internal %Nat32 @execJAL(%hart_Hart* %hart, %Word32 %instr) {
 	%3 = call %Int32 @decode_expand20(%Word32 %2)
 	%4 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
 	%5 = load %Nat32, %Nat32* %4
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %5, %Str8* bitcast ([13 x i8]* @str36 to [0 x i8]*), %Nat8 %1, %Int32 %3)
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %5, %Str8* bitcast ([13 x i8]* @.str36 to [0 x i8]*), %Nat8 %1, %Int32 %3)
 	%6 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 0
 	%7 = zext %Nat8 %1 to %Nat32
 	%8 = getelementptr [32 x %Word32], [32 x %Word32]* %6, %Int32 0, %Nat32 %7
@@ -1239,7 +1238,7 @@ define internal %Nat32 @execJALR(%hart_Hart* %hart, %Word32 %instr) {
 	%4 = call %Int32 @decode_expand12(%Word32 %3)
 	%5 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
 	%6 = load %Nat32, %Nat32* %5
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %6, %Str8* bitcast ([14 x i8]* @str37 to [0 x i8]*), %Int32 %4, %Nat8 %1)
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %6, %Str8* bitcast ([14 x i8]* @.str37 to [0 x i8]*), %Int32 %4, %Nat8 %1)
 	%7 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
 	%8 = load %Nat32, %Nat32* %7
 	%9 = add %Nat32 %8, 4
@@ -1287,7 +1286,7 @@ define internal %Nat32 @execB(%hart_Hart* %hart, %Word32 %instr) {
 then_0:
 	%19 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
 	%20 = load %Nat32, %Nat32* %19
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %20, %Str8* bitcast ([18 x i8]* @str38 to [0 x i8]*), %Nat8 %2, %Nat8 %3, %Int16 %4)
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %20, %Str8* bitcast ([18 x i8]* @.str38 to [0 x i8]*), %Nat8 %2, %Nat8 %3, %Int16 %4)
 ; if_1
 	%21 = icmp eq %Word32 %8, %12
 	br %Bool %21 , label %then_1, label %endif_1
@@ -1310,7 +1309,7 @@ else_0:
 then_2:
 	%30 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
 	%31 = load %Nat32, %Nat32* %30
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %31, %Str8* bitcast ([18 x i8]* @str39 to [0 x i8]*), %Nat8 %2, %Nat8 %3, %Int16 %4)
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %31, %Str8* bitcast ([18 x i8]* @.str39 to [0 x i8]*), %Nat8 %2, %Nat8 %3, %Int16 %4)
 ; if_3
 	%32 = icmp ne %Word32 %8, %12
 	br %Bool %32 , label %then_3, label %endif_3
@@ -1333,7 +1332,7 @@ else_2:
 then_4:
 	%41 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
 	%42 = load %Nat32, %Nat32* %41
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %42, %Str8* bitcast ([18 x i8]* @str40 to [0 x i8]*), %Nat8 %2, %Nat8 %3, %Int16 %4)
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %42, %Str8* bitcast ([18 x i8]* @.str40 to [0 x i8]*), %Nat8 %2, %Nat8 %3, %Int16 %4)
 ; if_5
 	%43 = bitcast %Word32 %8 to %Int32
 	%44 = bitcast %Word32 %12 to %Int32
@@ -1358,7 +1357,7 @@ else_4:
 then_6:
 	%54 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
 	%55 = load %Nat32, %Nat32* %54
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %55, %Str8* bitcast ([18 x i8]* @str41 to [0 x i8]*), %Nat8 %2, %Nat8 %3, %Int16 %4)
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %55, %Str8* bitcast ([18 x i8]* @.str41 to [0 x i8]*), %Nat8 %2, %Nat8 %3, %Int16 %4)
 ; if_7
 	%56 = bitcast %Word32 %8 to %Int32
 	%57 = bitcast %Word32 %12 to %Int32
@@ -1383,7 +1382,7 @@ else_6:
 then_8:
 	%67 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
 	%68 = load %Nat32, %Nat32* %67
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %68, %Str8* bitcast ([19 x i8]* @str42 to [0 x i8]*), %Nat8 %2, %Nat8 %3, %Int16 %4)
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %68, %Str8* bitcast ([19 x i8]* @.str42 to [0 x i8]*), %Nat8 %2, %Nat8 %3, %Int16 %4)
 ; if_9
 	%69 = bitcast %Word32 %8 to %Nat32
 	%70 = bitcast %Word32 %12 to %Nat32
@@ -1408,7 +1407,7 @@ else_8:
 then_10:
 	%80 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
 	%81 = load %Nat32, %Nat32* %80
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %81, %Str8* bitcast ([19 x i8]* @str43 to [0 x i8]*), %Nat8 %2, %Nat8 %3, %Int16 %4)
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %81, %Str8* bitcast ([19 x i8]* @.str43 to [0 x i8]*), %Nat8 %2, %Nat8 %3, %Int16 %4)
 ; if_11
 	%82 = bitcast %Word32 %8 to %Nat32
 	%83 = bitcast %Word32 %12 to %Nat32
@@ -1464,7 +1463,7 @@ define internal void @execL(%hart_Hart* %hart, %Word32 %instr) {
 then_0:
 	%17 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
 	%18 = load %Nat32, %Nat32* %17
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %18, %Str8* bitcast ([17 x i8]* @str44 to [0 x i8]*), %Nat8 %4, %Int32 %3, %Nat8 %5)
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %18, %Str8* bitcast ([17 x i8]* @.str44 to [0 x i8]*), %Nat8 %4, %Int32 %3, %Nat8 %5)
 	%19 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 2
 	%20 = load %hart_BusInterface*, %hart_BusInterface** %19
 	%21 = getelementptr %hart_BusInterface, %hart_BusInterface* %20, %Int32 0, %Int32 0
@@ -1480,7 +1479,7 @@ else_0:
 then_1:
 	%26 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
 	%27 = load %Nat32, %Nat32* %26
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %27, %Str8* bitcast ([17 x i8]* @str45 to [0 x i8]*), %Nat8 %4, %Int32 %3, %Nat8 %5)
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %27, %Str8* bitcast ([17 x i8]* @.str45 to [0 x i8]*), %Nat8 %4, %Int32 %3, %Nat8 %5)
 	%28 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 2
 	%29 = load %hart_BusInterface*, %hart_BusInterface** %28
 	%30 = getelementptr %hart_BusInterface, %hart_BusInterface* %29, %Int32 0, %Int32 0
@@ -1496,7 +1495,7 @@ else_1:
 then_2:
 	%35 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
 	%36 = load %Nat32, %Nat32* %35
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %36, %Str8* bitcast ([17 x i8]* @str46 to [0 x i8]*), %Nat8 %4, %Int32 %3, %Nat8 %5)
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %36, %Str8* bitcast ([17 x i8]* @.str46 to [0 x i8]*), %Nat8 %4, %Int32 %3, %Nat8 %5)
 	%37 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 2
 	%38 = load %hart_BusInterface*, %hart_BusInterface** %37
 	%39 = getelementptr %hart_BusInterface, %hart_BusInterface* %38, %Int32 0, %Int32 0
@@ -1512,7 +1511,7 @@ else_2:
 then_3:
 	%44 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
 	%45 = load %Nat32, %Nat32* %44
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %45, %Str8* bitcast ([18 x i8]* @str47 to [0 x i8]*), %Nat8 %4, %Int32 %3, %Nat8 %5)
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %45, %Str8* bitcast ([18 x i8]* @.str47 to [0 x i8]*), %Nat8 %4, %Int32 %3, %Nat8 %5)
 	%46 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 2
 	%47 = load %hart_BusInterface*, %hart_BusInterface** %46
 	%48 = getelementptr %hart_BusInterface, %hart_BusInterface* %47, %Int32 0, %Int32 0
@@ -1528,7 +1527,7 @@ else_3:
 then_4:
 	%53 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
 	%54 = load %Nat32, %Nat32* %53
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %54, %Str8* bitcast ([18 x i8]* @str48 to [0 x i8]*), %Nat8 %4, %Int32 %3, %Nat8 %5)
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %54, %Str8* bitcast ([18 x i8]* @.str48 to [0 x i8]*), %Nat8 %4, %Int32 %3, %Nat8 %5)
 	%55 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 2
 	%56 = load %hart_BusInterface*, %hart_BusInterface** %55
 	%57 = getelementptr %hart_BusInterface, %hart_BusInterface* %56, %Int32 0, %Int32 0
@@ -1586,7 +1585,7 @@ define internal void @execS(%hart_Hart* %hart, %Word32 %instr) {
 then_0:
 	%28 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
 	%29 = load %Nat32, %Nat32* %28
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %29, %Str8* bitcast ([17 x i8]* @str49 to [0 x i8]*), %Nat8 %5, %Int32 %13, %Nat8 %4)
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %29, %Str8* bitcast ([17 x i8]* @.str49 to [0 x i8]*), %Nat8 %5, %Int32 %13, %Nat8 %4)
 	%30 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 2
 	%31 = load %hart_BusInterface*, %hart_BusInterface** %30
 	%32 = getelementptr %hart_BusInterface, %hart_BusInterface* %31, %Int32 0, %Int32 1
@@ -1601,7 +1600,7 @@ else_0:
 then_1:
 	%36 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
 	%37 = load %Nat32, %Nat32* %36
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %37, %Str8* bitcast ([17 x i8]* @str50 to [0 x i8]*), %Nat8 %5, %Int32 %13, %Nat8 %4)
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %37, %Str8* bitcast ([17 x i8]* @.str50 to [0 x i8]*), %Nat8 %5, %Int32 %13, %Nat8 %4)
 	%38 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 2
 	%39 = load %hart_BusInterface*, %hart_BusInterface** %38
 	%40 = getelementptr %hart_BusInterface, %hart_BusInterface* %39, %Int32 0, %Int32 1
@@ -1616,7 +1615,7 @@ else_1:
 then_2:
 	%44 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
 	%45 = load %Nat32, %Nat32* %44
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %45, %Str8* bitcast ([17 x i8]* @str51 to [0 x i8]*), %Nat8 %5, %Int32 %13, %Nat8 %4)
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %45, %Str8* bitcast ([17 x i8]* @.str51 to [0 x i8]*), %Nat8 %5, %Int32 %13, %Nat8 %4)
 	%46 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 2
 	%47 = load %hart_BusInterface*, %hart_BusInterface** %46
 	%48 = getelementptr %hart_BusInterface, %hart_BusInterface* %47, %Int32 0, %Int32 1
@@ -1637,123 +1636,120 @@ define internal void @execSystem(%hart_Hart* %hart, %Word32 %instr) {
 	%3 = call %Nat8 @decode_extract_rs1(%Word32 %instr)
 	%4 = call %Word32 @decode_extract_imm12(%Word32 %instr)
 	%5 = trunc %Word32 %4 to %Nat16
-	%6 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([28 x i8]* @str52 to [0 x i8]*), %Word32 %instr)
+	%6 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([28 x i8]* @.str52 to [0 x i8]*), %Word32 %instr)
 ; if_0
-	%7 = zext i8 115 to %Word32
-	%8 = icmp eq %Word32 %instr, %7
-	br %Bool %8 , label %then_0, label %else_0
+	%7 = icmp eq %Word32 %instr, 115
+	br %Bool %7 , label %then_0, label %else_0
 then_0:
-	%9 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
-	%10 = load %Nat32, %Nat32* %9
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %10, %Str8* bitcast ([7 x i8]* @str53 to [0 x i8]*))
-	%11 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 5
-	%12 = bitcast %Nat32 3860 to %Nat32
-	%13 = getelementptr [4096 x %Word32], [4096 x %Word32]* %11, %Int32 0, %Nat32 %12
-	%14 = load %Word32, %Word32* %13
-	%15 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([17 x i8]* @str54 to [0 x i8]*), %Word32 %14)
+	%8 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
+	%9 = load %Nat32, %Nat32* %8
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %9, %Str8* bitcast ([7 x i8]* @.str53 to [0 x i8]*))
+	%10 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 5
+	%11 = bitcast %Nat32 3860 to %Nat32
+	%12 = getelementptr [4096 x %Word32], [4096 x %Word32]* %10, %Int32 0, %Nat32 %11
+	%13 = load %Word32, %Word32* %12
+	%14 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([17 x i8]* @.str54 to [0 x i8]*), %Word32 %13)
+	%15 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 3
 	%16 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 3
-	%17 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 3
-	%18 = zext i8 8 to %Word32
-	%19 = load %Word32, %Word32* %17
-	%20 = or %Word32 %19, %18
-	store %Word32 %20, %Word32* %16
+	%17 = zext i8 8 to %Word32
+	%18 = load %Word32, %Word32* %16
+	%19 = or %Word32 %18, %17
+	store %Word32 %19, %Word32* %15
 	br label %endif_0
 else_0:
 ; if_1
-	%21 = zext i32 807403635 to %Word32
-	%22 = icmp eq %Word32 %instr, %21
-	br %Bool %22 , label %then_1, label %else_1
+	%20 = icmp eq %Word32 %instr, 807403635
+	br %Bool %20 , label %then_1, label %else_1
 then_1:
-	%23 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
-	%24 = load %Nat32, %Nat32* %23
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %24, %Str8* bitcast ([6 x i8]* @str55 to [0 x i8]*))
-	%25 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 5
-	%26 = bitcast %Nat32 833 to %Nat32
-	%27 = getelementptr [4096 x %Word32], [4096 x %Word32]* %25, %Int32 0, %Nat32 %26
-	%28 = load %Word32, %Word32* %27
-	%29 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 5
-	%30 = bitcast %Nat32 834 to %Nat32
-	%31 = getelementptr [4096 x %Word32], [4096 x %Word32]* %29, %Int32 0, %Nat32 %30
-	%32 = load %Word32, %Word32* %31
-	%33 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 5
-	%34 = bitcast %Nat32 835 to %Nat32
-	%35 = getelementptr [4096 x %Word32], [4096 x %Word32]* %33, %Int32 0, %Nat32 %34
-	%36 = load %Word32, %Word32* %35
-	%37 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 5
-	%38 = bitcast %Nat32 3860 to %Nat32
-	%39 = getelementptr [4096 x %Word32], [4096 x %Word32]* %37, %Int32 0, %Nat32 %38
-	%40 = load %Word32, %Word32* %39
-	%41 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([52 x i8]* @str56 to [0 x i8]*), %Word32 %40, %Word32 %28, %Word32 %32, %Word32 %36)
-	%42 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
-	%43 = bitcast %Word32 %28 to %Nat32
-	store %Nat32 %43, %Nat32* %42
+	%21 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
+	%22 = load %Nat32, %Nat32* %21
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %22, %Str8* bitcast ([6 x i8]* @.str55 to [0 x i8]*))
+	%23 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 5
+	%24 = bitcast %Nat32 833 to %Nat32
+	%25 = getelementptr [4096 x %Word32], [4096 x %Word32]* %23, %Int32 0, %Nat32 %24
+	%26 = load %Word32, %Word32* %25
+	%27 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 5
+	%28 = bitcast %Nat32 834 to %Nat32
+	%29 = getelementptr [4096 x %Word32], [4096 x %Word32]* %27, %Int32 0, %Nat32 %28
+	%30 = load %Word32, %Word32* %29
+	%31 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 5
+	%32 = bitcast %Nat32 835 to %Nat32
+	%33 = getelementptr [4096 x %Word32], [4096 x %Word32]* %31, %Int32 0, %Nat32 %32
+	%34 = load %Word32, %Word32* %33
+	%35 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 5
+	%36 = bitcast %Nat32 3860 to %Nat32
+	%37 = getelementptr [4096 x %Word32], [4096 x %Word32]* %35, %Int32 0, %Nat32 %36
+	%38 = load %Word32, %Word32* %37
+	%39 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([52 x i8]* @.str56 to [0 x i8]*), %Word32 %38, %Word32 %26, %Word32 %30, %Word32 %34)
+	%40 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
+	%41 = bitcast %Word32 %26 to %Nat32
+	store %Nat32 %41, %Nat32* %40
 	br label %endif_1
 else_1:
 ; if_2
-	%44 = zext i32 1048691 to %Word32
-	%45 = icmp eq %Word32 %instr, %44
-	br %Bool %45 , label %then_2, label %else_2
+	%42 = icmp eq %Word32 %instr, 1048691
+	br %Bool %42 , label %then_2, label %else_2
 then_2:
-	%46 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
-	%47 = load %Nat32, %Nat32* %46
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %47, %Str8* bitcast ([8 x i8]* @str57 to [0 x i8]*))
-	%48 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 4
-	store %Bool 1, %Bool* %48
+	%43 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
+	%44 = load %Nat32, %Nat32* %43
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %44, %Str8* bitcast ([8 x i8]* @.str57 to [0 x i8]*))
+	%45 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 4
+	store %Bool 1, %Bool* %45
 	br label %endif_2
 else_2:
 ; if_3
-	%49 = bitcast i8 1 to %Word8
-	%50 = icmp eq %Word8 %1, %49
-	br %Bool %50 , label %then_3, label %else_3
+	%46 = bitcast i8 1 to %Word8
+	%47 = icmp eq %Word8 %1, %46
+	br %Bool %47 , label %then_3, label %else_3
 then_3:
 	call void @csr_rw(%hart_Hart* %hart, %Nat16 %5, %Nat8 %2, %Nat8 %3)
 	br label %endif_3
 else_3:
 ; if_4
-	%51 = bitcast i8 2 to %Word8
-	%52 = icmp eq %Word8 %1, %51
-	br %Bool %52 , label %then_4, label %else_4
+	%48 = bitcast i8 2 to %Word8
+	%49 = icmp eq %Word8 %1, %48
+	br %Bool %49 , label %then_4, label %else_4
 then_4:
 	call void @csr_rs(%hart_Hart* %hart, %Nat16 %5, %Nat8 %2, %Nat8 %3)
 	br label %endif_4
 else_4:
 ; if_5
-	%53 = bitcast i8 3 to %Word8
-	%54 = icmp eq %Word8 %1, %53
-	br %Bool %54 , label %then_5, label %else_5
+	%50 = bitcast i8 3 to %Word8
+	%51 = icmp eq %Word8 %1, %50
+	br %Bool %51 , label %then_5, label %else_5
 then_5:
 	call void @csr_rc(%hart_Hart* %hart, %Nat16 %5, %Nat8 %2, %Nat8 %3)
 	br label %endif_5
 else_5:
 ; if_6
-	%55 = bitcast i8 4 to %Word8
-	%56 = icmp eq %Word8 %1, %55
-	br %Bool %56 , label %then_6, label %else_6
+	%52 = bitcast i8 4 to %Word8
+	%53 = icmp eq %Word8 %1, %52
+	br %Bool %53 , label %then_6, label %else_6
 then_6:
 	call void @csr_rwi(%hart_Hart* %hart, %Nat16 %5, %Nat8 %2, %Nat8 %3)
 	br label %endif_6
 else_6:
 ; if_7
-	%57 = bitcast i8 5 to %Word8
-	%58 = icmp eq %Word8 %1, %57
-	br %Bool %58 , label %then_7, label %else_7
+	%54 = bitcast i8 5 to %Word8
+	%55 = icmp eq %Word8 %1, %54
+	br %Bool %55 , label %then_7, label %else_7
 then_7:
 	call void @csr_rsi(%hart_Hart* %hart, %Nat16 %5, %Nat8 %2, %Nat8 %3)
 	br label %endif_7
 else_7:
 ; if_8
-	%59 = bitcast i8 6 to %Word8
-	%60 = icmp eq %Word8 %1, %59
-	br %Bool %60 , label %then_8, label %else_8
+	%56 = bitcast i8 6 to %Word8
+	%57 = icmp eq %Word8 %1, %56
+	br %Bool %57 , label %then_8, label %else_8
 then_8:
 	call void @csr_rci(%hart_Hart* %hart, %Nat16 %5, %Nat8 %2, %Nat8 %3)
 	br label %endif_8
 else_8:
-	%61 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
-	%62 = load %Nat32, %Nat32* %61
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %62, %Str8* bitcast ([34 x i8]* @str58 to [0 x i8]*), %Word32 %instr)
-	%63 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 4
-	store %Bool 1, %Bool* %63
+	%58 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
+	%59 = load %Nat32, %Nat32* %58
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %59, %Str8* bitcast ([34 x i8]* @.str58 to [0 x i8]*), %Word32 %instr)
+	%60 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 4
+	store %Bool 1, %Bool* %60
 	br label %endif_8
 endif_8:
 	br label %endif_7
@@ -1777,20 +1773,19 @@ endif_0:
 
 define internal void @execFence(%hart_Hart* %hart, %Word32 %instr) {
 ; if_0
-	%1 = zext i32 16777231 to %Word32
-	%2 = icmp eq %Word32 %instr, %1
-	br %Bool %2 , label %then_0, label %endif_0
+	%1 = icmp eq %Word32 %instr, 16777231
+	br %Bool %1 , label %then_0, label %endif_0
 then_0:
-	%3 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
-	%4 = load %Nat32, %Nat32* %3
-	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %4, %Str8* bitcast ([7 x i8]* @str59 to [0 x i8]*))
+	%2 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
+	%3 = load %Nat32, %Nat32* %2
+	call void (%Nat32, %Str8*, ...) @trace(%Nat32 %3, %Str8* bitcast ([7 x i8]* @.str59 to [0 x i8]*))
 	br label %endif_0
 endif_0:
 	ret void
 }
 
 define internal void @csr_rw(%hart_Hart* %hart, %Nat16 %csr, %Nat8 %rd, %Nat8 %rs1) {
-	%1 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([35 x i8]* @str60 to [0 x i8]*), %Nat16 %csr, %Nat8 %rd, %Nat8 %rs1)
+	%1 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([35 x i8]* @.str60 to [0 x i8]*), %Nat16 %csr, %Nat8 %rd, %Nat8 %rs1)
 	%2 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 0
 	%3 = zext %Nat8 %rs1 to %Nat32
 	%4 = getelementptr [32 x %Word32], [32 x %Word32]* %2, %Int32 0, %Nat32 %3
@@ -1942,13 +1937,13 @@ endif_0:
 	%3 = alloca %__VA_List, align 1
 	%4 = bitcast %__VA_List* %3 to i8*
 	call void @llvm.va_start(i8* %4)
-	%5 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([8 x i8]* @str61 to [0 x i8]*), %Nat32 %pc)
+	%5 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([8 x i8]* @.str61 to [0 x i8]*), %Nat32 %pc)
 	%6 = load %__VA_List, %__VA_List* %3
 	%7 = call %Int @vprintf(%Str8* %form, %__VA_List %6)
 	%8 = bitcast %__VA_List* %3 to i8*
 	call void @llvm.va_end(i8* %8)
 	%9 = alloca %Char8, align 1
-	%10 = call %Int (%ConstCharStr*, ...) @scanf(%ConstCharStr* bitcast ([3 x i8]* @str62 to [0 x i8]*), %Char8* %9)
+	%10 = call %Int (%ConstCharStr*, ...) @scanf(%ConstCharStr* bitcast ([3 x i8]* @.str62 to [0 x i8]*), %Char8* %9)
 	ret void
 }
 
@@ -1956,7 +1951,7 @@ define internal void @trace2(%Nat32 %pc, %Str8* %form, ...) {
 	%1 = alloca %__VA_List, align 1
 	%2 = bitcast %__VA_List* %1 to i8*
 	call void @llvm.va_start(i8* %2)
-	%3 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([8 x i8]* @str63 to [0 x i8]*), %Nat32 %pc)
+	%3 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([8 x i8]* @.str63 to [0 x i8]*), %Nat32 %pc)
 	%4 = load %__VA_List, %__VA_List* %1
 	%5 = call %Int @vprintf(%Str8* %form, %__VA_List %4)
 	%6 = bitcast %__VA_List* %1 to i8*
@@ -1980,12 +1975,12 @@ define internal void @notImplemented(%Str8* %form, ...) {
 	%1 = alloca %__VA_List, align 1
 	%2 = bitcast %__VA_List* %1 to i8*
 	call void @llvm.va_start(i8* %2)
-	%3 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([33 x i8]* @str64 to [0 x i8]*))
+	%3 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([33 x i8]* @.str64 to [0 x i8]*))
 	%4 = load %__VA_List, %__VA_List* %1
 	%5 = call %Int @vprintf(%Str8* %form, %__VA_List %4)
 	%6 = bitcast %__VA_List* %1 to i8*
 	call void @llvm.va_end(i8* %6)
-	%7 = call %Int @puts(%ConstCharStr* bitcast ([3 x i8]* @str65 to [0 x i8]*))
+	%7 = call %Int @puts(%ConstCharStr* bitcast ([3 x i8]* @.str65 to [0 x i8]*))
 	call void @exit(%Int -1)
 	ret void
 }
@@ -2006,8 +2001,8 @@ body_1:
 	%7 = zext %Nat16 %5 to %Nat32
 	%8 = getelementptr [32 x %Word32], [32 x %Word32]* %6, %Int32 0, %Nat32 %7
 	%9 = load %Word32, %Word32* %8
-	%10 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([15 x i8]* @str66 to [0 x i8]*), %Nat16 %4, %Word32 %9)
-	%11 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([5 x i8]* @str67 to [0 x i8]*))
+	%10 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([15 x i8]* @.str66 to [0 x i8]*), %Nat16 %4, %Word32 %9)
+	%11 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([5 x i8]* @.str67 to [0 x i8]*))
 	%12 = load %Nat16, %Nat16* %1
 	%13 = add %Nat16 %12, 16
 	%14 = load %Nat16, %Nat16* %1
@@ -2016,7 +2011,7 @@ body_1:
 	%17 = zext %Nat16 %15 to %Nat32
 	%18 = getelementptr [32 x %Word32], [32 x %Word32]* %16, %Int32 0, %Nat32 %17
 	%19 = load %Word32, %Word32* %18
-	%20 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([16 x i8]* @str68 to [0 x i8]*), %Nat16 %13, %Word32 %19)
+	%20 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([16 x i8]* @.str68 to [0 x i8]*), %Nat16 %13, %Word32 %19)
 	%21 = load %Nat16, %Nat16* %1
 	%22 = add %Nat16 %21, 1
 	store %Nat16 %22, %Nat16* %1

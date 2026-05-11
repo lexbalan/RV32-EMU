@@ -1,5 +1,5 @@
 private import "builtin"
-import "mmio"
+private import "mmio"
 include "stdio"
 include "stdlib"
 
@@ -40,6 +40,7 @@ public func read (adr: Nat32, size: Nat8) -> Word32 {
 		let romPtr = Ptr &rom[adr - romStart]
 		return readFrom(romPtr, adr, size)
 	} else if isAdressInRegion(adr, mmioRegion) {
+		//TODO: mmio read
 	} else {
 		memoryViolation("r", adr)
 	}
@@ -127,7 +128,7 @@ func load (filename: *Str8, bufptr: *[]Word8, buf_size: Nat32) -> Nat32 {
 		return 0
 	}
 
-	let n: SizeT = fread(bufptr, 1, SizeT buf_size, fp)
+	let n: @unused  SizeT = fread(bufptr, 1, SizeT buf_size, fp)
 
 	printf("LOADED: %zu bytes\n", n)
 

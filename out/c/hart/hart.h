@@ -28,8 +28,8 @@ struct hart_bus_interface {
 // jump and link by register
 // fence
 // machine return from trap
-#define HART_INT_SYS_CALL 8
-#define HART_INT_MEM_VIOLATION 11
+#define HART_INT_SYS_CALL 0x08
+#define HART_INT_MEM_VIOLATION 0x0B
 void hart_init(hart_Hart *hart, uint32_t id, hart_BusInterface *bus);
 void hart_cycle(hart_Hart *hart);
 void hart_show_regs(hart_Hart *hart);

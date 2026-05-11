@@ -43,10 +43,10 @@ const opSYSTEM = 0x73// system
 const opFENCE = 0x0F// fence
 
 
-const instrECALL = opSYSTEM | 0x00000000
-const instrEBREAK = opSYSTEM | 0x00100000
-const instrPAUSE = opFENCE | 0x01000000
-const instrMRET = opSYSTEM | 0x30200073// machine return from trap
+const instrECALL: Word32 = Word32 opSYSTEM | 0x00000000
+const instrEBREAK: Word32 = Word32 opSYSTEM | 0x00100000
+const instrPAUSE: Word32 = Word32 opFENCE | 0x01000000
+const instrMRET: Word32 = Word32 opSYSTEM | 0x30200073// machine return from trap
 
 // funct3 for CSR
 const funct3_CSRRW = 1
@@ -144,7 +144,8 @@ func execI (hart: *Hart, instr: Word32) -> Unit {
 	let rd: Nat8 = extract_rd(instr)
 	let rs1: Nat8 = extract_rs1(instr)
 
-	var result: Word32
+	var result: Word32 = 0
+
 	if funct3 == 0 {
 
 		trace(hart.pc, "addi x%d, x%d, %d\n", rd, rs1, imm)
@@ -514,14 +515,11 @@ func execSystem (hart: *Hart, instr: Word32) -> Unit {
 		let mask_reg: Nat8 = rs1
 		csr_rc(hart, xcsr, rd, mask_reg)
 	} else if funct3 == funct3_CSRRWI {
-		let imm: Nat8 = rs1
-		csr_rwi(hart, xcsr, rd, imm)
+		csr_rwi(hart, xcsr, rd, imm=rs1)
 	} else if funct3 == funct3_CSRRSI {
-		let imm: Nat8 = rs1
-		csr_rsi(hart, xcsr, rd, imm)
+		csr_rsi(hart, xcsr, rd, imm=rs1)
 	} else if funct3 == funct3_CSRRCI {
-		let imm: Nat8 = rs1
-		csr_rci(hart, xcsr, rd, imm)
+		csr_rci(hart, xcsr, rd, imm=rs1)
 	} else {
 		trace(hart.pc, "UNKNOWN SYSTEM INSTRUCTION: 0x%x\n", instr)
 		hart.end = true

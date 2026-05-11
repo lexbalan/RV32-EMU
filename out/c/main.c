@@ -14,14 +14,14 @@ static hart_Hart hart;
 int main(void) {
 	printf("RISC-V VM\n");
 	const uint32_t nbytes = bus_load_rom(TEXT_FILENAME);
-	if (nbytes <= 0U) {
+	if (nbytes <= 0) {
 		exit(1);
 	}
 	hart_BusInterface busctl = (hart_BusInterface){
 		.read = &bus_read,
 		.write = &bus_write
 	};
-	hart_init(&hart, 0U, &busctl);
+	hart_init(&hart, 0, &busctl);
 	printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n");
 	while (!hart.end) {
 		hart_cycle(&hart);

@@ -286,47 +286,39 @@ define %Word32 @decode_extract_jal_imm(%Word32 %instr) {
 }
 
 define %Int32 @decode_expand12(%Word32 %val_12bit) {
-	%1 = alloca %Word32, align 4
-	store %Word32 %val_12bit, %Word32* %1
 ; if_0
-	%2 = zext i16 2048 to %Word32
-	%3 = load %Word32, %Word32* %1
-	%4 = and %Word32 %3, %2
-	%5 = zext i8 0 to %Word32
-	%6 = icmp ne %Word32 %4, %5
-	br %Bool %6 , label %then_0, label %endif_0
+	%1 = zext i16 2048 to %Word32
+	%2 = and %Word32 %val_12bit, %1
+	%3 = zext i8 0 to %Word32
+	%4 = icmp ne %Word32 %2, %3
+	br %Bool %4 , label %then_0, label %endif_0
 then_0:
-	%7 = bitcast i32 4294963200 to %Word32
-	%8 = load %Word32, %Word32* %1
-	%9 = or %Word32 %8, %7
-	store %Word32 %9, %Word32* %1
+	%5 = bitcast i32 4294963200 to %Word32
+	%6 = or %Word32 %val_12bit, %5
+	%7 = bitcast %Word32 %6 to %Int32
+	ret %Int32 %7
 	br label %endif_0
 endif_0:
-	%10 = load %Word32, %Word32* %1
-	%11 = bitcast %Word32 %10 to %Int32
-	ret %Int32 %11
+	%9 = bitcast %Word32 %val_12bit to %Int32
+	ret %Int32 %9
 }
 
 define %Int32 @decode_expand20(%Word32 %val_20bit) {
-	%1 = alloca %Word32, align 4
-	store %Word32 %val_20bit, %Word32* %1
 ; if_0
-	%2 = bitcast i32 524288 to %Word32
-	%3 = load %Word32, %Word32* %1
-	%4 = and %Word32 %3, %2
-	%5 = zext i8 0 to %Word32
-	%6 = icmp ne %Word32 %4, %5
-	br %Bool %6 , label %then_0, label %endif_0
+	%1 = bitcast i32 524288 to %Word32
+	%2 = and %Word32 %val_20bit, %1
+	%3 = zext i8 0 to %Word32
+	%4 = icmp ne %Word32 %2, %3
+	br %Bool %4 , label %then_0, label %endif_0
 then_0:
-	%7 = bitcast i32 4293918720 to %Word32
-	%8 = load %Word32, %Word32* %1
-	%9 = or %Word32 %8, %7
-	store %Word32 %9, %Word32* %1
+	%5 = bitcast i32 4293918720 to %Word32
+	%6 = or %Word32 %val_20bit, %5
+	%7 = bitcast %Word32 %6 to %Int32
+	ret %Int32 %7
 	br label %endif_0
 endif_0:
-	%10 = load %Word32, %Word32* %1
-	%11 = bitcast %Word32 %10 to %Int32
-	ret %Int32 %11
+	%9 = bitcast %Word32 %val_20bit to %Int32
+	ret %Int32 %9
 }
 
 
