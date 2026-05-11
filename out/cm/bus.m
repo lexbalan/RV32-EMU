@@ -40,7 +40,6 @@ public func read (adr: Nat32, size: Nat8) -> Word32 {
 		let romPtr = Ptr &rom[adr - romStart]
 		return readFrom(romPtr, adr, size)
 	} else if isAdressInRegion(adr, mmioRegion) {
-		//TODO: mmio read
 	} else {
 		memoryViolation("r", adr)
 	}
