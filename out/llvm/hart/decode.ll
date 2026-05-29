@@ -114,14 +114,12 @@ break_2:
 
 ; -- print includes --
 ; -- end print includes --
-; -- print imports private 'decode' --
+; -- print imports 'decode' --
 
 ; from import "builtin"
 
 ; end from import "builtin"
-; -- end print imports private 'decode' --
-; -- print imports public 'decode' --
-; -- end print imports public 'decode' --
+; -- end print imports 'decode' --
 ; -- strings --
 ; -- endstrings --
 define %Word8 @decode_extract_op(%Word32 %instr) {

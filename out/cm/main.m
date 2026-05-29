@@ -1,10 +1,12 @@
-private import "builtin"
-private import "bus"
-private import "hart/hart"
-private import "hart/csr"
+import "builtin"
+import "bus"
+import "hart/hart"
+import "hart/csr"
 include "stdlib"
 include "stdio"
 
+include "libc/stdlib"
+include "libc/stdio"
 import "bus" as bus
 import "hart/hart" as rvHart
 import "hart/csr" as csr

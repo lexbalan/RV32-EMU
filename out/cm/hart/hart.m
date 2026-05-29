@@ -1,11 +1,16 @@
-private import "builtin"
-private import "csr"
+import "builtin"
+import "csr"
 include "ctypes"
 include "stdio"
 include "unistd"
 include "stdlib"
 include "decode"
 
+include "libc/ctypes"
+include "libc/stdio"
+include "libc/unistd"
+include "libc/stdlib"
+include "decode"
 import "csr" as csr
 
 

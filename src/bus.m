@@ -110,7 +110,7 @@ private func isAdressInRegion (x: Nat32, region: {from: Nat32, to: Nat32}) -> Bo
 }
 
 
-var memviolationCnt = Nat32 0
+private var memviolationCnt: Nat32 = 0
 func memoryViolation (rw: Char8, adr: Nat32) -> Unit {
 	printf("*** MEMORY VIOLATION '%c' 0x%08x ***\n", rw, adr)
 	if memviolationCnt > 10 {

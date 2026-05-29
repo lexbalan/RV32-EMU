@@ -17,7 +17,6 @@ static uint8_t rom[BUS_ROM_SIZE];
 __attribute__((always_inline))
 static inline bool isAdressInRegion(uint32_t x, struct __anonymous_struct_1 region);
 static uint32_t readFrom(void *ptr, uint32_t adr, uint8_t size);
-void bus_memoryViolation(char rw, uint32_t adr);
 
 uint32_t bus_read(uint32_t adr, uint8_t size) {
 	if (isAdressInRegion(adr, (struct __anonymous_struct_1)BUS_RAM_REGION)) {
@@ -55,6 +54,7 @@ void bus_write(uint32_t adr, uint32_t value, uint8_t size) {
 	}
 }
 
+
 static uint32_t readFrom(void *ptr, uint32_t adr, uint8_t size) {
 	if (size == 1) {
 		return (uint32_t)*(uint8_t *)ptr;
@@ -66,6 +66,7 @@ static uint32_t readFrom(void *ptr, uint32_t adr, uint8_t size) {
 	return 0x0;
 }
 
+
 static void writeTo(void *ptr, uint32_t adr, uint32_t value, uint8_t size) {
 	if (size == 1) {
 		*(uint8_t *)ptr = value;
@@ -76,11 +77,13 @@ static void writeTo(void *ptr, uint32_t adr, uint32_t value, uint8_t size) {
 	}
 }
 
+
 __attribute__((always_inline))
 static inline bool isAdressInRegion(uint32_t x, struct __anonymous_struct_1 region) {
 	return x >= region.from && x < region.to;
 }
 uint32_t bus_memviolationCnt = 0;
+
 
 void bus_memoryViolation(char rw, uint32_t adr) {
 	printf("*** MEMORY VIOLATION '%c' 0x%08x ***\n", rw, adr);
@@ -95,6 +98,7 @@ static uint32_t load(char *filename, uint8_t bufptr[], uint32_t buf_size);
 uint32_t bus_load_rom(char *filename) {
 	return load(filename, (uint8_t *)&rom, BUS_ROM_SIZE);
 }
+
 
 static uint32_t load(char *filename, uint8_t bufptr[], uint32_t buf_size) {
 	printf("LOAD: %s\n", filename);

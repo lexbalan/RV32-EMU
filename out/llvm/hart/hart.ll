@@ -310,7 +310,7 @@ declare %Word32 @decode_extract_jal_imm(%Word32 %instr)
 declare %Int32 @decode_expand12(%Word32 %val_12bit)
 declare %Int32 @decode_expand20(%Word32 %val_20bit)
 ; -- end print includes --
-; -- print imports private 'hart' --
+; -- print imports 'hart' --
 
 ; from import "builtin"
 
@@ -319,9 +319,7 @@ declare %Int32 @decode_expand20(%Word32 %val_20bit)
 ; from import "csr"
 
 ; end from import "csr"
-; -- end print imports private 'hart' --
-; -- print imports public 'hart' --
-; -- end print imports public 'hart' --
+; -- end print imports 'hart' --
 ; -- strings --
 @.str1 = private constant [15 x i8] [i8 104, i8 97, i8 114, i8 116, i8 32, i8 35, i8 37, i8 100, i8 32, i8 105, i8 110, i8 105, i8 116, i8 10, i8 0]
 @.str2 = private constant [12 x i8] [i8 10, i8 73, i8 78, i8 84, i8 32, i8 35, i8 37, i8 48, i8 50, i8 88, i8 10, i8 0]

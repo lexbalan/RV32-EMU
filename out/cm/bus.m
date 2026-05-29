@@ -1,8 +1,10 @@
-private import "builtin"
-private import "mmio"
+import "builtin"
+import "mmio"
 include "stdio"
 include "stdlib"
 
+include "libc/stdio"
+include "libc/stdlib"
 import "mmio" as mmio
 
 
@@ -101,7 +103,8 @@ func isAdressInRegion (x: Nat32, region: {from: Nat32, to: Nat32}) -> Bool {
 }
 
 
-public var memviolationCnt = Nat32 0
+//private
+public var memviolationCnt: Nat32 = 0
 public func memoryViolation (rw: Char8, adr: Nat32) -> Unit {
 	printf("*** MEMORY VIOLATION '%c' 0x%08x ***\n", rw, adr)
 	if memviolationCnt > 10 {

@@ -15,6 +15,7 @@
 #define CONSOLE_PRINT_INT64_ADR (CONSOLE_MMIOADR + (uint32_t)0x20)
 #define CONSOLE_PRINT_UINT64_ADR (CONSOLE_MMIOADR + (uint32_t)0x28)
 
+
 void mmio_write8(uint32_t adr, uint8_t value) {
 	if (adr == CONSOLE_PUT_ADR) {
 		putchar((int)value);
@@ -22,12 +23,14 @@ void mmio_write8(uint32_t adr, uint8_t value) {
 	}
 }
 
+
 void mmio_write16(uint32_t adr, uint16_t value) {
 	if (adr == CONSOLE_PUT_ADR) {
 		putchar((int)value);
 		return;
 	}
 }
+
 
 void mmio_write32(uint32_t adr, uint32_t value) {
 	if (adr == CONSOLE_PUT_ADR) {

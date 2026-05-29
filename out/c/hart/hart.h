@@ -20,6 +20,7 @@ struct hart_hart {
 	bool end;
 	uint32_t csrs[4096];
 };
+typedef struct hart_bus_interface hart_BusInterface;
 struct hart_bus_interface {
 	uint32_t (*read)(uint32_t adr, uint8_t size);
 	void (*write)(uint32_t adr, uint32_t value, uint8_t size);

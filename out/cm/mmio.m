@@ -1,7 +1,9 @@
-private import "builtin"
+import "builtin"
 include "ctypes"
 include "stdio"
 
+include "libc/ctypes"
+include "libc/stdio"
 
 
 const consoleMMIOAdr = Nat32 0x10
