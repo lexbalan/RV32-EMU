@@ -2,7 +2,7 @@
 //
 
 pragma unsafe
-pragma public_module
+
 
 include "libc/stdio"
 include "libc/stdlib"
@@ -22,9 +22,9 @@ const romSize = Nat32 0x100000
 const romStart = Nat32 0x00000000
 const romEnd = romStart + romSize
 
-private const mmioSize = Nat32 0xFFFF
-private const mmioStart = Nat32 0xF00C0000
-private const mmioEnd = mmioStart + mmioSize
+const mmioSize = Nat32 0xFFFF
+const mmioStart = Nat32 0xF00C0000
+const mmioEnd = mmioStart + mmioSize
 
 
 const ramRegion = {from=ramStart, to=ramEnd}
@@ -32,11 +32,11 @@ const romRegion = {from=romStart, to=romEnd}
 const mmioRegion = {from=mmioStart, to=mmioEnd}
 
 
-private var ram: [ramSize]Word8
-private var rom: [romSize]Word8
+var ram: [ramSize]Word8
+var rom: [romSize]Word8
 
 
-func read (adr: Nat32, size: Nat8) -> Word32 {
+public func read (adr: Nat32, size: Nat8) -> Word32 {
 	if isAdressInRegion(adr, ramRegion) {
 		let ramPtr = Ptr &ram[adr - ramStart]
 		return readFrom(ramPtr, adr, size)
@@ -56,7 +56,7 @@ func read (adr: Nat32, size: Nat8) -> Word32 {
 }
 
 
-func write (adr: Nat32, value: Word32, size: Nat8) -> Unit {
+public func write (adr: Nat32, value: Word32, size: Nat8) -> Unit {
 	if isAdressInRegion(adr, ramRegion) {
 		let ramPtr = Ptr &ram[adr - ramStart]
 		writeTo(ramPtr, adr, value, size)
@@ -80,7 +80,7 @@ func write (adr: Nat32, value: Word32, size: Nat8) -> Unit {
 
 
 
-private func readFrom (ptr: Ptr, adr: Nat32, size: Nat8) -> Word32 {
+func readFrom (ptr: Ptr, adr: Nat32, size: Nat8) -> Word32 {
 	if size == 1 {
 		return Word32 *(*Word8 ptr)
 	} else if size == 2 {
@@ -92,7 +92,7 @@ private func readFrom (ptr: Ptr, adr: Nat32, size: Nat8) -> Word32 {
 }
 
 
-private func writeTo (ptr: Ptr, adr: Nat32, value: Word32, size: Nat8) -> Unit {
+func writeTo (ptr: Ptr, adr: Nat32, value: Word32, size: Nat8) -> Unit {
 	if size == 1 {
 		*(*Word8 ptr) = unsafe Word8 value
 	} else if size == 2 {
@@ -105,13 +105,13 @@ private func writeTo (ptr: Ptr, adr: Nat32, value: Word32, size: Nat8) -> Unit {
 
 
 @inline
-private func isAdressInRegion (x: Nat32, region: {from: Nat32, to: Nat32}) -> Bool {
+func isAdressInRegion (x: Nat32, region: {from: Nat32, to: Nat32}) -> Bool {
 	return x >= region.from and x < region.to
 }
 
 
 private var memviolationCnt: Nat32 = 0
-func memoryViolation (rw: Char8, adr: Nat32) -> Unit {
+public func memoryViolation (rw: Char8, adr: Nat32) -> Unit {
 	printf("*** MEMORY VIOLATION '%c' 0x%08x ***\n", rw, adr)
 	if memviolationCnt > 10 {
 		exit(1)
@@ -122,12 +122,12 @@ func memoryViolation (rw: Char8, adr: Nat32) -> Unit {
 
 
 
-func load_rom (filename: *Str8) -> Nat32 {
+public func load_rom (filename: *Str8) -> Nat32 {
 	return load(filename, &rom, romSize)
 }
 
 
-private func load (filename: *Str8, bufptr: *[]Word8, buf_size: Nat32) -> Nat32 {
+func load (filename: *Str8, bufptr: *[]Word8, buf_size: Nat32) -> Nat32 {
 	printf("LOAD: %s\n", filename)
 
 	let fp = fopen(filename, "rb")
@@ -157,7 +157,7 @@ private func load (filename: *Str8, bufptr: *[]Word8, buf_size: Nat32) -> Nat32 
 }
 
 
-func show_ram () -> Unit {
+public func show_ram () -> Unit {
 	var i = Nat32 0
 	let ramptr = &ram
 	while i < 256 {

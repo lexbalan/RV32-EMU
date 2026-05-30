@@ -8,26 +8,26 @@ include "libc/stdlib"
 import "mmio" as mmio
 
 
-public const showText: Bool = false
+const showText: Bool = false
 
 
 // see mem.ld
-public const ramSize = 16 * 1024
-public const ramStart = Nat32 0x10000000
-public const ramEnd: Nat32 = ramStart + ramSize
+const ramSize = 16 * 1024
+const ramStart = Nat32 0x10000000
+const ramEnd: Nat32 = ramStart + ramSize
 
-public const romSize = Nat32 0x100000
-public const romStart = Nat32 0x00000000
-public const romEnd: Nat32 = romStart + romSize
+const romSize = Nat32 0x100000
+const romStart = Nat32 0x00000000
+const romEnd: Nat32 = romStart + romSize
 
 const mmioSize = Nat32 0xFFFF
 const mmioStart = Nat32 0xF00C0000
 const mmioEnd: Nat32 = mmioStart + mmioSize
 
 
-public const ramRegion = {from = ramStart, to = ramEnd}
-public const romRegion = {from = romStart, to = romEnd}
-public const mmioRegion = {from = mmioStart, to = mmioEnd}
+const ramRegion = {from = ramStart, to = ramEnd}
+const romRegion = {from = romStart, to = romEnd}
+const mmioRegion = {from = mmioStart, to = mmioEnd}
 
 
 var ram: [ramSize]Word8
@@ -103,8 +103,7 @@ func isAdressInRegion (x: Nat32, region: {from: Nat32, to: Nat32}) -> Bool {
 }
 
 
-//private
-public var memviolationCnt: Nat32 = 0
+var memviolationCnt: Nat32 = 0
 public func memoryViolation (rw: Char8, adr: Nat32) -> Unit {
 	printf("*** MEMORY VIOLATION '%c' 0x%08x ***\n", rw, adr)
 	if memviolationCnt > 10 {
