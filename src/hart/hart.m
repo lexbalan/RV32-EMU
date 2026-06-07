@@ -69,8 +69,8 @@ public const intMemViolation = 0x0B
 
 public func init (hart: *Hart, id: Nat32, bus: *BusInterface) -> Unit {
 	printf("hart #%d init\n", id)
-	hart.csrs[Nat32 csr.mhartid_adr] = Word32 id
-	hart.csrs[Nat32 csr.misa_adr] = csr.misa_xlen_32 | csr.misa_i | csr.misa_m
+	hart.csrs[csr.mhartid_adr] = Word32 id
+	hart.csrs[csr.misa_adr] = csr.misa_xlen_32 | csr.misa_i | csr.misa_m
 	hart.regs = []
 	hart.pc = 0
 	hart.bus = bus
@@ -88,12 +88,12 @@ func fetch (hart: *Hart) -> Word32 {
 public func cycle (hart: *Hart) -> Bool {
 	if hart.irq != 0 {
 		trace(hart.pc, "\nINT #%02X\n", hart.irq)
-		let adr = Nat32 hart.csrs[Nat32 csr.mtvec_adr]
+		let adr = Nat32 hart.csrs[csr.mtvec_adr]
 		//printf("ADR = %08X\n", adr)
 		//let vect_offset = Nat32 hart.irq * 4
-		hart.csrs[Nat32 csr.mepc_adr] = Word32 hart.pc
-		hart.csrs[Nat32 csr.mcause_adr] = 0  // interrupt cause
-		hart.csrs[Nat32 csr.mtval_adr] = 0   // interrupt value (address, etc.)
+		hart.csrs[csr.mepc_adr] = Word32 hart.pc
+		hart.csrs[csr.mcause_adr] = 0  // interrupt cause
+		hart.csrs[csr.mtval_adr] = 0   // interrupt value (address, etc.)
 		hart.pc = adr
 
 		hart.irq = 0
@@ -104,7 +104,8 @@ public func cycle (hart: *Hart) -> Bool {
 	exec(hart, instr)
 
 	// count mcycle
-	hart.csrs[Nat32 csr.mcycle_adr] = Word32 (Nat32 hart.csrs[Nat32 csr.mcycle_adr] + 1)
+	let mc = unsafe *Nat32 &hart.csrs[csr.mcycle_adr]
+	++*mc
 
 	return not hart.end
 }
