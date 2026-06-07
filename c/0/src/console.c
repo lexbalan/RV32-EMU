@@ -25,17 +25,17 @@ uint32_t console_get_code(void) {
 }
 
 
-void console_print_int(int32_t x) {
+void console_printInt(int32_t x) {
 	*(int32_t *)(void *)RISCV_EMU_CONSOLE_PRINT_INT32_ADR = x;
 }
 
 
-void console_print_uint(uint32_t x) {
+void console_printNat(uint32_t x) {
 	*(uint32_t *)(void *)RISCV_EMU_CONSOLE_PRINT_UINT32_ADR = x;
 }
 
 
-void console_print_uint_hex(uint32_t x) {
+void console_printNatHex(uint32_t x) {
 	*(uint32_t *)(void *)RISCV_EMU_CONSOLE_PRINT_UINT32_HEX_ADR = x;
 }
 

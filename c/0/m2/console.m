@@ -22,15 +22,15 @@ public func get_code () -> Nat32 {
 }
 
 
-public func print_int (x: Int32) -> Unit {
+public func printInt (x: Int32) -> Unit {
 	*(*Int32 unsafe Ptr consolePrintInt32Adr) = x
 }
 
-public func print_uint (x: Nat32) -> Unit {
+public func printNat (x: Nat32) -> Unit {
 	*(*Nat32 unsafe Ptr consolePrintUInt32Adr) = x
 }
 
-public func print_uint_hex (x: Nat32) -> Unit {
+public func printNatHex (x: Nat32) -> Unit {
 	*(*Nat32 unsafe Ptr consolePrintUInt32HexAdr) = x
 }
 
