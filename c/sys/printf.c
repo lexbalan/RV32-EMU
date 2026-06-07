@@ -30,7 +30,7 @@ char *sprintf_hex32(char *buf, int d);
 char *sprintf_dec32(char *buf, int d);
 
 
-int printf(const char *str, ...) {
+int print(const char *str, ...) {
 	va_list a_list;
 	va_start(a_list, str);
 

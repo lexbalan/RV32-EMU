@@ -20,10 +20,12 @@ LDSCRIPT = $(SYS)/mem.ld
 
 # compile C to BIN
 all:
-	mcc -mbackend=c11 -o main main.m
+	mcc -mbackend=c11 -o src/main m2/main.m
+	mcc -mbackend=c11 -o src/console m2/console.m
+	mcc -mbackend=c11 -o src/riscv_emu m2/riscv_emu.m
 
 	# translate C to ASM
-	#$(CC) $(CFLAGS) -S main.c
+	#$(CC) $(CFLAGS) -S src/main.c
 
 	# translate ASM to OBJ
 	#$(CC) $(CFLAGS) main.s -c -o main.o
@@ -32,14 +34,15 @@ all:
 	$(CC) $(CFLAGS) $(SYS)/vect.S -c -o vect.o
 	$(CC) $(CFLAGS) $(SYS)/base.S -c -o base.o
 	$(CC) $(CFLAGS) $(SYS)/startup.c -c -o startup.o
-	$(CC) $(CFLAGS) $(SYS)/system.c -c -o system.o
-	$(CC) $(CFLAGS) $(SYS)/console.c -c -o console.o
-	$(CC) $(CFLAGS) $(SYS)/printf.c -c -o printf.o
-	$(CC) $(CFLAGS) main.c -c -o main.o
+	#$(CC) $(CFLAGS) $(SYS)/system.c -c -o system.o
+	$(CC) $(CFLAGS) src/console.c -c -o console.o
+	#$(CC) $(CFLAGS) $(SYS)/printf.c -c -o printf.o
+	$(CC) $(CFLAGS) src/main.c -c -o main.o
 
 
 	# link OBJects to ELF
-	$(CC) $(CFLAGS) -nostdlib -o main.elf -T $(LDSCRIPT) vect.o startup.o system.o console.o printf.o base.o muldivmod.o main.o
+	#$(CC) $(CFLAGS) -nostdlib -o main.elf -T $(LDSCRIPT) vect.o startup.o system.o console.o printf.o base.o muldivmod.o main.o
+	$(CC) $(CFLAGS) -nostdlib -o main.elf -T $(LDSCRIPT) vect.o startup.o console.o base.o muldivmod.o main.o
 
 	rm *.o
 
