@@ -3,15 +3,21 @@ pragma unsafe
 
 include "./riscv_emu"
 
+
 public func putc (x: Char8) -> Unit {
     put_code(Nat32 unsafe Word32 x)
 }
+
+public func getc () -> Char8 {
+	return Char8 unsafe Word8 Word32 get_code()
+}
+
 
 public func put_code (x: Nat32) -> Unit {
 	*(*Nat8 unsafe Ptr consolePrintChar8Adr) = unsafe Nat8 x
 }
 
-public func getc () -> Nat32 {
+public func get_code () -> Nat32 {
 	return 0
 }
 

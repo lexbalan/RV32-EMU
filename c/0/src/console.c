@@ -11,11 +11,16 @@ void console_putc(char x) {
 }
 
 
+char console_getc(void) {
+	return (char)(uint8_t)console_get_code();
+}
+
+
 void console_put_code(uint32_t x) {
 	*(uint8_t *)(void *)RISCV_EMU_CONSOLE_PRINT_CHAR8_ADR = x;
 }
 
-uint32_t console_getc(void) {
+uint32_t console_get_code(void) {
 	return 0;
 }
 

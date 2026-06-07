@@ -34,44 +34,43 @@ all:
 	$(CC) $(CFLAGS) $(SYS)/vect.S -c -o vect.o
 	$(CC) $(CFLAGS) $(SYS)/base.S -c -o base.o
 	$(CC) $(CFLAGS) $(SYS)/startup.c -c -o startup.o
-	#$(CC) $(CFLAGS) $(SYS)/system.c -c -o system.o
 	$(CC) $(CFLAGS) src/console.c -c -o console.o
-	#$(CC) $(CFLAGS) $(SYS)/printf.c -c -o printf.o
 	$(CC) $(CFLAGS) src/main.c -c -o main.o
 
 
 	# link OBJects to ELF
-	#$(CC) $(CFLAGS) -nostdlib -o main.elf -T $(LDSCRIPT) vect.o startup.o system.o console.o printf.o base.o muldivmod.o main.o
-	$(CC) $(CFLAGS) -nostdlib -o main.elf -T $(LDSCRIPT) vect.o startup.o console.o base.o muldivmod.o main.o
+	$(CC) $(CFLAGS) -nostdlib -o out/main.elf -T $(LDSCRIPT) vect.o startup.o console.o base.o muldivmod.o main.o
 
 	rm *.o
 
 	# extract sections from ELF to BIN file
 
-	llvm-objcopy -Iriscv32 main.elf $(ONLYSECTION) -Obinary ../../image.bin
-	#llvm-objcopy-14 -Iriscv32 main.elf $(ONLYSECTION) -Obinary ../../image.bin
+	llvm-objcopy -Iriscv32 out/main.elf $(ONLYSECTION) -Obinary out/image.bin
+	cp out/image.bin ../../image.bin
+
+	#llvm-objcopy-14 -Iriscv32 out/main.elf $(ONLYSECTION) -Obinary ../../image.bin
 
 	# make ELF dump
-	llvm-objdump --full-contents --section=.text --section=.data -d ./main.elf > ./dump.txt
-	#llvm-objdump-14 --full-contents --section=.text --section=.data -d ./main.elf > ./dump.txt
+	llvm-objdump --full-contents --section=.text --section=.data -d out/main.elf > out/dump.txt
+	#llvm-objdump-14 --full-contents --section=.text --section=.data -d out/main.elf > out/dump.txt
 
 
 
 # show ELF content
 dump:
-	objdump --full-contents main.elf
+	objdump --full-contents out/main.elf
 
 
 # show ELF sections
 sect:
-	objdump -h main.elf
+	objdump -h out/main.elf
 
 
 # show ELF symbols
 symb:
-	objdump -t main.elf
+	objdump -t out/main.elf
 
 
 info:
-	objdump -x main.elf
+	objdump -x out/main.elf
 
