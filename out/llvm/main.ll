@@ -355,7 +355,7 @@ declare %Int32 @decode_expand20(%Word32 %val_20bit)
 };
 
 declare void @hart_init(%hart_Hart* %hart, %Nat32 %id, %hart_BusInterface* %bus)
-declare void @hart_cycle(%hart_Hart* %hart)
+declare %Bool @hart_cycle(%hart_Hart* %hart)
 declare void @hart_show_regs(%hart_Hart* %hart)
 
 ; end from import "rvHart"
@@ -387,26 +387,49 @@ endif_0:
 	%7 = bitcast %hart_BusInterface* %4 to %hart_BusInterface*
 	call void @hart_init(%hart_Hart* @hart, %Nat32 0, %hart_BusInterface* %7)
 	%8 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([82 x i8]* @.str3 to [0 x i8]*))
+	%9 = alloca %Nat32, align 4
+	store %Nat32 0, %Nat32* %9
 ; while_1
 	br label %again_1
 again_1:
-	%9 = getelementptr %hart_Hart, %hart_Hart* @hart, %Int32 0, %Int32 4
-	%10 = load %Bool, %Bool* %9
-	%11 = xor %Bool %10, 1
-	br %Bool %11 , label %body_1, label %break_1
+	br %Bool 1 , label %body_1, label %break_1
 body_1:
-	call void @hart_cycle(%hart_Hart* @hart)
+; if_1
+	%10 = call %Bool @hart_cycle(%hart_Hart* @hart)
+	%11 = xor %Bool %10, 1
+	br %Bool %11 , label %then_1, label %endif_1
+then_1:
+	br label %break_1
+	br label %endif_1
+endif_1:
+	%13 = load %Nat32, %Nat32* %9
+	%14 = add %Nat32 %13, 1
+	store %Nat32 %14, %Nat32* %9
+; if_2
+	%15 = load %Nat32, %Nat32* %9
+	%16 = icmp eq %Nat32 %15, 1000
+	br %Bool %16 , label %then_2, label %endif_2
+then_2:
+	store %Nat32 0, %Nat32* %9
+	%17 = getelementptr %hart_Hart, %hart_Hart* @hart, %Int32 0, %Int32 3
+	%18 = getelementptr %hart_Hart, %hart_Hart* @hart, %Int32 0, %Int32 3
+	%19 = zext i8 1 to %Word32
+	%20 = load %Word32, %Word32* %18
+	%21 = or %Word32 %20, %19
+	store %Word32 %21, %Word32* %17
+	br label %endif_2
+endif_2:
 	br label %again_1
 break_1:
-	%12 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([82 x i8]* @.str4 to [0 x i8]*))
-	%13 = getelementptr %hart_Hart, %hart_Hart* @hart, %Int32 0, %Int32 5
-	%14 = bitcast %Nat32 2816 to %Nat32
-	%15 = getelementptr [4096 x %Word32], [4096 x %Word32]* %13, %Int32 0, %Nat32 %14
-	%16 = load %Word32, %Word32* %15
-	%17 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([13 x i8]* @.str5 to [0 x i8]*), %Word32 %16)
-	%18 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([13 x i8]* @.str6 to [0 x i8]*))
+	%22 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([82 x i8]* @.str4 to [0 x i8]*))
+	%23 = getelementptr %hart_Hart, %hart_Hart* @hart, %Int32 0, %Int32 5
+	%24 = bitcast %Nat32 2816 to %Nat32
+	%25 = getelementptr [4096 x %Word32], [4096 x %Word32]* %23, %Int32 0, %Nat32 %24
+	%26 = load %Word32, %Word32* %25
+	%27 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([13 x i8]* @.str5 to [0 x i8]*), %Word32 %26)
+	%28 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([13 x i8]* @.str6 to [0 x i8]*))
 	call void @hart_show_regs(%hart_Hart* @hart)
-	%19 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([2 x i8]* @.str7 to [0 x i8]*))
+	%29 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([2 x i8]* @.str7 to [0 x i8]*))
 	call void @bus_show_ram()
 	ret %Int 0
 }

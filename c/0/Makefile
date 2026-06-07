@@ -20,6 +20,7 @@ LDSCRIPT = $(SYS)/mem.ld
 
 # compile C to BIN
 all:
+	mcc -mbackend=c11 -o src/riscv m2/riscv.m
 	mcc -mbackend=c11 -o src/main m2/main.m
 	mcc -mbackend=c11 -o src/console m2/console.m
 	mcc -mbackend=c11 -o src/riscv_emu m2/riscv_emu.m
@@ -36,10 +37,10 @@ all:
 	$(CC) $(CFLAGS) $(SYS)/startup.c -c -o startup.o
 	$(CC) $(CFLAGS) src/console.c -c -o console.o
 	$(CC) $(CFLAGS) src/main.c -c -o main.o
-
+	$(CC) $(CFLAGS) src/riscv.c -c -o riscv.o
 
 	# link OBJects to ELF
-	$(CC) $(CFLAGS) -nostdlib -o out/main.elf -T $(LDSCRIPT) vect.o startup.o console.o base.o muldivmod.o main.o
+	$(CC) $(CFLAGS) -nostdlib -o out/main.elf -T $(LDSCRIPT) vect.o startup.o console.o base.o muldivmod.o main.o riscv.o
 
 	rm *.o
 

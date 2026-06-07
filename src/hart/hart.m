@@ -21,8 +21,8 @@ public type Hart = {
 	regs: [32]Word32
 	pc: Nat32
 	bus: *BusInterface
-	irq: Word32
-	public end: Bool
+	public irq: Word32
+	end: Bool
 	public csrs: [4096]Word32
 }
 
@@ -62,6 +62,7 @@ const funct3_CSRRSI = 5
 const funct3_CSRRCI = 6
 
 
+public const intSysTimer = 0x01
 public const intSysCall = 0x08
 public const intMemViolation = 0x0B
 
@@ -84,11 +85,11 @@ func fetch (hart: *Hart) -> Word32 {
 }
 
 
-public func cycle (hart: *Hart) -> Unit {
+public func cycle (hart: *Hart) -> Bool {
 	if hart.irq != 0 {
 		trace(hart.pc, "\nINT #%02X\n", hart.irq)
 		let adr = Nat32 hart.csrs[Nat32 csr.mtvec_adr]
-		printf("ADR = %08X\n", adr)
+		//printf("ADR = %08X\n", adr)
 		//let vect_offset = Nat32 hart.irq * 4
 		hart.csrs[Nat32 csr.mepc_adr] = Word32 hart.pc
 		hart.csrs[Nat32 csr.mcause_adr] = 0  // interrupt cause
@@ -96,6 +97,7 @@ public func cycle (hart: *Hart) -> Unit {
 		hart.pc = adr
 
 		hart.irq = 0
+		//return false
 	}
 
 	let instr = fetch(hart)
@@ -103,6 +105,8 @@ public func cycle (hart: *Hart) -> Unit {
 
 	// count mcycle
 	hart.csrs[Nat32 csr.mcycle_adr] = Word32 (Nat32 hart.csrs[Nat32 csr.mcycle_adr] + 1)
+
+	return not hart.end
 }
 
 
@@ -587,7 +591,8 @@ func execSystem (hart: *Hart, instr: Word32) -> Unit {
 	let rs1 = extract_rs1(instr)
 	let xcsr = unsafe Nat16 extract_imm12(instr)
 
-	printf("SYSTEM INSTRUCTION: 0x%08X\n", instr)
+	//printf("SYSTEM INSTRUCTION: 0x%08X\n", instr)
+
 	if instr == instrECALL {
 		trace(hart.pc, "ecall\n")
 		printf("ECALL: hart #%d\n", hart.csrs[Nat32 csr.mhartid_adr])
@@ -610,6 +615,7 @@ func execSystem (hart: *Hart, instr: Word32) -> Unit {
 
 	} else if instr == instrEBREAK {
 		trace(hart.pc, "ebreak\n")
+		printf("EBREAK: hart #%d\n", hart.csrs[Nat32 csr.mhartid_adr])
 		hart.end = true
 
 	// CSR instructions
@@ -649,7 +655,7 @@ func execFence (hart: *Hart, instr: Word32) -> Unit {
 The CSRRW (Atomic Read/Write CSR) instruction atomically swaps values in the CSRs and integer registers. CSRRW reads the old value of the CSR, zero-extends the value to XLEN bits, then writes it to integer register rd. The initial value in rs1 is written to the CSR. If rd=x0, then the instruction shall not read the CSR and shall not cause any of the side effects that might occur on a CSR read.
 */
 func csr_rw (hart: *Hart, csr: Nat16, rd: Nat8, rs1: Nat8) -> Unit {
-	printf("CSR_RW(csr=0x%X, rd=r%d, rs1=r%d)\n", csr, rd, rs1)
+	//printf("CSR_RW(csr=0x%X, rd=r%d, rs1=r%d)\n", csr, rd, rs1)
 	let nv = hart.regs[rs1]
 	hart.regs[rd] = hart.csrs[csr]
 	hart.csrs[csr] = nv

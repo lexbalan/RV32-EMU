@@ -29,8 +29,21 @@ func main () -> Int {
 
 	printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n")
 
-	while not hart.end {
-		rvHart.cycle(&hart)
+	var timer_cnt: Nat32 = 0
+
+	while true {
+		// Hart beat
+		if not rvHart.cycle(&hart) {
+			break
+		}
+
+		// Generate timer interrupt (intSysTimer)
+		++timer_cnt
+		if timer_cnt == 1000 {
+			timer_cnt = 0
+			//printf("Timer interrupt generated\n")
+			hart.irq = hart.irq | rvHart.intSysTimer
+		}
 	}
 
 	printf("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n")
