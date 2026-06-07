@@ -3,7 +3,6 @@
 .global _stack_start
 .global _stack_end
 .global _trap
-.global __isr
 .global __mem_violation
 .global trap_empty
 .global system
@@ -31,6 +30,8 @@ vectors:
 	jr zero, %lo(trap_empty)
 
 
+.section .text
+.align 2
 
 _trap:
 	jal ra, __isr
@@ -64,4 +65,13 @@ system:
 	ebreak
 	mret
 	#j system
+
+
+trap_empty:
+	j trap_empty
+
+
+.weak __isr
+__isr:
+	ret
 

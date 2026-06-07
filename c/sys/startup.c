@@ -50,10 +50,10 @@ extern void _data_start, _data_end, _data_flash_start;
 __attribute__ ((section (".startup")))
 void startup() {
 	const uint32_t bss_size = (uint32_t)&_bss_end - (uint32_t)&_bss_start;
-	memzero(&_bss_start, bss_size);
+	__builtin_memset(&_bss_start, 0, bss_size);
 
 	const uint32_t data_size = (uint32_t)&_data_end - (uint32_t)&_data_start;
-	memcpy(&_data_start, &_data_flash_start, data_size);
+	__builtin_memcpy(&_data_start, &_data_flash_start, data_size);
 
 	main();
 }
