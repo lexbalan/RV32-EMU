@@ -202,10 +202,10 @@ declare void @perror(%ConstCharStr* %str)
 ; end from import "builtin"
 ; -- end print imports 'mmio' --
 ; -- strings --
-@.str1 = private constant [3 x i8] [i8 37, i8 117, i8 0]
+@.str1 = private constant [3 x i8] [i8 37, i8 100, i8 0]
 @.str2 = private constant [3 x i8] [i8 37, i8 117, i8 0]
 @.str3 = private constant [3 x i8] [i8 37, i8 120, i8 0]
-@.str4 = private constant [4 x i8] [i8 37, i8 117, i8 120, i8 0]
+@.str4 = private constant [3 x i8] [i8 37, i8 120, i8 0]
 ; -- endstrings --
 define void @mmio_write8(%Nat32 %adr, %Word8 %value) {
 ; if_0
@@ -271,7 +271,7 @@ else_3:
 	%14 = icmp eq %Nat32 %adr, 44
 	br %Bool %14 , label %then_4, label %endif_4
 then_4:
-	%15 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([4 x i8]* @.str4 to [0 x i8]*), %Word32 %value)
+	%15 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([3 x i8]* @.str4 to [0 x i8]*), %Word32 %value)
 	ret void
 	br label %endif_4
 endif_4:

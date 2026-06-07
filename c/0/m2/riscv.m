@@ -6,3 +6,10 @@ public func csrwMtvec (adr: Word32) -> Word32 {
 	return old
 }
 
+
+public func csrMisa () -> Word32 {
+	var x: Word32
+	__asm("csrr %0, misa", [["=r", x]], [])
+	return x
+}
+

@@ -11,7 +11,12 @@ var int_cnt: @volatile Nat32 = 0
 func init () -> Unit {
 	//console.init()
 	riscv.csrwMtvec(unsafe Word32 &__isr)
-	return
+
+	let misa = riscv.csrMisa()
+	//printf("MISA = 0x%08X\n", misa)
+	console.puts("MISA = ")
+	console.printNatHex(Nat32 misa)
+	console.puts("\n")
 }
 
 func main () -> Int32 {

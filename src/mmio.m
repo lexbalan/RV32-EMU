@@ -38,7 +38,7 @@ public func write32 (adr: Nat32, value: Word32) -> Unit {
 		putchar(Int value)
 		return
 	} else if adr == consolePrintInt32Adr {
-		printf("%u", value)
+		printf("%d", value)
 		return
 	} else if adr == consolePrintUInt32Adr {
 		printf("%u", value)
@@ -47,7 +47,7 @@ public func write32 (adr: Nat32, value: Word32) -> Unit {
 		printf("%x", value)
 		return
 	} else if adr == consolePrintUInt32HexAdr {
-		printf("%ux", value)
+		printf("%x", value)
 		return
 	}
 }

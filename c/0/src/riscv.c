@@ -11,3 +11,9 @@ uint32_t riscv_csrwMtvec(uint32_t adr) {
 	return old;
 }
 
+uint32_t riscv_csrMisa(void) {
+	uint32_t x;
+	__asm__ volatile ("csrr %0, misa" : "=r" (x) ::);
+	return x;
+}
+

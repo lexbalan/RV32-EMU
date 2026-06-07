@@ -10,7 +10,10 @@ extern void __isr(void);
 
 static void init(void) {
 	riscv_csrwMtvec((uint32_t)&__isr);
-	return;
+	const uint32_t misa = riscv_csrMisa();
+	console_puts("MISA = ");
+	console_printNatHex(misa);
+	console_puts("\n");
 }
 
 int32_t main(void) {
