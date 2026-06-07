@@ -103,14 +103,14 @@ void bus_memoryViolation(char rw, uint32_t adr) {
 	memviolationCnt = memviolationCnt + 1;
 }
 
-static uint32_t load(char *filename, uint8_t bufptr[], uint32_t buf_size);
+static uint32_t load(char *filename, uint8_t *bufptr, uint32_t buf_size);
 
 uint32_t bus_load_rom(char *filename) {
-	return load(filename, (uint8_t *)&rom, ROM_SIZE);
+	return load(filename, rom, ROM_SIZE);
 }
 
 
-static uint32_t load(char *filename, uint8_t bufptr[], uint32_t buf_size) {
+static uint32_t load(char *filename, uint8_t *bufptr, uint32_t buf_size) {
 	printf("LOAD: %s\n", filename);
 	FILE *const fp = fopen(filename, "rb");
 	if (fp == NULL) {
@@ -122,7 +122,7 @@ static uint32_t load(char *filename, uint8_t bufptr[], uint32_t buf_size) {
 	if (SHOW_TEXT) {
 		size_t i = 0;
 		while (i < n / 4) {
-			printf("%08zx: 0x%08x\n", i, (*(uint32_t (*)[])bufptr)[i]);
+			printf("%08zx: 0x%08x\n", i, ((uint32_t *)bufptr)[i]);
 			i = i + 4;
 		}
 		printf("-----------\n");
@@ -133,12 +133,12 @@ static uint32_t load(char *filename, uint8_t bufptr[], uint32_t buf_size) {
 
 void bus_show_ram(void) {
 	uint32_t i = 0;
-	uint8_t (*const ramptr)[RAM_SIZE] = &ram;
+	uint8_t *const ramptr = ram;
 	while (i < 256) {
 		printf("%08X", i * 16);
 		uint32_t j = 0;
 		while (j < 16) {
-			printf(" %02X", (*ramptr)[i + j]);
+			printf(" %02X", ramptr[i + j]);
 			j = j + 1;
 		}
 		printf("\n");
