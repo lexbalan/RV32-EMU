@@ -14,9 +14,10 @@ typedef struct hart_bus_interface hart_BusInterface;
 struct hart_hart {
 	uint32_t regs[32];
 	uint32_t pc;
-	hart_BusInterface *bus;
 
+	hart_BusInterface *bus;
 	bool end;
+
 	uint32_t csrs[4096];
 };
 void hart_interrupt(struct hart_hart *hart, uint32_t int_num);

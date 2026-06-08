@@ -10,12 +10,13 @@
 #include "csr.h"
 #include <stdarg.h>
 #define TRACE_MODE false
+#define INSTRUCTION_SIZE 4
 
 
 void hart_interrupt(struct hart_hart *hart, uint32_t int_num) {
-	hart->csrs[CSR_MCAUSE_REGNO] = 0x80000000UL | int_num;
-	hart->csrs[CSR_MIP_REGNO] = 0x1;
-	hart->csrs[CSR_MTVAL_REGNO] = 0x0;
+	hart_setCsr(hart, CSR_MCAUSE_REGNO, 0x80000000UL | int_num);
+	hart_setCsr(hart, CSR_MIP_REGNO, 0x1);
+	hart_setCsr(hart, CSR_MTVAL_REGNO, 0x0);
 }
 #define OP_L 0x03
 #define OP_I 0x13
@@ -46,8 +47,8 @@ void hart_interrupt(struct hart_hart *hart, uint32_t int_num) {
 
 void hart_init(struct hart_hart *hart, uint32_t id, hart_BusInterface *bus) {
 	printf("hart #%d init\n", id);
-	hart->csrs[CSR_MHARTID_REGNO] = id;
-	hart->csrs[CSR_MISA_REGNO] = CSR_MISA_XLEN_32 | CSR_MISA_I | CSR_MISA_M;
+	hart_setCsr(hart, CSR_MHARTID_REGNO, id);
+	hart_setCsr(hart, CSR_MISA_REGNO, CSR_MISA_XLEN_32 | CSR_MISA_I | CSR_MISA_M);
 	__builtin_bzero(&hart->regs, sizeof(uint32_t [32]));
 	hart->pc = 0;
 	hart->bus = bus;
@@ -64,14 +65,14 @@ static void trace(uint32_t pc, char *form, ...);
 static void exec(struct hart_hart *hart, uint32_t instr);
 
 bool hart_cycle(struct hart_hart *hart) {
-	if (hart->csrs[CSR_MIP_REGNO] != 0x0) {
-		trace(hart->pc, "\nmcause #%02X\n", hart->csrs[CSR_MCAUSE_REGNO]);
-		const uint32_t adr = hart->csrs[CSR_MTVEC_REGNO];
-		hart->csrs[CSR_MEPC_REGNO] = hart->pc;
-		hart->csrs[CSR_MCAUSE_REGNO] = 0x0;
-		hart->csrs[CSR_MTVAL_REGNO] = 0x0;
+	if (hart_getCsr(hart, CSR_MIP_REGNO) != 0x0) {
+		trace(hart->pc, "\nmcause #%02X\n", hart_getCsr(hart, CSR_MCAUSE_REGNO));
+		const uint32_t adr = hart_getCsr(hart, CSR_MTVEC_REGNO);
+		hart_setCsr(hart, CSR_MEPC_REGNO, hart->pc);
+		hart_setCsr(hart, CSR_MCAUSE_REGNO, 0x0);
+		hart_setCsr(hart, CSR_MTVAL_REGNO, 0x0);
 		hart->pc = adr;
-		hart->csrs[CSR_MIP_REGNO] = 0x0;
+		hart_setCsr(hart, CSR_MIP_REGNO, 0x0);
 	}
 	const uint32_t instr = fetch(hart);
 	exec(hart, instr);
@@ -96,7 +97,7 @@ static void exec(struct hart_hart *hart, uint32_t instr) {
 	const uint8_t op = decode_extract_op(instr);
 	const uint8_t funct3 = decode_extract_funct3(instr);
 	hart->regs[0] = 0x0;
-	uint32_t nexpc = hart->pc + 4;
+	uint32_t nexpc = hart->pc + INSTRUCTION_SIZE;
 	if (op == OP_I) {
 		execI(hart, instr);
 	} else if (op == OP_R) {
@@ -258,7 +259,7 @@ static uint32_t execJAL(struct hart_hart *hart, uint32_t instr) {
 	const uint32_t raw_imm = decode_extract_jal_imm(instr);
 	const int32_t imm = decode_expand20(raw_imm);
 	trace(hart->pc, "jal x%d, %d\n", rd, imm);
-	hart->regs[rd] = hart->pc + 4;
+	hart->regs[rd] = hart->pc + INSTRUCTION_SIZE;
 	return (uint32_t)abs((int32_t)hart->pc + imm);
 }
 
@@ -268,7 +269,7 @@ static uint32_t execJALR(struct hart_hart *hart, uint32_t instr) {
 	const uint8_t rd = decode_extract_rd(instr);
 	const int32_t imm = decode_expand12(decode_extract_imm12(instr));
 	trace(hart->pc, "jalr %d(x%d)\n", imm, rs1);
-	const int32_t next_instr_ptr = (int32_t)(hart->pc + 4);
+	const uint32_t next_instr_ptr = hart->pc + INSTRUCTION_SIZE;
 	const uint32_t nexpc = (uint32_t)(hart->regs[rs1] + imm) & 0xFFFFFFFEUL;
 	hart->regs[rd] = next_instr_ptr;
 	return nexpc;
@@ -282,7 +283,7 @@ static uint32_t execB(struct hart_hart *hart, uint32_t instr) {
 	const int16_t imm = decode_extract_b_imm(instr);
 	const uint32_t left = hart->regs[rs1];
 	const uint32_t right = hart->regs[rs2];
-	uint32_t nexpc = hart->pc + 4;
+	uint32_t nexpc = hart->pc + INSTRUCTION_SIZE;
 	if (funct3 == 0x0) {
 		trace(hart->pc, "beq x%d, x%d, %d\n", rs1, rs2, imm);
 		if (left == right) {

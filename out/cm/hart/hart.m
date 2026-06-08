@@ -16,21 +16,24 @@ import "csr" as csr
 
 const traceMode: Bool = false
 
+const instructionSize = 4
+
 
 public type Hart = {
 	regs: [32]Word32
 	pc: Nat32
-	bus: *BusInterface
 
+	bus: *BusInterface
 	end: Bool
+
 	csrs: [4096]Word32
 }
 
 
 public func interrupt (hart: *Hart, int_num: Word32) -> Unit {
-	hart.csrs[csr.mcause_regno] = 0x80000000 | int_num
-	hart.csrs[csr.mip_regno] = 1
-	hart.csrs[csr.mtval_regno] = 0
+	setCsr(hart, csr.mcause_regno, 0x80000000 | int_num)
+	setCsr(hart, csr.mip_regno, 1)
+	setCsr(hart, csr.mtval_regno, 0)
 }
 
 
@@ -76,8 +79,8 @@ public const intMemViolation = 0x0B
 
 public func init (hart: *Hart, id: Nat32, bus: *BusInterface) -> Unit {
 	printf("hart #%d init\n", id)
-	hart.csrs[csr.mhartid_regno] = Word32 id
-	hart.csrs[csr.misa_regno] = csr.misa_xlen_32 | csr.misa_i | csr.misa_m
+	setCsr(hart, csr.mhartid_regno, Word32 id)
+	setCsr(hart, csr.misa_regno, csr.misa_xlen_32 | csr.misa_i | csr.misa_m)
 	hart.regs = []
 	hart.pc = 0
 	hart.bus = bus
@@ -93,15 +96,15 @@ func fetch (hart: *Hart) -> Word32 {
 
 
 public func cycle (hart: *Hart) -> Bool {
-	if hart.csrs[csr.mip_regno] != 0 {
-		trace(hart.pc, "\nmcause #%02X\n", hart.csrs[csr.mcause_regno])
-		let adr = Nat32 hart.csrs[csr.mtvec_regno]
-		hart.csrs[csr.mepc_regno] = Word32 hart.pc
-		hart.csrs[csr.mcause_regno] = 0
-		hart.csrs[csr.mtval_regno] = 0
+	if getCsr(hart, csr.mip_regno) != 0 {
+		trace(hart.pc, "\nmcause #%02X\n", getCsr(hart, csr.mcause_regno))
+		let adr = Nat32 getCsr(hart, csr.mtvec_regno)
+		setCsr(hart, csr.mepc_regno, Word32 hart.pc)
+		setCsr(hart, csr.mcause_regno, 0)
+		setCsr(hart, csr.mtval_regno, 0)
 		hart.pc = adr
 
-		hart.csrs[csr.mip_regno] = 0
+		setCsr(hart, csr.mip_regno, 0)
 	}
 
 	let instr: Word32 = fetch(hart)
@@ -116,9 +119,10 @@ public func cycle (hart: *Hart) -> Bool {
 func exec (hart: *Hart, instr: Word32) -> Unit {
 	let op: Word8 = extract_op(instr)
 	let funct3: Word8 = extract_funct3(instr)
+
 	hart.regs[0] = 0
 
-	var nexpc: Nat32 = hart.pc + 4
+	var nexpc: Nat32 = hart.pc + instructionSize
 
 	if op == opI {
 		execI(hart, instr)
@@ -336,7 +340,7 @@ func execJAL (hart: *Hart, instr: Word32) -> Nat32 {
 
 	trace(hart.pc, "jal x%d, %d\n", rd, imm)
 
-	hart.regs[rd] = Word32 (hart.pc + 4)
+	hart.regs[rd] = Word32 (hart.pc + instructionSize)
 	return Nat32 (Int32 hart.pc + imm)
 }
 
@@ -350,7 +354,7 @@ func execJALR (hart: *Hart, instr: Word32) -> Nat32 {
 
 	trace(hart.pc, "jalr %d(x%d)\n", imm, rs1)
 
-	let next_instr_ptr = Int32 (hart.pc + 4)
+	let next_instr_ptr: Nat32 = hart.pc + instructionSize
 	let nexpc = Nat32 (Word32 (Int32 hart.regs[rs1] + imm) & 0xFFFFFFFE)
 	hart.regs[rd] = Word32 next_instr_ptr
 	return nexpc
@@ -367,7 +371,7 @@ func execB (hart: *Hart, instr: Word32) -> Nat32 {
 	let left: Word32 = hart.regs[rs1]
 	let right: Word32 = hart.regs[rs2]
 
-	var nexpc: Nat32 = hart.pc + 4
+	var nexpc: Nat32 = hart.pc + instructionSize
 
 	if funct3 == 0 {
 
