@@ -36,12 +36,21 @@ func main () -> Int {
 
 	printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n")
 
-	while not hart.end {
-		rvHart.cycle(&hart)
+	var timer_cnt: Nat32 = 0
+
+	while true {
+		if not rvHart.cycle(&hart) {
+			break
+		}
+		timer_cnt = timer_cnt + 1
+		if timer_cnt == 1000 {
+			timer_cnt = 0
+			rvHart.interrupt(&hart, rvHart.intSysTimer)
+		}
 	}
 
 	printf("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n")
-	printf("mcycle = %u\n", hart.csrs[Nat32 csr.mcycle_adr])
+	printf("mcycle = %u\n", rvHart.getCsr(&hart, csr.mcycle_regno))
 
 	printf("\nCore dump:\n")
 	rvHart.show_regs(&hart)

@@ -21,9 +21,16 @@ public type Hart = {
 	regs: [32]Word32
 	pc: Nat32
 	bus: *BusInterface
-	irq: Word32
-	public end: Bool
-	public csrs: [4096]Word32
+
+	end: Bool
+	csrs: [4096]Word32
+}
+
+
+public func interrupt (hart: *Hart, int_num: Word32) -> Unit {
+	hart.csrs[csr.mcause_regno] = 0x80000000 | int_num
+	hart.csrs[csr.mip_regno] = 1
+	hart.csrs[csr.mtval_regno] = 0
 }
 
 
@@ -62,18 +69,18 @@ const funct3_CSRRSI = 5
 const funct3_CSRRCI = 6
 
 
+public const intSysTimer = 0x01
 public const intSysCall = 0x08
 public const intMemViolation = 0x0B
 
 
 public func init (hart: *Hart, id: Nat32, bus: *BusInterface) -> Unit {
 	printf("hart #%d init\n", id)
-	hart.csrs[Nat32 csr.mhartid_adr] = Word32 id
-	hart.csrs[Nat32 csr.misa_adr] = csr.misa_xlen_32 | csr.misa_i | csr.misa_m
+	hart.csrs[csr.mhartid_regno] = Word32 id
+	hart.csrs[csr.misa_regno] = csr.misa_xlen_32 | csr.misa_i | csr.misa_m
 	hart.regs = []
 	hart.pc = 0
 	hart.bus = bus
-	hart.irq = 0x0
 	hart.end = false
 }
 
@@ -85,22 +92,24 @@ func fetch (hart: *Hart) -> Word32 {
 }
 
 
-public func cycle (hart: *Hart) -> Unit {
-	if hart.irq != 0 {
-		trace(hart.pc, "\nINT #%02X\n", hart.irq)
-		let adr = Nat32 hart.csrs[Nat32 csr.mtvec_adr]
-		printf("ADR = %08X\n", adr)
-		hart.csrs[Nat32 csr.mepc_adr] = Word32 hart.pc
-		hart.csrs[Nat32 csr.mcause_adr] = 0
-		hart.csrs[Nat32 csr.mtval_adr] = 0
+public func cycle (hart: *Hart) -> Bool {
+	if hart.csrs[csr.mip_regno] != 0 {
+		trace(hart.pc, "\nmcause #%02X\n", hart.csrs[csr.mcause_regno])
+		let adr = Nat32 hart.csrs[csr.mtvec_regno]
+		hart.csrs[csr.mepc_regno] = Word32 hart.pc
+		hart.csrs[csr.mcause_regno] = 0
+		hart.csrs[csr.mtval_regno] = 0
 		hart.pc = adr
 
-		hart.irq = 0
+		hart.csrs[csr.mip_regno] = 0
 	}
 
 	let instr: Word32 = fetch(hart)
 	exec(hart, instr)
-	hart.csrs[Nat32 csr.mcycle_adr] = Word32 (Nat32 hart.csrs[Nat32 csr.mcycle_adr] + 1)
+	let mc: *Nat32 = unsafe *Nat32 &hart.csrs[csr.mcycle_regno]
+	*mc = *mc + 1
+
+	return not hart.end
 }
 
 
@@ -493,23 +502,23 @@ func execSystem (hart: *Hart, instr: Word32) -> Unit {
 	let rs1: Nat8 = extract_rs1(instr)
 	let xcsr: Nat16 = unsafe Nat16 extract_imm12(instr)
 
-	printf("SYSTEM INSTRUCTION: 0x%08X\n", instr)
 	if instr == instrECALL {
 		trace(hart.pc, "ecall\n")
-		printf("ECALL: hart #%d\n", hart.csrs[Nat32 csr.mhartid_adr])
-		hart.irq = hart.irq | intSysCall
+		printf("ECALL: hart #%d\n", getCsr(hart, csr.mhartid_regno))
+		setCsr(hart, csr.mip_regno, 1)
 	} else if instr == instrMRET {
 		trace(hart.pc, "mret\n")
-		let mepc: Word32 = hart.csrs[Nat32 csr.mepc_adr]
-		let mcause: Word32 = hart.csrs[Nat32 csr.mcause_adr]
-		let mtval: Word32 = hart.csrs[Nat32 csr.mtval_adr]
+		let mepc: Word32 = getCsr(hart, csr.mepc_regno)
+		let mcause: Word32 = getCsr(hart, csr.mcause_regno)
+		let mtval: Word32 = getCsr(hart, csr.mtval_regno)
 		printf("MRET: hart #%d, mepc=%08X, mcause=%08X, mtval=%08X\n"
-			hart.csrs[Nat32 csr.mhartid_adr]
+			getCsr(hart, csr.mhartid_regno)
 			mepc, mcause, mtval
 		)
 		hart.pc = Nat32 mepc
 	} else if instr == instrEBREAK {
 		trace(hart.pc, "ebreak\n")
+		printf("EBREAK: hart #%d\n", getCsr(hart, csr.mhartid_regno))
 		hart.end = true
 	} else if funct3 == funct3_CSRRW {
 		csr_rw(hart, xcsr, rd, rs1)
@@ -540,14 +549,22 @@ func execFence (hart: *Hart, instr: Word32) -> Unit {
 
 
 
+public func getCsr (hart: *Hart, csrno: Nat16) -> Word32 {
+	return hart.csrs[csrno]
+}
+
+public func setCsr (hart: *Hart, csrno: Nat16, value: Word32) -> Unit {
+	hart.csrs[csrno] = value
+}
+
+
 /*
 The CSRRW (Atomic Read/Write CSR) instruction atomically swaps values in the CSRs and integer registers. CSRRW reads the old value of the CSR, zero-extends the value to XLEN bits, then writes it to integer register rd. The initial value in rs1 is written to the CSR. If rd=x0, then the instruction shall not read the CSR and shall not cause any of the side effects that might occur on a CSR read.
 */
 func csr_rw (hart: *Hart, csr: Nat16, rd: Nat8, rs1: Nat8) -> Unit {
-	printf("CSR_RW(csr=0x%X, rd=r%d, rs1=r%d)\n", csr, rd, rs1)
 	let nv: Word32 = hart.regs[rs1]
-	hart.regs[rd] = hart.csrs[csr]
-	hart.csrs[csr] = nv
+	hart.regs[rd] = getCsr(hart, csr)
+	setCsr(hart, csr, nv)
 }
 
 
@@ -556,8 +573,8 @@ The CSRRS (Atomic Read and Set Bits in CSR) instruction reads the value of the C
 */
 func csr_rs (hart: *Hart, csr: Nat16, rd: Nat8, rs1: Nat8) -> Unit {
 	let set: Word32 = hart.regs[rs1]
-	hart.regs[rd] = hart.csrs[csr]
-	hart.csrs[csr] = hart.csrs[csr] | hart.regs[rs1]
+	hart.regs[rd] = getCsr(hart, csr)
+	setCsr(hart, csr, getCsr(hart, csr) | hart.regs[rs1])
 }
 
 
@@ -566,32 +583,32 @@ The CSRRC (Atomic Read and Clear Bits in CSR) instruction reads the value of the
 */
 func csr_rc (hart: *Hart, csr: Nat16, rd: Nat8, rs1: Nat8) -> Unit {
 	let set: Word32 = hart.regs[rs1]
-	hart.regs[rd] = hart.csrs[csr]
-	hart.csrs[csr] = hart.csrs[csr] & not hart.regs[rs1]
+	hart.regs[rd] = getCsr(hart, csr)
+	setCsr(hart, csr, getCsr(hart, csr) & not hart.regs[rs1])
 }
 
 
 // read+write immediate(5-bit)
 func csr_rwi (hart: *Hart, csr: Nat16, rd: Nat8, imm: Nat8) -> Unit {
 	let imm32 = Word32 imm
-	hart.regs[rd] = hart.csrs[csr]
-	hart.csrs[csr] = imm32
+	hart.regs[rd] = getCsr(hart, csr)
+	setCsr(hart, csr, imm32)
 }
 
 
 // read+clear immediate(5-bit)
 func csr_rsi (hart: *Hart, csr: Nat16, rd: Nat8, imm: Nat8) -> Unit {
 	let imm32 = Word32 imm
-	hart.regs[rd] = hart.csrs[csr]
-	hart.csrs[csr] = hart.csrs[csr] | imm32
+	hart.regs[rd] = getCsr(hart, csr)
+	setCsr(hart, csr, getCsr(hart, csr) | imm32)
 }
 
 
 // read+clear immediate(5-bit)
 func csr_rci (hart: *Hart, csr: Nat16, rd: Nat8, imm: Nat8) -> Unit {
 	let imm32 = Word32 imm
-	hart.regs[rd] = hart.csrs[csr]
-	hart.csrs[csr] = hart.csrs[csr] & not imm32
+	hart.regs[rd] = getCsr(hart, csr)
+	setCsr(hart, csr, getCsr(hart, csr) & not imm32)
 }
 
 

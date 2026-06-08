@@ -348,7 +348,6 @@ declare %Int32 @decode_expand20(%Word32 %val_20bit)
 	[4096 x %Word32]
 };
 
-declare %Word32 @hart_getCsr(%hart_Hart* %hart, %Nat32 %regno)
 declare void @hart_interrupt(%hart_Hart* %hart, %Word32 %int_num)
 %hart_BusInterface = type {
 	%Word32 (%Nat32, %Nat8)*,
@@ -357,6 +356,8 @@ declare void @hart_interrupt(%hart_Hart* %hart, %Word32 %int_num)
 
 declare void @hart_init(%hart_Hart* %hart, %Nat32 %id, %hart_BusInterface* %bus)
 declare %Bool @hart_cycle(%hart_Hart* %hart)
+declare %Word32 @hart_getCsr(%hart_Hart* %hart, %Nat16 %csrno)
+declare void @hart_setCsr(%hart_Hart* %hart, %Nat16 %csrno, %Word32 %value)
 declare void @hart_show_regs(%hart_Hart* %hart)
 
 ; end from import "rvHart"
@@ -419,7 +420,7 @@ endif_2:
 	br label %again_1
 break_1:
 	%18 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([82 x i8]* @.str4 to [0 x i8]*))
-	%19 = call %Word32 @hart_getCsr(%hart_Hart* @hart, %Nat32 2816)
+	%19 = call %Word32 @hart_getCsr(%hart_Hart* @hart, %Nat16 2816)
 	%20 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([13 x i8]* @.str5 to [0 x i8]*), %Word32 %19)
 	%21 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([13 x i8]* @.str6 to [0 x i8]*))
 	call void @hart_show_regs(%hart_Hart* @hart)

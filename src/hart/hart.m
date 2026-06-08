@@ -27,10 +27,6 @@ public type Hart = {
 }
 
 
-public func getCsr (hart: *Hart, regno: Nat32) -> Word32 {
-	return hart.csrs[regno]
-}
-
 public func interrupt (hart: *Hart, int_num: Word32) -> Unit {
 	// msb is set to 1 for interrupt, 0 for exception
 	hart.csrs[csr.mcause_regno] = 0x80000000 | int_num
@@ -608,20 +604,20 @@ func execSystem (hart: *Hart, instr: Word32) -> Unit {
 
 	if instr == instrECALL {
 		trace(hart.pc, "ecall\n")
-		printf("ECALL: hart #%d\n", hart.csrs[Nat32 csr.mhartid_regno])
+		printf("ECALL: hart #%d\n", getCsr(hart, csr.mhartid_regno))
 		//
 		//hart.irq = hart.irq | intSysCall
-		hart.csrs[csr.mip_regno] = 1
+		setCsr(hart, csr.mip_regno, 1)
 
 	} else if instr == instrMRET {
 		trace(hart.pc, "mret\n")
 		// Machine return from trap
-		let mepc = hart.csrs[Nat32 csr.mepc_regno]
-		let mcause = hart.csrs[Nat32 csr.mcause_regno]
-		let mtval = hart.csrs[Nat32 csr.mtval_regno]
+		let mepc = getCsr(hart, csr.mepc_regno)
+		let mcause = getCsr(hart, csr.mcause_regno)
+		let mtval = getCsr(hart, csr.mtval_regno)
 		printf(
 			"MRET: hart #%d, mepc=%08X, mcause=%08X, mtval=%08X\n"
-			hart.csrs[Nat32 csr.mhartid_regno]
+			getCsr(hart, csr.mhartid_regno)
 			mepc, mcause, mtval
 		)
 		// TODO: it will not works (!)
@@ -629,7 +625,7 @@ func execSystem (hart: *Hart, instr: Word32) -> Unit {
 
 	} else if instr == instrEBREAK {
 		trace(hart.pc, "ebreak\n")
-		printf("EBREAK: hart #%d\n", hart.csrs[Nat32 csr.mhartid_regno])
+		printf("EBREAK: hart #%d\n", getCsr(hart, csr.mhartid_regno))
 		hart.end = true
 
 	// CSR instructions
@@ -665,14 +661,23 @@ func execFence (hart: *Hart, instr: Word32) -> Unit {
 
 
 
+public func getCsr (hart: *Hart, csrno: Nat16) -> Word32 {
+	return hart.csrs[csrno]
+}
+
+public func setCsr (hart: *Hart, csrno: Nat16, value: Word32) -> Unit {
+	hart.csrs[csrno] = value
+}
+
+
 /*
 The CSRRW (Atomic Read/Write CSR) instruction atomically swaps values in the CSRs and integer registers. CSRRW reads the old value of the CSR, zero-extends the value to XLEN bits, then writes it to integer register rd. The initial value in rs1 is written to the CSR. If rd=x0, then the instruction shall not read the CSR and shall not cause any of the side effects that might occur on a CSR read.
 */
 func csr_rw (hart: *Hart, csr: Nat16, rd: Nat8, rs1: Nat8) -> Unit {
 	//printf("CSR_RW(csr=0x%X, rd=r%d, rs1=r%d)\n", csr, rd, rs1)
 	let nv = hart.regs[rs1]
-	hart.regs[rd] = hart.csrs[csr]
-	hart.csrs[csr] = nv
+	hart.regs[rd] = getCsr(hart, csr)
+	setCsr(hart, csr, nv)
 }
 
 
@@ -683,8 +688,8 @@ func csr_rs (hart: *Hart, csr: Nat16, rd: Nat8, rs1: Nat8) -> Unit {
 	// csrrs rd, csr, rs
 	//printf("CSR_RS(csr=0x%X, rd=r%d, rs1=r%d)\n", csr, rd, rs1)
 	let set = hart.regs[rs1]
-	hart.regs[rd] = hart.csrs[csr]
-	hart.csrs[csr] = hart.csrs[csr] | hart.regs[rs1]
+	hart.regs[rd] = getCsr(hart, csr)
+	setCsr(hart, csr, getCsr(hart, csr) | hart.regs[rs1])
 }
 
 
@@ -695,8 +700,8 @@ func csr_rc (hart: *Hart, csr: Nat16, rd: Nat8, rs1: Nat8) -> Unit {
 	// csrrc rd, csr, rs
 	//printf("CSR_RC(csr=0x%X, rd=r%d, rs1=r%d)\n", csr, rd, rs1)
 	let set = hart.regs[rs1]
-	hart.regs[rd] = hart.csrs[csr]
-	hart.csrs[csr] = hart.csrs[csr] & ~hart.regs[rs1]
+	hart.regs[rd] = getCsr(hart, csr)
+	setCsr(hart, csr, getCsr(hart, csr) & ~hart.regs[rs1])
 }
 
 
@@ -704,8 +709,8 @@ func csr_rc (hart: *Hart, csr: Nat16, rd: Nat8, rs1: Nat8) -> Unit {
 func csr_rwi (hart: *Hart, csr: Nat16, rd: Nat8, imm: Nat8) -> Unit {
 	let imm32 = Word32 imm
 	//printf("CSR_RWI(csr=0x%X, rd=r%d, imm=%0x%X)\n", csr, rd, imm32)
-	hart.regs[rd] = hart.csrs[csr]
-	hart.csrs[csr] = imm32
+	hart.regs[rd] = getCsr(hart, csr)
+	setCsr(hart, csr, imm32)
 }
 
 
@@ -713,8 +718,8 @@ func csr_rwi (hart: *Hart, csr: Nat16, rd: Nat8, imm: Nat8) -> Unit {
 func csr_rsi (hart: *Hart, csr: Nat16, rd: Nat8, imm: Nat8) -> Unit {
 	let imm32 = Word32 imm
 	//printf("CSR_RSI(csr=0x%X, rd=r%d, imm=%0x%X)\n", csr, rd, imm32)
-	hart.regs[rd] = hart.csrs[csr]
-	hart.csrs[csr] = hart.csrs[csr] | imm32
+	hart.regs[rd] = getCsr(hart, csr)
+	setCsr(hart, csr, getCsr(hart, csr) | imm32)
 }
 
 
@@ -722,8 +727,8 @@ func csr_rsi (hart: *Hart, csr: Nat16, rd: Nat8, imm: Nat8) -> Unit {
 func csr_rci (hart: *Hart, csr: Nat16, rd: Nat8, imm: Nat8) -> Unit {
 	let imm32 = Word32 imm
 	//printf("CSR_RCI(csr=0x%X, rd=r%d, imm=%0x%X)\n", csr, rd, imm32)
-	hart.regs[rd] = hart.csrs[csr]
-	hart.csrs[csr] = hart.csrs[csr] & ~imm32
+	hart.regs[rd] = getCsr(hart, csr)
+	setCsr(hart, csr, getCsr(hart, csr) & ~imm32)
 }
 
 

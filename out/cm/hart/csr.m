@@ -5,30 +5,30 @@ import "builtin"
 // see: https://five-embeddev.com/riscv-isa-manual/latest/priv-csrs.html
 //
 
-public const mstatus_adr = 0x300// Machine status register
-public const misa_adr = 0x301// ISA and extensions
-public const medeleg_adr = 0x302// Machine exception delegation register
-public const mideleg_adr = 0x303// Machine interrupt delegation register
-public const mie_adr = 0x304// Machine interrupt-enable register
-public const mtvec_adr = 0x305// Machine trap-handler base address
-public const mcounteren_adr = 0x306// Machine counter enable
+public const mstatus_regno = 0x300// Machine status register
+public const misa_regno = 0x301// ISA and extensions
+public const medeleg_regno = 0x302// Machine exception delegation register
+public const mideleg_regno = 0x303// Machine interrupt delegation register
+public const mie_regno = 0x304// Machine interrupt-enable register
+public const mtvec_regno = 0x305// Machine trap-handler base address
+public const mcounteren_regno = 0x306// Machine counter enable
 
-public const mscratch_adr = 0x340
-public const mepc_adr = 0x341
-public const mcause_adr = 0x342
-public const mtval_adr = 0x343
-public const mip_adr = 0x344
+public const mscratch_regno = 0x340
+public const mepc_regno = 0x341
+public const mcause_regno = 0x342
+public const mtval_regno = 0x343
+public const mip_regno = 0x344
 
-public const mcycle_adr = 0xB00
-public const minstret_adr = 0xB02
-public const mcycleh_adr = 0xB80
-public const minstreth_adr = 0xB82
+public const mcycle_regno = 0xB00
+public const minstret_regno = 0xB02
+public const mcycleh_regno = 0xB80
+public const minstreth_regno = 0xB82
 
-public const mvendorid_adr = 0xF11
-public const marchid_adr = 0xF12
-public const mimpid_adr = 0xF13
-public const mhartid_adr = 0xF14
-public const mconfigptr_adr = 0xF15
+public const mvendorid_regno = 0xF11
+public const marchid_regno = 0xF12
+public const mimpid_regno = 0xF13
+public const mhartid_regno = 0xF14
+public const mconfigptr_regno = 0xF15
 
 
 

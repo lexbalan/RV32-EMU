@@ -19,7 +19,6 @@ struct hart_hart {
 	bool end;
 	uint32_t csrs[4096];
 };
-uint32_t hart_getCsr(struct hart_hart *hart, uint32_t regno);
 void hart_interrupt(struct hart_hart *hart, uint32_t int_num);
 typedef struct hart_bus_interface hart_BusInterface;
 struct hart_bus_interface {
@@ -35,6 +34,8 @@ struct hart_bus_interface {
 #define HART_INT_MEM_VIOLATION 0x0B
 void hart_init(struct hart_hart *hart, uint32_t id, hart_BusInterface *bus);
 bool hart_cycle(struct hart_hart *hart);
+uint32_t hart_getCsr(struct hart_hart *hart, uint16_t csrno);
+void hart_setCsr(struct hart_hart *hart, uint16_t csrno, uint32_t value);
 void hart_show_regs(struct hart_hart *hart);
 #endif
 
