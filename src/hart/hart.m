@@ -23,9 +23,13 @@ public type Hart = {
 	bus: *BusInterface
 
 	end: Bool
-	public csrs: [4096]Word32
+	csrs: [4096]Word32
 }
 
+
+public func getCsr (hart: *Hart, regno: Nat32) -> Word32 {
+	return hart.csrs[regno]
+}
 
 public func interrupt (hart: *Hart, int_num: Word32) -> Unit {
 	// msb is set to 1 for interrupt, 0 for exception

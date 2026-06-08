@@ -47,7 +47,7 @@ func main () -> Int {
 	}
 
 	printf("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n")
-	printf("mcycle = %u\n", hart.csrs[Nat32 csr.mcycle_regno])
+	printf("mcycle = %u\n", rvHart.getCsr(&hart, csr.mcycle_regno))
 
 	printf("\nCore dump:\n")
 	rvHart.show_regs(&hart)

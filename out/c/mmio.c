@@ -3,7 +3,6 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include <string.h>
 #include <stdio.h>
 #define CONSOLE_MMIOADR 0x10
 #define CONSOLE_PUT_ADR (CONSOLE_MMIOADR + 0)
@@ -37,7 +36,7 @@ void mmio_write32(uint32_t adr, uint32_t value) {
 		putchar(value);
 		return;
 	} else if (adr == CONSOLE_PRINT_INT32_ADR) {
-		printf("%u", value);
+		printf("%d", value);
 		return;
 	} else if (adr == CONSOLE_PRINT_UINT32_ADR) {
 		printf("%u", value);
@@ -46,7 +45,7 @@ void mmio_write32(uint32_t adr, uint32_t value) {
 		printf("%x", value);
 		return;
 	} else if (adr == CONSOLE_PRINT_UINT32_HEX_ADR) {
-		printf("%ux", value);
+		printf("%x", value);
 		return;
 	}
 }

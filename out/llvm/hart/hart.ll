@@ -396,6 +396,14 @@ declare %Int32 @decode_expand20(%Word32 %val_20bit)
 	[4096 x %Word32]
 };
 
+define %Word32 @hart_getCsr(%hart_Hart* %hart, %Nat32 %regno) {
+	%1 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 4
+	%2 = bitcast %Nat32 %regno to %Nat32
+	%3 = getelementptr [4096 x %Word32], [4096 x %Word32]* %1, %Int32 0, %Nat32 %2
+	%4 = load %Word32, %Word32* %3
+	ret %Word32 %4
+}
+
 define void @hart_interrupt(%hart_Hart* %hart, %Word32 %int_num) {
 	%1 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 4
 	%2 = getelementptr [4096 x %Word32], [4096 x %Word32]* %1, %Int32 0, %Int32 834

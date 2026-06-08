@@ -2,14 +2,13 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include "bus.h"
 #include "hart.h"
 #include "csr.h"
 #define TEXT_FILENAME "./image.bin"
-static hart_Hart hart;
+static struct hart_hart hart;
 
 int main(void) {
 	printf("RISC-V VM\n");
@@ -23,11 +22,19 @@ int main(void) {
 	};
 	hart_init(&hart, 0, &busctl);
 	printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n");
-	while (!hart.end) {
-		hart_cycle(&hart);
+	uint32_t timer_cnt = 0;
+	while (true) {
+		if (!hart_cycle(&hart)) {
+			break;
+		}
+		timer_cnt = timer_cnt + 1;
+		if (timer_cnt == 1000) {
+			timer_cnt = 0;
+			hart_interrupt(&hart, HART_INT_SYS_TIMER);
+		}
 	}
 	printf("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
-	printf("mcycle = %u\n", hart.csrs[(uint32_t)CSR_MCYCLE_ADR]);
+	printf("mcycle = %u\n", hart_getCsr(&hart, CSR_MCYCLE_REGNO));
 	printf("\nCore dump:\n");
 	hart_show_regs(&hart);
 	printf("\n");
