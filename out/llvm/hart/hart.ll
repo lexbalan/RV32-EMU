@@ -463,10 +463,10 @@ then_0:
 	call void @hart_setCsr(%hart_Hart* %hart, %Nat16 834, %Word32 %12)
 	%13 = zext i8 0 to %Word32
 	call void @hart_setCsr(%hart_Hart* %hart, %Nat16 835, %Word32 %13)
-	%14 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
-	store %Nat32 %8, %Nat32* %14
-	%15 = zext i8 0 to %Word32
-	call void @hart_setCsr(%hart_Hart* %hart, %Nat16 836, %Word32 %15)
+	%14 = zext i8 0 to %Word32
+	call void @hart_setCsr(%hart_Hart* %hart, %Nat16 836, %Word32 %14)
+	%15 = getelementptr %hart_Hart, %hart_Hart* %hart, %Int32 0, %Int32 1
+	store %Nat32 %8, %Nat32* %15
 	br label %endif_0
 endif_0:
 	%16 = call %Word32 @fetch(%hart_Hart* %hart)

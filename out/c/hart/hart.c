@@ -71,8 +71,8 @@ bool hart_cycle(struct hart_hart *hart) {
 		hart_setCsr(hart, CSR_MEPC_REGNO, hart->pc);
 		hart_setCsr(hart, CSR_MCAUSE_REGNO, 0x0);
 		hart_setCsr(hart, CSR_MTVAL_REGNO, 0x0);
-		hart->pc = adr;
 		hart_setCsr(hart, CSR_MIP_REGNO, 0x0);
+		hart->pc = adr;
 	}
 	const uint32_t instr = fetch(hart);
 	exec(hart, instr);

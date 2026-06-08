@@ -102,9 +102,8 @@ public func cycle (hart: *Hart) -> Bool {
 		setCsr(hart, csr.mepc_regno, Word32 hart.pc)
 		setCsr(hart, csr.mcause_regno, 0)
 		setCsr(hart, csr.mtval_regno, 0)
-		hart.pc = adr
-
 		setCsr(hart, csr.mip_regno, 0)
+		hart.pc = adr
 	}
 
 	let instr: Word32 = fetch(hart)

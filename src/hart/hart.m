@@ -103,13 +103,11 @@ public func cycle (hart: *Hart) -> Bool {
 		trace(hart.pc, "\nmcause #%02X\n", getCsr(hart, csr.mcause_regno))
 		let adr = Nat32 getCsr(hart, csr.mtvec_regno)
 		//printf("ADR = %08X\n", adr)
-		//let vect_offset = Nat32 hart.irq * 4
 		setCsr(hart, csr.mepc_regno, Word32 hart.pc)
 		setCsr(hart, csr.mcause_regno, 0)  // interrupt cause
 		setCsr(hart, csr.mtval_regno, 0)   // interrupt value (address, etc.)
-		hart.pc = adr
-
 		setCsr(hart, csr.mip_regno, 0)
+		hart.pc = adr
 	}
 
 	let instr = fetch(hart)
