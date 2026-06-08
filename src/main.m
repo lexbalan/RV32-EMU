@@ -42,12 +42,12 @@ func main () -> Int {
 		if timer_cnt == 1000 {
 			timer_cnt = 0
 			//printf("Timer interrupt generated\n")
-			hart.irq = hart.irq | rvHart.intSysTimer
+			rvHart.interrupt(&hart, rvHart.intSysTimer)
 		}
 	}
 
 	printf("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n")
-	printf("mcycle = %u\n", hart.csrs[Nat32 csr.mcycle_adr])
+	printf("mcycle = %u\n", hart.csrs[Nat32 csr.mcycle_regno])
 
 	printf("\nCore dump:\n")
 	rvHart.show_regs(&hart)

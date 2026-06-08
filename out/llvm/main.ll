@@ -344,11 +344,11 @@ declare %Int32 @decode_expand20(%Word32 %val_20bit)
 	[32 x %Word32],
 	%Nat32,
 	%hart_BusInterface*,
-	%Word32,
 	%Bool,
 	[4096 x %Word32]
 };
 
+declare void @hart_interrupt(%hart_Hart* %hart, %Word32 %int_num)
 %hart_BusInterface = type {
 	%Word32 (%Nat32, %Nat8)*,
 	void (%Nat32, %Word32, %Nat8)*
@@ -411,25 +411,21 @@ endif_1:
 	br %Bool %16 , label %then_2, label %endif_2
 then_2:
 	store %Nat32 0, %Nat32* %9
-	%17 = getelementptr %hart_Hart, %hart_Hart* @hart, %Int32 0, %Int32 3
-	%18 = getelementptr %hart_Hart, %hart_Hart* @hart, %Int32 0, %Int32 3
-	%19 = zext i8 1 to %Word32
-	%20 = load %Word32, %Word32* %18
-	%21 = or %Word32 %20, %19
-	store %Word32 %21, %Word32* %17
+	%17 = zext i8 1 to %Word32
+	call void @hart_interrupt(%hart_Hart* @hart, %Word32 %17)
 	br label %endif_2
 endif_2:
 	br label %again_1
 break_1:
-	%22 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([82 x i8]* @.str4 to [0 x i8]*))
-	%23 = getelementptr %hart_Hart, %hart_Hart* @hart, %Int32 0, %Int32 5
-	%24 = bitcast %Nat32 2816 to %Nat32
-	%25 = getelementptr [4096 x %Word32], [4096 x %Word32]* %23, %Int32 0, %Nat32 %24
-	%26 = load %Word32, %Word32* %25
-	%27 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([13 x i8]* @.str5 to [0 x i8]*), %Word32 %26)
-	%28 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([13 x i8]* @.str6 to [0 x i8]*))
+	%18 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([82 x i8]* @.str4 to [0 x i8]*))
+	%19 = getelementptr %hart_Hart, %hart_Hart* @hart, %Int32 0, %Int32 4
+	%20 = bitcast %Nat32 2816 to %Nat32
+	%21 = getelementptr [4096 x %Word32], [4096 x %Word32]* %19, %Int32 0, %Nat32 %20
+	%22 = load %Word32, %Word32* %21
+	%23 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([13 x i8]* @.str5 to [0 x i8]*), %Word32 %22)
+	%24 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([13 x i8]* @.str6 to [0 x i8]*))
 	call void @hart_show_regs(%hart_Hart* @hart)
-	%29 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([2 x i8]* @.str7 to [0 x i8]*))
+	%25 = call %Int (%ConstCharStr*, ...) @printf(%ConstCharStr* bitcast ([2 x i8]* @.str7 to [0 x i8]*))
 	call void @bus_show_ram()
 	ret %Int 0
 }

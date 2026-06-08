@@ -21,9 +21,19 @@ public type Hart = {
 	regs: [32]Word32
 	pc: Nat32
 	bus: *BusInterface
-	public irq: Word32
+
 	end: Bool
 	public csrs: [4096]Word32
+}
+
+
+public func interrupt (hart: *Hart, int_num: Word32) -> Unit {
+	// msb is set to 1 for interrupt, 0 for exception
+	hart.csrs[csr.mcause_regno] = 0x80000000 | int_num
+	hart.csrs[csr.mip_regno] = 1
+	hart.csrs[csr.mtval_regno] = 0
+	// set mstatus.mie = 0
+	//hart.csrs[csr.mstatus_regno] = hart.csrs[csr.mstatus_regno] | (0 << 3)  // set MIE = 1
 }
 
 
@@ -69,12 +79,11 @@ public const intMemViolation = 0x0B
 
 public func init (hart: *Hart, id: Nat32, bus: *BusInterface) -> Unit {
 	printf("hart #%d init\n", id)
-	hart.csrs[csr.mhartid_adr] = Word32 id
-	hart.csrs[csr.misa_adr] = csr.misa_xlen_32 | csr.misa_i | csr.misa_m
+	hart.csrs[csr.mhartid_regno] = Word32 id
+	hart.csrs[csr.misa_regno] = csr.misa_xlen_32 | csr.misa_i | csr.misa_m
 	hart.regs = []
 	hart.pc = 0
 	hart.bus = bus
-	hart.irq = 0x0
 	hart.end = false
 }
 
@@ -86,25 +95,24 @@ func fetch (hart: *Hart) -> Word32 {
 
 
 public func cycle (hart: *Hart) -> Bool {
-	if hart.irq != 0 {
-		trace(hart.pc, "\nINT #%02X\n", hart.irq)
-		let adr = Nat32 hart.csrs[csr.mtvec_adr]
+	if hart.csrs[csr.mip_regno] != 0 {
+		trace(hart.pc, "\nmcause #%02X\n", hart.csrs[csr.mcause_regno])
+		let adr = Nat32 hart.csrs[csr.mtvec_regno]
 		//printf("ADR = %08X\n", adr)
 		//let vect_offset = Nat32 hart.irq * 4
-		hart.csrs[csr.mepc_adr] = Word32 hart.pc
-		hart.csrs[csr.mcause_adr] = 0  // interrupt cause
-		hart.csrs[csr.mtval_adr] = 0   // interrupt value (address, etc.)
+		hart.csrs[csr.mepc_regno] = Word32 hart.pc
+		hart.csrs[csr.mcause_regno] = 0  // interrupt cause
+		hart.csrs[csr.mtval_regno] = 0   // interrupt value (address, etc.)
 		hart.pc = adr
 
-		hart.irq = 0
-		//return false
+		hart.csrs[csr.mip_regno] = 0
 	}
 
 	let instr = fetch(hart)
 	exec(hart, instr)
 
 	// count mcycle
-	let mc = unsafe *Nat32 &hart.csrs[csr.mcycle_adr]
+	let mc = unsafe *Nat32 &hart.csrs[csr.mcycle_regno]
 	++*mc
 
 	return not hart.end
@@ -596,19 +604,20 @@ func execSystem (hart: *Hart, instr: Word32) -> Unit {
 
 	if instr == instrECALL {
 		trace(hart.pc, "ecall\n")
-		printf("ECALL: hart #%d\n", hart.csrs[Nat32 csr.mhartid_adr])
+		printf("ECALL: hart #%d\n", hart.csrs[Nat32 csr.mhartid_regno])
 		//
-		hart.irq = hart.irq | intSysCall
+		//hart.irq = hart.irq | intSysCall
+		hart.csrs[csr.mip_regno] = 1
 
 	} else if instr == instrMRET {
 		trace(hart.pc, "mret\n")
 		// Machine return from trap
-		let mepc = hart.csrs[Nat32 csr.mepc_adr]
-		let mcause = hart.csrs[Nat32 csr.mcause_adr]
-		let mtval = hart.csrs[Nat32 csr.mtval_adr]
+		let mepc = hart.csrs[Nat32 csr.mepc_regno]
+		let mcause = hart.csrs[Nat32 csr.mcause_regno]
+		let mtval = hart.csrs[Nat32 csr.mtval_regno]
 		printf(
 			"MRET: hart #%d, mepc=%08X, mcause=%08X, mtval=%08X\n"
-			hart.csrs[Nat32 csr.mhartid_adr]
+			hart.csrs[Nat32 csr.mhartid_regno]
 			mepc, mcause, mtval
 		)
 		// TODO: it will not works (!)
@@ -616,7 +625,7 @@ func execSystem (hart: *Hart, instr: Word32) -> Unit {
 
 	} else if instr == instrEBREAK {
 		trace(hart.pc, "ebreak\n")
-		printf("EBREAK: hart #%d\n", hart.csrs[Nat32 csr.mhartid_adr])
+		printf("EBREAK: hart #%d\n", hart.csrs[Nat32 csr.mhartid_regno])
 		hart.end = true
 
 	// CSR instructions
